@@ -103,7 +103,7 @@ case $(hostname -f) in
   login01.expanse.sdsc.edu) MACHINE_ID=expanse ;; ### expanse1
   login02.expanse.sdsc.edu) MACHINE_ID=expanse ;; ### expanse2
 esac
-
+MACHINE_ID="singularity"
 # Overwrite auto-detect with RT_MACHINE if set
 MACHINE_ID=${RT_MACHINE:-${MACHINE_ID}}
 
