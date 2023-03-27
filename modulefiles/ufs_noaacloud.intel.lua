@@ -3,14 +3,14 @@ loads UFS Model prerequisites for noaacloud/intel
 ]])
 
 
-prepend_path("MODULEPATH", "/contrib/Cameron.Book/sw/spack-stack-1.2.0/envs/unified-env-2/install/modulefiles/Core")
+prepend_path("MODULEPATH", "/contrib/EPIC/spack-stack/spack-stack-1.3.0/envs/unified-dev/install/modulefiles/Core")
 
 load("stack-intel")
 load("stack-intel-oneapi-mpi")
-load("stack-python")
-load("cmake/3.22.1")
+load("ufs-weather-model-env/unified-dev")
+load("w3emc")
 
-load("ufs_common_spack")
+--load("ufs_common_spack")
 
 setenv("CC", "mpiicc")
 setenv("CXX", "mpiicpc")

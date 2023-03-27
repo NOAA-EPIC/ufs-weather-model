@@ -105,7 +105,7 @@ case $(hostname -f) in
   
   mgmt-cameronbook-pclusternoaav2use1-00030.pw-noaa-us-east-1.pw.local) MACHINE_ID=pw-aws ;; ## parallelworks aws
 esac
-
+MACHINE_ID=pw-aws
 # Set any pw instance to "noaacloud" (temporary)
 [[ ${MACHINE_ID} =~ "pw-aws" || ${MACHINE_ID} =~ "pw-gcp" || ${MACHINE_ID} =~ "pw-azure" ]] && MACHINE_ID=noaacloud
 
