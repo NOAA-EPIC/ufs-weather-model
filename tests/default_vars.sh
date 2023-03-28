@@ -122,7 +122,7 @@ elif [[ $MACHINE_ID = hera.* ]]; then
 
 elif [[ $MACHINE_ID = noaacloud.* ]]; then
 
-  TPN=36
+  TPN=44
 
   INPES_dflt=3 ; JNPES_dflt=8
   INPES_thrd=3 ; JNPES_thrd=4
