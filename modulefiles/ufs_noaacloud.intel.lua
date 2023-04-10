@@ -7,8 +7,8 @@ prepend_path("MODULEPATH", "/contrib/Cameron.Book/sw/spack-stack-1.2.0/envs/unif
 
 load("stack-intel")
 load("stack-intel-oneapi-mpi")
-load("stack-python")
-load("cmake/3.22.1")
+--load("stack-python")
+load("cmake")
 
 load("ufs_common_spack")
 

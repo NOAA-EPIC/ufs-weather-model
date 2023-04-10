@@ -86,7 +86,8 @@ cd $RUNDIR
 ###############################################################################
 MACHINE_ID=${MACHINE_ID:-false}
 # FV3 executable:
-cp ${PATHRT}/fv3_${COMPILE_NR}.exe                 fv3.exe
+#cp ${PATHRT}/fv3_${COMPILE_NR}.exe                 fv3.exe
+ln -s ${PATHRT}/../run_container_executable.sh      fv3_${COMPILE_NR}.exe               
 
 # modulefile for FV3 prerequisites:
 if [[ $MACHINE_ID == gaea.* ]] || [[ $MACHINE_ID == linux.* ]]; then

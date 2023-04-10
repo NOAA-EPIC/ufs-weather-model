@@ -15,7 +15,7 @@ hdf5_ver=os.getenv("hdf5_ver") or "1.14.0"
 load(pathJoin("hdf5", hdf5_ver))
 
 netcdf_ver=os.getenv("netcdf_ver") or "4.9.0"
-load(pathJoin("netcdf-c", netcdf_ver))
+load("netcdf-c")
 load(pathJoin("netcdf-fortran", "4.6.0"))
 
 pio_ver=os.getenv("pio_ver") or "2.5.9"
@@ -49,7 +49,7 @@ w3emc_ver=os.getenv("w3emc_ver") or "2.9.2"
 load(pathJoin("w3emc", w3emc_ver))
 
 gftl_shared_ver=os.getenv("gftl_shared_ver") or "v1.5.0"
-load(pathJoin("gftl-shared", gftl_shared_ver))
+load("gftl-shared")
 
 mapl_ver=os.getenv("mapl_ver") or "2.22.0-esmf-8.3.0b09"
 load(pathJoin("mapl", mapl_ver))
