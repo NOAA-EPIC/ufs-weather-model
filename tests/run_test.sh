@@ -258,6 +258,7 @@ if [[ $SCHEDULER = 'pbs' ]]; then
   atparse < $PATHRT/fv3_conf/fv3_qsub.IN > job_card
 elif [[ $SCHEDULER = 'slurm' ]]; then
   atparse < $PATHRT/fv3_conf/fv3_slurm.IN > job_card
+  sed -i "s/fv3.exe/fv3_${COMPILE_NR}.exe/g" job_card
 elif [[ $SCHEDULER = 'lsf' ]]; then
   atparse < $PATHRT/fv3_conf/fv3_bsub.IN > job_card
 fi
