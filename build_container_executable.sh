@@ -12,5 +12,5 @@ export SINGULARITYENV_LD_LIBRARY_PATH=/opt/spack-stack/envs/unified/install/inte
 cmd=$(basename "$0")
 arg="$@"
 echo running: singularity exec "${img}" $cmd $arg
-/usr/bin/singularity exec -B /scratch1 -B /scratch1 -B //apps "${img}" $cmd $arg
+/usr/bin/singularity exec -e -B /scratch1 -B /scratch1 -B //apps "${img}" $cmd $arg
 
