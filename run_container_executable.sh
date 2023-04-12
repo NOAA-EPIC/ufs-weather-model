@@ -2,6 +2,7 @@
 #set -x
 export img=/scratch1/NCEPDEV/nems/role.epic/containers/ubuntu20.04-intel-spack-unified.img
 export SINGULARITYENV_FI_PROVIDER=tcp
+export SINGULARITYENV_FI_PROVIDER_PATH=/opt/spack-stack/spack/opt/spack/linux-ubuntu20.04-skylake/gcc-9.4.0/intel-oneapi-mpi-2021.8.0-mwfbgmxe2rm3wd4uxwqmahnkwxnxf3yg/mpi/2021.8.0/libfabric/lib/prov:/usr/lib64/libfabric
 export SINGULARITYENV_CC=mpiicc
 export SINGULARITYENV_CXX=mpiicpc
 export SINGULARITYENV_FC=mpiifort
