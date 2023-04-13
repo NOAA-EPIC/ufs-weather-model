@@ -1,31 +1,13 @@
 help([[
-loads UFS Model prerequisites for Jet/Intel
+loads UFS Model prerequisites for Hera/Intel
 ]])
 
-prepend_path("MODULEPATH", "/contrib/sutils/modulefiles")
-load("sutils")
-
-cmake_ver=os.getenv("cmake_ver") or "3.20.1"
-load(pathJoin("cmake", cmake_ver))
-
-prepend_path("MODULEPATH", "/mnt/lfs4/HFIP/hfv3gfs/role.epic/miniconda3/modulefiles")
-miniconda3_ver=os.getenv("miniconda3_ver") or "4.12.0"
-load(pathJoin("miniconda3", miniconda3_ver))
 
 
-prepend_path("MODULEPATH", "/mnt/lfs4/HFIP/hfv3gfs/role.epic/hpc-stack/libs/intel-2022.1.2/modulefiles/stack")
+prepend_path("PATH", "/mnt/lfs4/HFIP/hfv3gfs/Mark.Potts/sandbox/ufs-weather-model/bin")
 
-hpc_ver=os.getenv("hpc_ver") or "1.2.0"
-load(pathJoin("hpc", hpc_ver))
-
-hpc_intel_ver=os.getenv("hpc_intel_ver") or "2022.1.2"
-load(pathJoin("hpc-intel", hpc_intel_ver))
-
-hpc_impi_ver=os.getenv("hpc_impi_ver") or "2022.1.2"
-load(pathJoin("hpc-impi", hpc_impi_ver))
-
-load("ufs_common")
-
+load("intel/2022.1.2")
+load("impi/2022.1.2")
 setenv("CC", "mpiicc")
 setenv("CXX", "mpiicpc")
 setenv("FC", "mpiifort")
