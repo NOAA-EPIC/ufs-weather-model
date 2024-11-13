@@ -10,9 +10,9 @@
 #    size=$3
 #    outfile=$4
 
-[[ -n ${WORKSPACE} ]] || WORKSPACE=$(pwd)
-[[ -n ${UFS_PLATFORM} ]] || UFS_PLATFORM=$(hostname -s 2>/dev/null) || UFS_PLATFORM=$(hostname 2>/dev/null)
-[[ -n ${UFS_COMPILER} ]] || UFS_COMPILER=compiler
+[[ -n ${WORKSPACE} ]] || WORKSPACE="$(pwd)"
+[[ -n ${UFS_PLATFORM} ]] || UFS_PLATFORM="$(hostname -s 2>/dev/null)" || UFS_PLATFORM="$(hostname 2>/dev/null)"
+[[ -n ${UFS_COMPILER} ]] || UFS_COMPILER="compiler"
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 
@@ -29,20 +29,20 @@ echo "STAGE_NAME=${STAGE_NAME}" # from pipeline
 outfile="${4:-${workspace}-${UFS_COMPILER}-disk-usage${STAGE_NAME}.csv}"
 
 function disk_usage() {
-    local directory=${1:-${PWD}}
-    local depth=${2:-1}
-    local size=${3:-k}
-    echo "Disk usage: ${JOB_NAME:-ci}/${UFS_PLATFORM}/$(basename $directory)"
+    local directory="${1:-${PWD}}"
+    local depth="${2:-1}"
+    local size="${3:-k}"
+    echo "Disk usage: ${JOB_NAME:-ci}/${UFS_PLATFORM}/$(basename ${directory})"
     (
-    cd $directory || exit 1
+    cd ${directory} || exit 1
     echo "Platform,Build,Owner,Group,Inodes,${size:-k}bytes,Access Time,Filename"
     du -Px -d ${depth:-1} --inode --exclude='./workspace' | \
         while read line ; do
-            arr=($line); inode=${arr[0]}; filename=${arr[1]};
-            echo "${UFS_PLATFORM}-${UFS_COMPILER:-compiler},${JOB_NAME:-ci}/${BUILD_NUMBER:-0},$(stat -c '%U,%G' $filename),${inode:-0},$(du -Px -s -${size:-k} --time $filename)" | tr '\t' ',' ;
+            arr="(${line})"; inode="${arr[0]}"; filename="${arr[1]}";
+            echo "${UFS_PLATFORM}-${UFS_COMPILER:-compiler},${JOB_NAME:-ci}/${BUILD_NUMBER:-0},$(stat -c '%U,%G' ${filename}),${inode:-0},$(du -Px -s -${size:-k} --time ${filename})" | tr '\t' ',' ;
         done | sort -t, -k5 -n #-r
     )
     echo ""
 }
 
-disk_usage $1 $2 $3 | tee ${outfile}
+disk_usage ${1} ${2} ${3} | tee ${outfile}
