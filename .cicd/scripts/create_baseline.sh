@@ -24,6 +24,14 @@ ls -al .cicd/*
 ls -al ${TESTS_DIR}/rt.sh
 
 function create_baseline() {
+	opt="-l"
+	suite="rt.conf"
+	[[ -n ${WM_OPERATIONAL_TESTS}                 ]] && opt="-n" && suite="${WM_OPERATIONAL_TESTS} ${UFS_COMPILER}" || return 0
+	[[    ${WM_OPERATIONAL_TESTS} = default       ]] && opt="-n" && suite="control_p8 ${UFS_COMPILER}"
+	[[    ${WM_OPERATIONAL_TESTS} = comprehensive ]] && opt="-l" && suite="rt.conf"
+	[[    ${WM_OPERATIONAL_TESTS} = rt.conf       ]] && opt="-l" && suite="rt.conf"
+	[[ ${suite} = rt.conf ]] && opt="-l"
+
                        git submodule update --init --recursive
                        pwd
 		       ls -al .cicd/*
@@ -37,14 +45,14 @@ function create_baseline() {
                           then
                             echo "Creating baselines on $machine"
                             export dprefix=/lfs1/NAGAPE/$ACCNR/$USER
-                            ./rt.sh -a ${ACCNR} -c -r -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                            ./rt.sh -a ${ACCNR} -c -r ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                           elif [[ $machine =~ "Hercules" ]]
                           then
                             echo "Creating baselines on $machine"
                             export dprefix=/work2/noaa/$ACCNR/$USER
                             sed "s|/noaa/stmp/|/noaa/$ACCNR/stmp/|g" -i rt.sh
                             export ACCNR=epic
-                            ./rt.sh -a ${ACCNR} -c -e -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                            ./rt.sh -a ${ACCNR} -c -e ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                             export DISKNM=/work/noaa/epic/hercules/UFS-WM_RT
 			    cd ${DISKNM}/NEMSfv3gfs/
 			    mkdir develop-${BL_DATE}
@@ -54,7 +62,7 @@ function create_baseline() {
                             ./adjust_permissions.sh hercules develop-${BL_DATE}
                             chgrp noaa-hpc develop-${BL_DATE}
 		            cd $WORKSPACE/tests
-                            ./rt.sh -a ${ACCNR} -e -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                            ./rt.sh -a ${ACCNR} -e ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 			    cd logs/
                             cp RegressionTests_hercules.log /work/noaa/epic/role-epic/jenkins/workspace
                             git remote -v
@@ -73,7 +81,7 @@ function create_baseline() {
                             export dprefix=/work2/noaa/$ACCNR/$USER
                             sed -i 's|/work/noaa/stmp/${USER}|/work/noaa/epic/stmp/role-epic/|g' rt.sh
 		            export ACCNR=epic
-                            ./rt.sh -a ${ACCNR} -c -e -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                            ./rt.sh -a ${ACCNR} -c -e ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                             export DISKNM=/work/noaa/epic/UFS-WM_RT
                             cd ${DISKNM}/NEMSfv3gfs/
                             mkdir develop-${BL_DATE}
@@ -83,7 +91,7 @@ function create_baseline() {
                             ./adjust_permissions.sh orion develop-${BL_DATE}
                             chgrp noaa-hpc develop-${BL_DATE}
 			    cd $WORKSPACE/tests
-                            ./rt.sh -a ${ACCNR} -e -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                            ./rt.sh -a ${ACCNR} -e ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                              cd logs/
                              cp RegressionTests_orion.log /work/noaa/epic/role-epic/jenkins/workspace
                              git remote -v
@@ -95,7 +103,7 @@ function create_baseline() {
                           elif [[ $machine =~ "Gaea" ]]
                           then 
                             echo "Creating baselines on $machine"
-                            ./rt.sh -a ${ACCNR} -c -e -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                            ./rt.sh -a ${ACCNR} -c -e ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                             unset LD_LIBRARY_PATH
                             export DISKNM=/gpfs/f5/epic/world-shared/UFS-WM_RT
                             cd ${DISKNM}/NEMSfv3gfs/
@@ -105,7 +113,7 @@ function create_baseline() {
                             cd ${DISKNM}/NEMSfv3gfs/
                             chgrp ncep develop-${BL_DATE}
 		            cd $WORKSPACE/tests
-                            ./rt.sh -a ${ACCNR} -e -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                            ./rt.sh -a ${ACCNR} -e ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 			    cd logs/
 			    cp RegressionTests_gaea.log /gpfs/f5/epic/scratch/role.epic/jenkins/workspace
 			    git remote -v
@@ -118,14 +126,14 @@ function create_baseline() {
                           then
                             echo "Creating baselines on $machine"
                             export ACCNR=epic
-                            ./rt.sh -a ${ACCNR} -c -r -l rt.conf
+                            ./rt.sh -a ${ACCNR} -c -r ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                             export DISKNM=/scratch2/NAGAPE/epic/UFS-WM_RT
 			    cd ${DISKNM}/NEMSfv3gfs/
 			    mkdir develop-${BL_DATE}
 			    cd  /scratch1/NCEPDEV/stmp4/role.epic/FV3_RT
 			    rsync -a REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE}
 			    cd $WORKSPACE/tests
-                            ./rt.sh -a ${ACCNR} -r -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                            ./rt.sh -a ${ACCNR} -r ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 			     cd logs/
 			     cp RegressionTests_hera.log /scratch2/NAGAPE/epic/role.epic/jenkins/workspace
 			     git remote -v
@@ -138,14 +146,14 @@ function create_baseline() {
                            then
                              echo "Creating baselines on $machine"
                              export ACCNR=nral0032
-                             ./rt.sh -a ${ACCNR} -c -e -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                             ./rt.sh -a ${ACCNR} -c -e ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                              export DISKNM=/glade/derecho/scratch/epicufsrt/ufs-weather-model/RT/
 			     cd ${DISKNM}/NEMSfv3gfs/
 			     mkdir develop-${BL_DATE}
 			     cd /glade/derecho/scratch/epicufsrt/FV3_RT
 			     rsync -a REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE}
 			     cd $WORKSPACE/tests
-                             ./rt.sh -a ${ACCNR} -e -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                             ./rt.sh -a ${ACCNR} -e ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 			     cd logs/
 			     cp RegressionTests_derecho.log /glade/derecho/scratch/epicufsrt/jenkins/workspace
 			     git remote -v
@@ -156,7 +164,7 @@ function create_baseline() {
                              cd $WORKSPACE/tests/
                           else
                             echo "Creating baselines on $machine"
-                            ./rt.sh -a ${ACCNR} -c -r -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                            ./rt.sh -a ${ACCNR} -c -r ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                           fi
                       echo "Testing concluded for $machine"
 }

@@ -24,6 +24,14 @@ ls -al .cicd/*
 ls -al ${TESTS_DIR}/rt.sh
 
 function regression_test() {
+	opt="-l"
+	suite="rt.conf"
+	[[ -n ${WM_OPERATIONAL_TESTS}                 ]] && opt="-n" && suite="${WM_OPERATIONAL_TESTS} ${UFS_COMPILER}" || return 0
+	[[    ${WM_OPERATIONAL_TESTS} = default       ]] && opt="-n" && suite="control_p8 ${UFS_COMPILER}"
+	[[    ${WM_OPERATIONAL_TESTS} = comprehensive ]] && opt="-l" && suite="rt.conf"
+	[[    ${WM_OPERATIONAL_TESTS} = rt.conf       ]] && opt="-l" && suite="rt.conf"
+	[[ ${suite} = rt.conf ]] && opt="-l"
+
                        git submodule update --init --recursive
                        pwd
 			ls -al .cicd/*
@@ -36,14 +44,14 @@ function regression_test() {
                           then
                            echo "Running regression tests on $machine"
                             export dprefix=/lfs1/NAGAPE/$ACCNR/$USER
-                            ./rt.sh -a ${ACCNR} -r -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                            ./rt.sh -a ${ACCNR} -r ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                           elif [[ $machine =~ "Hercules" ]]
                           then
                           echo "Running regression tests on $machine"
                             export dprefix=/work2/noaa/$ACCNR/$USER
                             sed "s|/noaa/stmp/|/noaa/$ACCNR/stmp/|g" -i rt.sh
                             export ACCNR=epic
-                            ./rt.sh -a ${ACCNR} -e -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                            ./rt.sh -a ${ACCNR} -e ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                             cd logs/
                             cp RegressionTests_hercules.log /work/noaa/epic/role-epic/jenkins/workspace
                             git remote -v
@@ -61,7 +69,7 @@ function regression_test() {
                             cd tests
                             export dprefix=/work2/noaa/$ACCNR/$USER
                             sed "s|/noaa/stmp/|/noaa/$ACCNR/stmp/|g" -i rt.sh
-                            ./rt.sh -a ${ACCNR} -e -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                            ./rt.sh -a ${ACCNR} -e ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                              cd logs/
                              cp RegressionTests_orion.log /work/noaa/epic/role-epic/jenkins/workspace
                              git remote -v
@@ -73,7 +81,7 @@ function regression_test() {
                           elif [[ $machine =~ "Gaea" ]]
                           then 
                            echo "Running regression tests on $machine"
-                            ./rt.sh -a ${ACCNR} -e -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                            ./rt.sh -a ${ACCNR} -e ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                             unset LD_LIBRARY_PATH
 			    cd logs/
 			    cp RegressionTests_gaea.log /gpfs/f5/epic/scratch/role.epic/jenkins/workspace
@@ -87,7 +95,7 @@ function regression_test() {
                           then
                            echo "Running regression tests on $machine"
                              export ACCNR=epic
-                             ./rt.sh -a ${ACCNR} -r -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                             ./rt.sh -a ${ACCNR} -r ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 			     cd logs/
 			     cp RegressionTests_hera.log /scratch2/NAGAPE/epic/role.epic/jenkins/workspace
 			     git remote -v
@@ -100,7 +108,7 @@ function regression_test() {
                           then
                            echo "Running regression tests on $machine"
                            export ACCNR=nral0032
-                           ./rt.sh -a ${ACCNR} -e -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                           ./rt.sh -a ${ACCNR} -e ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 			    cd logs/
 			    cp RegressionTests_derecho.log /glade/derecho/scratch/epicufsrt/jenkins/workspace
 			    git remote -v
@@ -111,7 +119,7 @@ function regression_test() {
                             cd $WORKSPACE/tests/
                           else
                            echo "Running regression tests on $machine"
-                           ./rt.sh -a ${ACCNR} -r -l rt.conf | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                           ./rt.sh -a ${ACCNR} -r ${opt} ${suite} | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                           fi
 
                       echo "Testing concluded for $machine"
