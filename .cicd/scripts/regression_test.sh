@@ -32,22 +32,23 @@ function regression_test() {
 	[[    ${WM_OPERATIONAL_TESTS} = rt.conf       ]] && opt="-l" && suite="rt.conf"
 	[[   "${suite}"               = rt.conf       ]] && opt="-l"
 
-                       git submodule update --init --recursive
-                       pwd
-			ls -al .cicd/*
-                       cd tests
+		git submodule update --init --recursive
+		pwd
+		ls -al .cicd/*
+		cd tests
 			pwd
-                       export machine=${NODE_NAME}
-                       export PATH=$PATH:~/bin
+			export machine=${NODE_NAME}
+			export PATH=$PATH:~/bin
 
-                          if [[ $machine =~ "Jet" ]] 
-                          then
-                           echo "Running regression tests on $machine"
+			mkdir -p logs/
+                        if [[ $machine =~ "Jet" ]] 
+                        then
+                            echo "Running regression tests on $machine"
                             export dprefix=/lfs1/NAGAPE/$ACCNR/$USER
                             ./rt.sh -a ${ACCNR} -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
-                          elif [[ $machine =~ "Hercules" ]]
-                          then
-                          echo "Running regression tests on $machine"
+                        elif [[ $machine =~ "Hercules" ]]
+                        then
+                            echo "Running regression tests on $machine"
                             export dprefix=/work2/noaa/$ACCNR/$USER
                             sed "s|/noaa/stmp/|/noaa/$ACCNR/stmp/|g" -i rt.sh
                             export ACCNR=epic
@@ -60,9 +61,9 @@ function regression_test() {
                             cd .. && cd .. && cd ..
                             cp RegressionTests_hercules.log $WORKSPACE/tests/logs/
                             cd $WORKSPACE/tests/
-                          elif [[ $machine =~ "Orion" ]]
-                          then
-                           echo "Running regression tests on $machine"
+                        elif [[ $machine =~ "Orion" ]]
+                        then
+                            echo "Running regression tests on $machine"
                             cd ..
                             module load git/2.28.0
                             git submodule update --init --recursive
@@ -70,17 +71,17 @@ function regression_test() {
                             export dprefix=/work2/noaa/$ACCNR/$USER
                             sed "s|/noaa/stmp/|/noaa/$ACCNR/stmp/|g" -i rt.sh
                             ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
-                             cd logs/
-                             cp RegressionTests_orion.log /work/noaa/epic/role-epic/jenkins/workspace
-                             git remote -v
-                             git fetch --no-recurse-submodules origin
-                             git reset FETCH_HEAD --hard
-                             cd .. && cd .. && cd ..
-			     cp RegressionTests_orion.log $WORKSPACE/tests/logs/
-			     cd $WORKSPACE/tests/
-                          elif [[ $machine =~ "Gaea" ]]
-                          then 
-                           echo "Running regression tests on $machine"
+                            cd logs/
+                            cp RegressionTests_orion.log /work/noaa/epic/role-epic/jenkins/workspace
+                            git remote -v
+                            git fetch --no-recurse-submodules origin
+                            git reset FETCH_HEAD --hard
+                            cd .. && cd .. && cd ..
+			    cp RegressionTests_orion.log $WORKSPACE/tests/logs/
+			    cd $WORKSPACE/tests/
+                        elif [[ $machine =~ "Gaea" ]]
+                        then 
+                            echo "Running regression tests on $machine"
                             ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                             unset LD_LIBRARY_PATH
 			    cd logs/
@@ -91,24 +92,24 @@ function regression_test() {
                             cd .. && cd .. && cd ..
 			    cp RegressionTests_gaea.log $WORKSPACE/tests/logs/
 			    cd $WORKSPACE/tests/
-                          elif [[ $machine =~ "Hera" ]]
-                          then
-                           echo "Running regression tests on $machine"
-                             export ACCNR=epic
-                             ./rt.sh -a ${ACCNR} -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
-			     cd logs/
-			     cp RegressionTests_hera.log /scratch2/NAGAPE/epic/role.epic/jenkins/workspace
-			     git remote -v
-                             git fetch --no-recurse-submodules origin
-                             git reset FETCH_HEAD --hard
-                             cd .. && cd .. && cd ..
-			     cp RegressionTests_hera.log $WORKSPACE/tests/logs/
-			     cd $WORKSPACE/tests/
-			  elif [[ $machine =~ "Derecho" ]]
-                          then
-                           echo "Running regression tests on $machine"
-                           export ACCNR=nral0032
-                           ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                        elif [[ $machine =~ "Hera" ]]
+                        then
+                            echo "Running regression tests on $machine"
+                            export ACCNR=epic
+                            ./rt.sh -a ${ACCNR} -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+			    cd logs/
+			    cp RegressionTests_hera.log /scratch2/NAGAPE/epic/role.epic/jenkins/workspace
+			    git remote -v
+                            git fetch --no-recurse-submodules origin
+                            git reset FETCH_HEAD --hard
+                            cd .. && cd .. && cd ..
+			    cp RegressionTests_hera.log $WORKSPACE/tests/logs/
+			    cd $WORKSPACE/tests/
+			elif [[ $machine =~ "Derecho" ]]
+                        then
+                            echo "Running regression tests on $machine"
+                            export ACCNR=nral0032
+                            ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 			    cd logs/
 			    cp RegressionTests_derecho.log /glade/derecho/scratch/epicufsrt/jenkins/workspace
 			    git remote -v
@@ -117,20 +118,20 @@ function regression_test() {
                             cd .. && cd .. && cd ..
                             cp RegressionTests_derecho.log $WORKSPACE/tests/logs/
                             cd $WORKSPACE/tests/
-                          else
-                           echo "Running regression tests on $machine"
-                           ./rt.sh -a ${ACCNR} -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
-                          fi
+                        else
+                            echo "Running regression tests on $machine"
+                            ./rt.sh -a ${ACCNR} -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+                        fi
 
                       echo "Testing concluded for $machine"
 }
 
 function post_test() {
                       echo "Testing concluded...removing labels for $machine from $GIT_URL"
-                       echo $CHANGE_ID
-                       export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
-                       export FORK_BRANCH=$(curl --silent https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/$CHANGE_ID | jq -r '.head.ref')
-echo "GIT_URL=${GIT_URL}"
+                      echo $CHANGE_ID
+                      export SSH_ORIGIN=$(curl --silent https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/$CHANGE_ID | jq -r '.head.repo.ssh_url')
+                      export FORK_BRANCH=$(curl --silent https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/$CHANGE_ID | jq -r '.head.ref')
+		      echo "GIT_URL=${GIT_URL}"
                       git config user.email "ecc.platform@noaa.gov"
                       git config user.name "epic-cicd-jenkins"
                       export machine_name_logs=$(echo $machine | awk '{ print tolower($1) }')
