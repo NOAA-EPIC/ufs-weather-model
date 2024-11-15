@@ -26,7 +26,7 @@ ls -al ${TESTS_DIR}/rt.sh
 function regression_test() {
 	export machine=${NODE_NAME}
 	export PATH=$PATH:~/bin
-	local WORKSPACE="$(pwd)/${machine}"
+	local WORKSPACE="$(pwd)"
 
 	opt="-l"
 	suite="rt.conf"
