@@ -24,6 +24,10 @@ ls -al .cicd/*
 ls -al ${TESTS_DIR}/rt.sh
 
 function regression_test() {
+	export machine=${NODE_NAME}
+	export PATH=$PATH:~/bin
+	local WORKSPACE="$(pwd)/${machine}"
+
 	opt="-l"
 	suite="rt.conf"
 	[[ -n ${WM_OPERATIONAL_TESTS}                 ]] && opt="-n" && suite="${WM_OPERATIONAL_TESTS} ${UFS_COMPILER}" || return 0
@@ -37,8 +41,6 @@ function regression_test() {
 		ls -al .cicd/*
 		cd tests
 			pwd
-			export machine=${NODE_NAME}
-			export PATH=$PATH:~/bin
 
 			mkdir -p logs/
                         if [[ $machine =~ "Jet" ]] 
