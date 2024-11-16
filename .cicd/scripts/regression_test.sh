@@ -56,12 +56,13 @@ function regression_test() {
                             export ACCNR=epic
                             ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                             cd logs/
-                            cp RegressionTests_hercules.log /work/noaa/epic/role-epic/jenkins/workspace
+                            cp RegressionTests_hercules.log $(dirname $WORKSPACE) #/work/noaa/epic/role-epic/jenkins/workspace
                             git remote -v
                             git fetch --no-recurse-submodules origin
                             git reset FETCH_HEAD --hard
                             cd .. && cd .. && cd ..
-                            cp RegressionTests_hercules.log $WORKSPACE/tests/logs/
+			    pwd
+                            cp $(dirname $WORKSPACE)/RegressionTests_hercules.log $WORKSPACE/tests/logs/
                             cd $WORKSPACE/tests/
                         elif [[ $machine =~ "Orion" ]]
                         then
@@ -74,12 +75,13 @@ function regression_test() {
                             sed "s|/noaa/stmp/|/noaa/$ACCNR/stmp/|g" -i rt.sh
                             ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                             cd logs/
-                            cp RegressionTests_orion.log /work/noaa/epic/role-epic/jenkins/workspace
+                            cp RegressionTests_orion.log $(dirname $WORKSPACE) #/work/noaa/epic/role-epic/jenkins/workspace
                             git remote -v
                             git fetch --no-recurse-submodules origin
                             git reset FETCH_HEAD --hard
                             cd .. && cd .. && cd ..
-			    cp RegressionTests_orion.log $WORKSPACE/tests/logs/
+			    pwd
+			    cp $(dirname $WORKSPACE)/RegressionTests_orion.log $WORKSPACE/tests/logs/
 			    cd $WORKSPACE/tests/
                         elif [[ $machine =~ "Gaea" ]]
                         then 
@@ -87,12 +89,13 @@ function regression_test() {
                             ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
                             unset LD_LIBRARY_PATH
 			    cd logs/
-			    cp RegressionTests_gaea.log /gpfs/f5/epic/scratch/role.epic/jenkins/workspace
+			    cp RegressionTests_gaea.log $(dirname $WORKSPACE) #/gpfs/f5/epic/scratch/role.epic/jenkins/workspace
 			    git remote -v
                             git fetch --no-recurse-submodules origin
                             git reset FETCH_HEAD --hard
                             cd .. && cd .. && cd ..
-			    cp RegressionTests_gaea.log $WORKSPACE/tests/logs/
+			    pwd
+			    cp $(dirname $WORKSPACE)/RegressionTests_gaea.log $WORKSPACE/tests/logs/
 			    cd $WORKSPACE/tests/
                         elif [[ $machine =~ "Hera" ]]
                         then
@@ -100,12 +103,13 @@ function regression_test() {
                             export ACCNR=epic
                             ./rt.sh -a ${ACCNR} -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 			    cd logs/
-			    cp RegressionTests_hera.log /scratch2/NAGAPE/epic/role.epic/jenkins/workspace
+			    cp RegressionTests_hera.log $(dirname $WORKSPACE) #/scratch2/NAGAPE/epic/role.epic/jenkins/workspace
 			    git remote -v
                             git fetch --no-recurse-submodules origin
                             git reset FETCH_HEAD --hard
                             cd .. && cd .. && cd ..
-			    cp RegressionTests_hera.log $WORKSPACE/tests/logs/
+			    pwd
+			    cp $(dirname $WORKSPACE)/RegressionTests_hera.log $WORKSPACE/tests/logs/
 			    cd $WORKSPACE/tests/
 			elif [[ $machine =~ "Derecho" ]]
                         then
@@ -113,12 +117,13 @@ function regression_test() {
                             export ACCNR=nral0032
                             ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 			    cd logs/
-			    cp RegressionTests_derecho.log /glade/derecho/scratch/epicufsrt/jenkins/workspace
+			    cp RegressionTests_derecho.log $(dirname $WORKSPACE) #/glade/derecho/scratch/epicufsrt/jenkins/workspace
 			    git remote -v
                             git fetch --no-recurse-submodules origin
                             git reset FETCH_HEAD --hard
                             cd .. && cd .. && cd ..
-                            cp RegressionTests_derecho.log $WORKSPACE/tests/logs/
+			    pwd
+                            cp $(dirname $WORKSPACE)/RegressionTests_derecho.log $WORKSPACE/tests/logs/
                             cd $WORKSPACE/tests/
                         else
                             echo "Running regression tests on $machine"
