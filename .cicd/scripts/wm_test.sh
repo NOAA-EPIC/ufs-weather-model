@@ -27,6 +27,7 @@ echo "UFS_PLATFORM=<${UFS_PLATFORM}>"
 echo "UFS_COMPILER=<${UFS_COMPILER}>"
 echo "WM_REGRESSION_TESTS=<${WM_REGRESSION_TESTS}>"
 echo "WM_OPERATIONAL_TESTS=<${WM_OPERATIONAL_TESTS}>"
+echo "WM_CREATE_BASELINE=<${WM_CREATE_BASELINE}>"
 export workspace=$(pwd)
 machine=${NODE_NAME}
 echo "machine=<${machine}>"
@@ -57,8 +58,8 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 
 	set +x
 	if [[ ${UFS_PLATFORM} = orion ]] ; then
-		git --version
 		#module --ignore_cache load git/2.28.0
+		git --version
 		git submodule update --init --recursive
 	fi
 

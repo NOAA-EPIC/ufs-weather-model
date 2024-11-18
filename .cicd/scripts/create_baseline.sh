@@ -88,7 +88,8 @@ function create_baseline() {
 		elif [[ $machine =~ "Orion" ]]
 		then
 		    cd ..
-		    module load git/2.28.0
+		    #module load git/2.28.0
+			git --version
 		    git submodule update --init --recursive
 		    cd tests
 		    echo "Creating baselines on $machine"

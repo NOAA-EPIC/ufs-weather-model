@@ -79,7 +79,8 @@ function regression_test() {
 		then
 		    echo "Running regression tests on $machine"
 		    cd ..
-		    module load git/2.28.0
+		    #module load git/2.28.0
+			git --version
 		    git submodule update --init --recursive
 		    cd tests
 		    export dprefix=/work2/noaa/$ACCNR/$USER
