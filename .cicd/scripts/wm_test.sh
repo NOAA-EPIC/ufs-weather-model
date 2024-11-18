@@ -43,15 +43,12 @@ status=0
 export LMOD_SH_DBG_ON=0
 echo "LMOD_VERSION=${LMOD_VERSION}"
 
-/usr/bin/time -p \
-	-o ${WORKSPACE}/${UFS_PLATFORM}-${UFS_COMPILER}-time-wm_test.json \
-	-f '{\n  "cpu": "%P"\n, "memMax": "%M"\n, "mem": {"text": "%X", "data": "%D", "swaps": "%W", "context": "%c", "waits": "%w"}\n, "pagefaults": {"major": "%F", "minor": "%R"}\n, "filesystem": {"inputs": "%I", "outputs": "%O"}\n, "time": {"real": "%e", "user": "%U", "sys": "%S"}\n}' \
 ls -l build/ufs_model
 status=$?
 
 #[[ ${UFS_PLATFORM} == jet         ]] && WM_REGRESSION_TESTS=false   # takes too long
 #[[ ${UFS_PLATFORM} == derecho     ]] && WM_REGRESSION_TESTS=false
-#[[ ${UFS_PLATFORM} =~ clusternoaa ]] && WM_REGRESSION_TESTS=false
+[[ ${UFS_PLATFORM} =~ clusternoaa ]] && WM_REGRESSION_TESTS=false || :
 
 rm -f ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
