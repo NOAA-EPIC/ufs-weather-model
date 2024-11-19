@@ -68,7 +68,7 @@ function create_baseline() {
 		    ./rt.sh -a ${ACCNR} -c -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    export DISKNM=/work/noaa/epic/hercules/UFS-WM_RT
 		    cd ${DISKNM}/NEMSfv3gfs/
-		    mkdir develop-${BL_DATE}
+		    mkdir -p develop-${BL_DATE}
 		    cd /work2/noaa/epic/stmp/role-epic/stmp/role-epic/FV3_RT
 		    rsync -a REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE}
 		    cd ${DISKNM}/NEMSfv3gfs/
@@ -99,7 +99,7 @@ function create_baseline() {
 		    ./rt.sh -a ${ACCNR} -c -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    export DISKNM=/work/noaa/epic/UFS-WM_RT
 		    cd ${DISKNM}/NEMSfv3gfs/
-		    mkdir develop-${BL_DATE}
+		    mkdir -p develop-${BL_DATE}
 		    cd  /work/noaa/epic/stmp/role-epic/stmp/role-epic/FV3_RT/
 		    rsync -a REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE}
 		    cd ${DISKNM}/NEMSfv3gfs/
@@ -123,7 +123,7 @@ function create_baseline() {
 		    unset LD_LIBRARY_PATH
 		    export DISKNM=/gpfs/f5/epic/world-shared/UFS-WM_RT
 		    cd ${DISKNM}/NEMSfv3gfs/
-		    mkdir develop-${BL_DATE}
+		    mkdir -p develop-${BL_DATE}
 		    cd /gpfs/f5/epic/scratch/role.epic/FV3_RT
 		    rsync -a REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE}
 		    cd ${DISKNM}/NEMSfv3gfs/
@@ -147,7 +147,7 @@ function create_baseline() {
 		    ./rt.sh -a ${ACCNR} -c -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    export DISKNM=/scratch2/NAGAPE/epic/UFS-WM_RT
 		    cd ${DISKNM}/NEMSfv3gfs/
-		    mkdir develop-${BL_DATE}
+		    mkdir -p develop-${BL_DATE}
 		    cd  /scratch1/NCEPDEV/stmp4/role.epic/FV3_RT
 		    rsync -a REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE}
 		    cd $WORKSPACE/tests
@@ -168,7 +168,7 @@ function create_baseline() {
 		    ./rt.sh -a ${ACCNR} -c -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    export DISKNM=/glade/derecho/scratch/epicufsrt/ufs-weather-model/RT/
 		    cd ${DISKNM}/NEMSfv3gfs/
-		    mkdir develop-${BL_DATE}
+		    mkdir -p develop-${BL_DATE}
 		    cd /glade/derecho/scratch/epicufsrt/FV3_RT
 		    rsync -a REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE}
 		    cd $WORKSPACE/tests
