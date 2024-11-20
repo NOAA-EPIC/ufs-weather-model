@@ -42,6 +42,7 @@ ls -al ${TESTS_DIR}/rt.sh
 
 function create_baseline() {
 	local machine=${1:-${NODE_NAME}}
+	local machine_id=${machine,,} # tolower
 	local WORKSPACE="$(pwd)"
 	local status=0
 
@@ -61,7 +62,8 @@ function create_baseline() {
 		    echo "Creating baselines on $machine"
 		    export dprefix=/lfs1/NAGAPE/$ACCNR/$USER
 		    sed 's|/lfs4/HFIP/${ACCNR}/${USER}|/lfs4/HFIP/hfv3gfs/${USER}|g' -i rt.sh
-		    ./rt.sh -a ${ACCNR} -c -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    local workflow="-r"
+		    ./rt.sh -a ${ACCNR} -c ${workflow} ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    status=${PIPESTATUS[0]}
 		elif [[ $machine =~ "Hercules" ]]
 		then
@@ -69,7 +71,7 @@ function create_baseline() {
 		    export dprefix=/work2/noaa/$ACCNR/$USER
 		    sed "s|/noaa/stmp/|/noaa/$ACCNR/stmp/|g" -i rt.sh
 		    export ACCNR=epic
-		    ./rt.sh -a ${ACCNR} -c -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    ./rt.sh -a ${ACCNR} -c ${workflow} ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    status=${PIPESTATUS[0]}
 		    export DISKNM=/work/noaa/epic/hercules/UFS-WM_RT
 		    cd ${DISKNM}/NEMSfv3gfs/
@@ -81,16 +83,16 @@ function create_baseline() {
 		    ./adjust_permissions.sh hercules develop-${BL_DATE} || :
 		    chgrp noaa-hpc develop-${BL_DATE} || :
 		    cd $WORKSPACE/tests
-		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    ./rt.sh -a ${ACCNR} ${workflow} ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    status=${PIPESTATUS[0]}
 		    cd logs/
-		    cp RegressionTests_hercules.log $(dirname $WORKSPACE) #/work/noaa/epic/role-epic/jenkins/workspace
+		    cp RegressionTests_${machine_id}.log $(dirname $WORKSPACE) #/work/noaa/epic/role-epic/jenkins/workspace
 		    git remote -v
 		    git fetch --no-recurse-submodules origin
 		    git reset FETCH_HEAD --hard
 		    cd .. && cd .. && cd ..
 		    pwd
-		    cp $(dirname $WORKSPACE)/RegressionTests_hercules.log $WORKSPACE/tests/logs/
+		    cp $(dirname $WORKSPACE)/RegressionTests_${machine_id}.log $WORKSPACE/tests/logs/
 		    cd $WORKSPACE/tests/
 		elif [[ $machine =~ "Orion" ]]
 		then
@@ -103,7 +105,7 @@ function create_baseline() {
 		    export dprefix=/work2/noaa/$ACCNR/$USER
 		    sed "s|/noaa/stmp/|/noaa/$ACCNR/stmp/|g" -i rt.sh
 		    export ACCNR=epic
-		    ./rt.sh -a ${ACCNR} -c -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    ./rt.sh -a ${ACCNR} -c ${workflow} ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    status=${PIPESTATUS[0]}
 		    export DISKNM=/work/noaa/epic/UFS-WM_RT
 		    cd ${DISKNM}/NEMSfv3gfs/
@@ -115,21 +117,21 @@ function create_baseline() {
 		    ./adjust_permissions.sh orion develop-${BL_DATE} || :
 		    chgrp noaa-hpc develop-${BL_DATE} || :
 		    cd $WORKSPACE/tests
-		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    ./rt.sh -a ${ACCNR} ${workflow} ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    status=${PIPESTATUS[0]}
 		    cd logs/
-		    cp RegressionTests_orion.log $(dirname $WORKSPACE) #/work/noaa/epic/role-epic/jenkins/workspace
+		    cp RegressionTests_${machine_id}.log $(dirname $WORKSPACE) #/work/noaa/epic/role-epic/jenkins/workspace
 		    git remote -v
 		    git fetch --no-recurse-submodules origin
 		    git reset FETCH_HEAD --hard
 		    cd .. && cd .. && cd ..
 		    pwd
-		    cp $(dirname $WORKSPACE)/RegressionTests_orion.log $WORKSPACE/tests/logs/
+		    cp $(dirname $WORKSPACE)/RegressionTests_${machine_id}.log $WORKSPACE/tests/logs/
 		    cd $WORKSPACE/tests/
 		elif [[ $machine =~ "Gaea" ]]
 		then
 		    echo "Creating baselines on $machine"
-		    ./rt.sh -a ${ACCNR} -c -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    ./rt.sh -a ${ACCNR} -c ${workflow} ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    status=${PIPESTATUS[0]}
 		    unset LD_LIBRARY_PATH
 		    export DISKNM=/gpfs/f5/epic/world-shared/UFS-WM_RT
@@ -141,23 +143,24 @@ function create_baseline() {
 		    cd ${DISKNM}/NEMSfv3gfs/
 		    chgrp ncep develop-${BL_DATE} || :
 		    cd $WORKSPACE/tests
-		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    ./rt.sh -a ${ACCNR} ${workflow} ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    status=${PIPESTATUS[0]}
 		    cd logs/
-		    cp RegressionTests_gaea.log $(dirname $WORKSPACE) #/gpfs/f5/epic/scratch/role.epic/jenkins/workspace
+		    cp RegressionTests_${machine_id}.log $(dirname $WORKSPACE) #/gpfs/f5/epic/scratch/role.epic/jenkins/workspace
 		    git remote -v
 		    git fetch --no-recurse-submodules origin
 		    git reset FETCH_HEAD --hard
 		    cd .. && cd .. && cd ..
 		    pwd
-		    cp $(dirname $WORKSPACE)/RegressionTests_gaea.log $WORKSPACE/tests/logs/
+		    cp $(dirname $WORKSPACE)/RegressionTests_${machine_id}.log $WORKSPACE/tests/logs/
 		    cd $WORKSPACE/tests/
 		elif [[ $machine =~ "Hera" ]]
 		then
 		    echo "Creating baselines on $machine"
 		    export ACCNR=epic
 		    sed "s|QUEUE=batch|QUEUE=windfall|g" -i rt.sh
-		    ./rt.sh -a ${ACCNR} -c -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    local workflow="-r"
+		    ./rt.sh -a ${ACCNR} -c ${workflow} ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    status=${PIPESTATUS[0]}
 		    export DISKNM=/scratch2/NAGAPE/epic/UFS-WM_RT
 		    cd ${DISKNM}/NEMSfv3gfs/
@@ -166,22 +169,22 @@ function create_baseline() {
 		    ls -l REGRESSION_TEST/.
 		    rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
 		    cd $WORKSPACE/tests
-		    ./rt.sh -a ${ACCNR} -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    ./rt.sh -a ${ACCNR} ${workflow} ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    status=${PIPESTATUS[0]}
 		    cd logs/
-		    cp RegressionTests_hera.log $(dirname $WORKSPACE) #/scratch2/NAGAPE/epic/role.epic/jenkins/workspace
+		    cp RegressionTests_${machine_id}.log $(dirname $WORKSPACE) #/scratch2/NAGAPE/epic/role.epic/jenkins/workspace
 		    git remote -v
 		    git fetch --no-recurse-submodules origin
 		    git reset FETCH_HEAD --hard
 		    cd .. && cd .. && cd ..
 		    pwd
-		    cp $(dirname $WORKSPACE)/RegressionTests_hera.log $WORKSPACE/tests/logs/
+		    cp $(dirname $WORKSPACE)/RegressionTests_${machine_id}.log $WORKSPACE/tests/logs/
 		    cd $WORKSPACE/tests/
 		elif [[ $machine =~ "Derecho" ]]
 		then
 		    echo "Creating baselines on $machine"
 		    export ACCNR=nral0032
-		    ./rt.sh -a ${ACCNR} -c -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    ./rt.sh -a ${ACCNR} -c ${workflow} ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    status=${PIPESTATUS[0]}
 		    export DISKNM=/glade/derecho/scratch/epicufsrt/ufs-weather-model/RT/
 		    cd ${DISKNM}/NEMSfv3gfs/
@@ -190,20 +193,21 @@ function create_baseline() {
 		    ls -l REGRESSION_TEST/.
 		    rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
 		    cd $WORKSPACE/tests
-		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    ./rt.sh -a ${ACCNR} ${workflow} ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    status=${PIPESTATUS[0]}
 		    cd logs/
-		    cp RegressionTests_derecho.log $(dirname $WORKSPACE) #/glade/derecho/scratch/epicufsrt/jenkins/workspace
+		    cp RegressionTests_${machine_id}.log $(dirname $WORKSPACE) #/glade/derecho/scratch/epicufsrt/jenkins/workspace
 		    git remote -v
 		    git fetch --no-recurse-submodules origin
 		    git reset FETCH_HEAD --hard
 		    cd .. && cd .. && cd ..
 		    pwd
-		    cp $(dirname $WORKSPACE)/RegressionTests_derecho.log $WORKSPACE/tests/logs/
+		    cp $(dirname $WORKSPACE)/RegressionTests_${machine_id}.log $WORKSPACE/tests/logs/
 		    cd $WORKSPACE/tests/
 		else
 		    echo "Creating baselines on $machine"
-		    ./rt.sh -a ${ACCNR} -c -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    local workflow="-r"
+		    ./rt.sh -a ${ACCNR} -c ${workflow} ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    status=${PIPESTATUS[0]}
 		fi
 

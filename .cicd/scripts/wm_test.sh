@@ -101,7 +101,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 		/usr/bin/time -p \
 			-o ${WORKSPACE}/${UFS_PLATFORM}-${UFS_COMPILER}-time-wm_test.json \
 			-f '{\n  "cpu": "%P"\n, "memMax": "%M"\n, "mem": {"text": "%X", "data": "%D", "swaps": "%W", "context": "%c", "waits": "%w"}\n, "pagefaults": {"major": "%F", "minor": "%R"}\n, "filesystem": {"inputs": "%I", "outputs": "%O"}\n, "time": {"real": "%e", "user": "%U", "sys": "%S"}\n}' \
-			./.cicd/scripts/create_baseline.sh ${account} ${baseline} ${workflow} -k ${opt} "${suite}" | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt
+			./.cicd/scripts/create_baseline.sh | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt
 		status=${PIPESTATUS[0]}
 		echo "Pipeline Completed Baseline Tests ${opt} ${suite} on ${UFS_PLATFORM} ${UFS_COMPILER}. status=$status"
 	else
@@ -111,18 +111,12 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 		/usr/bin/time -p \
 			-o ${WORKSPACE}/${UFS_PLATFORM}-${UFS_COMPILER}-time-wm_test.json \
 			-f '{\n  "cpu": "%P"\n, "memMax": "%M"\n, "mem": {"text": "%X", "data": "%D", "swaps": "%W", "context": "%c", "waits": "%w"}\n, "pagefaults": {"major": "%F", "minor": "%R"}\n, "filesystem": {"inputs": "%I", "outputs": "%O"}\n, "time": {"real": "%e", "user": "%U", "sys": "%S"}\n}' \
-			./.cicd/scripts/regression_test.sh ${account} ${baseline} ${workflow} -k ${opt} "${suite}" | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt
+			./.cicd/scripts/regression_test.sh | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt
 		status=${PIPESTATUS[0]}
 		echo "Pipeline Completed Regression Tests ${opt} ${suite} on ${UFS_PLATFORM} ${UFS_COMPILER}. status=$status"
 	fi
 
 	cd tests/
-		cd logs/
-		#cp RegressionTests_${machine_id}.log ${JENKINS_WORKSPACE}
-		git remote -v
-		git fetch --no-recurse-submodules origin
-		git reset FETCH_HEAD --hard
-		cd .. #&& cd .. && cd ..
 
 		pwd
 		ls -al .
