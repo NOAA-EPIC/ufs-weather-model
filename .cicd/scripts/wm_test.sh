@@ -52,6 +52,7 @@ status=$?
 
 rm -f ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
+	echo "Pipeline Reqression Tests on ${UFS_PLATFORM} starting."
 
 	set +x
 	if [[ ${UFS_PLATFORM} = orion ]] ; then
@@ -133,10 +134,10 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 		egrep " DIRECTORY: |Time: | Completed: |Result: " logs/RegressionTests_${UFS_PLATFORM,,}.log          | tee -a ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 		egrep " -- COMPILE | -- TEST "                    logs/RegressionTests_${UFS_PLATFORM,,}.log          | tee -a ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 	cd ${workspace}
+	find ${workspace}/tests/logs -ls
+	echo "Pipeline Reqression Tests on ${UFS_PLATFORM} complete. status=$status"
 else
-	echo "Pipeline skipping Regression Tests on ${UFS_PLATFORM} (${machine})"
+	echo "Pipeline Regression Tests on ${UFS_PLATFORM} (${machine}) skipped."
 	echo "ExperimentName: null" > ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 fi
-find ${workspace}/tests/logs -ls
-echo "Pipeline Tests on ${UFS_PLATFORM} complete. status=$status"
 exit $status

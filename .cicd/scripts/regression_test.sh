@@ -41,6 +41,7 @@ function regression_test() {
 	[[    ${WM_OPERATIONAL_TESTS} = comprehensive ]] && opt="-l" && suite="rt.conf"
 	[[    ${WM_OPERATIONAL_TESTS} = rt.conf       ]] && opt="-l" && suite="rt.conf"
 	[[   "${suite}"               = rt.conf       ]] && opt="-l"
+	local status=0
 
 	git submodule update --init --recursive
 	pwd
@@ -59,6 +60,7 @@ function regression_test() {
 		    export dprefix=/lfs1/NAGAPE/$ACCNR/$USER
 		    sed 's|/lfs4/HFIP/${ACCNR}/${USER}|/lfs4/HFIP/hfv3gfs/${USER}|g' -i rt.sh
 		    ./rt.sh -a ${ACCNR} -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		elif [[ $machine =~ "Hercules" ]]
 		then
 		    echo "Running regression tests on $machine"
@@ -66,6 +68,7 @@ function regression_test() {
 		    sed "s|/noaa/stmp/|/noaa/$ACCNR/stmp/|g" -i rt.sh
 		    export ACCNR=epic
 		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    cd logs/
 		    cp RegressionTests_hercules.log $(dirname $WORKSPACE) #/work/noaa/epic/role-epic/jenkins/workspace
 		    git remote -v
@@ -86,6 +89,7 @@ function regression_test() {
 		    export dprefix=/work2/noaa/$ACCNR/$USER
 		    sed "s|/noaa/stmp/|/noaa/$ACCNR/stmp/|g" -i rt.sh
 		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    cd logs/
 		    cp RegressionTests_orion.log $(dirname $WORKSPACE) #/work/noaa/epic/role-epic/jenkins/workspace
 		    git remote -v
@@ -99,6 +103,7 @@ function regression_test() {
 		then
 		    echo "Running regression tests on $machine"
 		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    unset LD_LIBRARY_PATH
 		    cd logs/
 		    cp RegressionTests_gaea.log $(dirname $WORKSPACE) #/gpfs/f5/epic/scratch/role.epic/jenkins/workspace
@@ -115,6 +120,7 @@ function regression_test() {
 		    export ACCNR=epic
 		    sed "s|QUEUE=batch|QUEUE=windfall|g" -i rt.sh
 		    ./rt.sh -a ${ACCNR} -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    cd logs/
 		    cp RegressionTests_hera.log $(dirname $WORKSPACE) #/scratch2/NAGAPE/epic/role.epic/jenkins/workspace
 		    git remote -v
@@ -129,6 +135,7 @@ function regression_test() {
 		    echo "Running regression tests on $machine"
 		    export ACCNR=nral0032
 		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    cd logs/
 		    cp RegressionTests_derecho.log $(dirname $WORKSPACE) #/glade/derecho/scratch/epicufsrt/jenkins/workspace
 		    git remote -v
@@ -141,11 +148,13 @@ function regression_test() {
 		else
 		    echo "Running regression tests on $machine"
 		    ./rt.sh -a ${ACCNR} -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		fi
 
 	cd ${WORKSPACE}
 
-	echo "Testing concluded for $machine"
+	echo "Testing concluded for $machine. status=$status"
+	return $status
 }
 
 function post_test() {

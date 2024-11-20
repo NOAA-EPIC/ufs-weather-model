@@ -41,6 +41,7 @@ function create_baseline() {
 	[[    ${WM_OPERATIONAL_TESTS} = comprehensive ]] && opt="-l" && suite="rt.conf"
 	[[    ${WM_OPERATIONAL_TESTS} = rt.conf       ]] && opt="-l" && suite="rt.conf"
 	[[   "${suite}"               = rt.conf       ]] && opt="-l"
+	local status=0
 
 	git submodule update --init --recursive
 	pwd
@@ -59,6 +60,7 @@ function create_baseline() {
 		    export dprefix=/lfs1/NAGAPE/$ACCNR/$USER
 		    sed 's|/lfs4/HFIP/${ACCNR}/${USER}|/lfs4/HFIP/hfv3gfs/${USER}|g' -i rt.sh
 		    ./rt.sh -a ${ACCNR} -c -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		elif [[ $machine =~ "Hercules" ]]
 		then
 		    echo "Creating baselines on $machine"
@@ -66,6 +68,7 @@ function create_baseline() {
 		    sed "s|/noaa/stmp/|/noaa/$ACCNR/stmp/|g" -i rt.sh
 		    export ACCNR=epic
 		    ./rt.sh -a ${ACCNR} -c -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    export DISKNM=/work/noaa/epic/hercules/UFS-WM_RT
 		    cd ${DISKNM}/NEMSfv3gfs/
 		    mkdir -p develop-${BL_DATE}
@@ -76,6 +79,7 @@ function create_baseline() {
 		    chgrp noaa-hpc develop-${BL_DATE} || :
 		    cd $WORKSPACE/tests
 		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    cd logs/
 		    cp RegressionTests_hercules.log $(dirname $WORKSPACE) #/work/noaa/epic/role-epic/jenkins/workspace
 		    git remote -v
@@ -97,6 +101,7 @@ function create_baseline() {
 		    sed "s|/noaa/stmp/|/noaa/$ACCNR/stmp/|g" -i rt.sh
 		    export ACCNR=epic
 		    ./rt.sh -a ${ACCNR} -c -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    export DISKNM=/work/noaa/epic/UFS-WM_RT
 		    cd ${DISKNM}/NEMSfv3gfs/
 		    mkdir -p develop-${BL_DATE}
@@ -107,6 +112,7 @@ function create_baseline() {
 		    chgrp noaa-hpc develop-${BL_DATE} || :
 		    cd $WORKSPACE/tests
 		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    cd logs/
 		    cp RegressionTests_orion.log $(dirname $WORKSPACE) #/work/noaa/epic/role-epic/jenkins/workspace
 		    git remote -v
@@ -120,6 +126,7 @@ function create_baseline() {
 		then
 		    echo "Creating baselines on $machine"
 		    ./rt.sh -a ${ACCNR} -c -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    unset LD_LIBRARY_PATH
 		    export DISKNM=/gpfs/f5/epic/world-shared/UFS-WM_RT
 		    cd ${DISKNM}/NEMSfv3gfs/
@@ -130,6 +137,7 @@ function create_baseline() {
 		    chgrp ncep develop-${BL_DATE} || :
 		    cd $WORKSPACE/tests
 		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    cd logs/
 		    cp RegressionTests_gaea.log $(dirname $WORKSPACE) #/gpfs/f5/epic/scratch/role.epic/jenkins/workspace
 		    git remote -v
@@ -145,6 +153,7 @@ function create_baseline() {
 		    export ACCNR=epic
 		    sed "s|QUEUE=batch|QUEUE=windfall|g" -i rt.sh
 		    ./rt.sh -a ${ACCNR} -c -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    export DISKNM=/scratch2/NAGAPE/epic/UFS-WM_RT
 		    cd ${DISKNM}/NEMSfv3gfs/
 		    mkdir -p develop-${BL_DATE}
@@ -152,6 +161,7 @@ function create_baseline() {
 		    ls -ld REGRESSION_TEST/. && rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
 		    cd $WORKSPACE/tests
 		    ./rt.sh -a ${ACCNR} -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    cd logs/
 		    cp RegressionTests_hera.log $(dirname $WORKSPACE) #/scratch2/NAGAPE/epic/role.epic/jenkins/workspace
 		    git remote -v
@@ -166,6 +176,7 @@ function create_baseline() {
 		    echo "Creating baselines on $machine"
 		    export ACCNR=nral0032
 		    ./rt.sh -a ${ACCNR} -c -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    export DISKNM=/glade/derecho/scratch/epicufsrt/ufs-weather-model/RT/
 		    cd ${DISKNM}/NEMSfv3gfs/
 		    mkdir -p develop-${BL_DATE}
@@ -173,6 +184,7 @@ function create_baseline() {
 		    ls -ld REGRESSION_TEST/. && rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
 		    cd $WORKSPACE/tests
 		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		    cd logs/
 		    cp RegressionTests_derecho.log $(dirname $WORKSPACE) #/glade/derecho/scratch/epicufsrt/jenkins/workspace
 		    git remote -v
@@ -185,11 +197,13 @@ function create_baseline() {
 		else
 		    echo "Creating baselines on $machine"
 		    ./rt.sh -a ${ACCNR} -c -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
+		    status=${PIPESTATUS[0]}
 		fi
 
 	cd ${WORKSPACE}
 
-	echo "Testing concluded for $machine"
+	echo "Testing concluded for $machine. status=$status"
+	return $status
 }
 
 function post_test() {
