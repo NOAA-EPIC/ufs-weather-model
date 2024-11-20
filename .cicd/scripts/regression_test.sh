@@ -1,10 +1,27 @@
 #!/bin/bash -x
-set -eu
 
+export PATH=$PATH:~/bin
 echo "USER=${USER}"
 echo "WORKSPACE=${WORKSPACE}"
-export machine=${NODE_NAME}
 export ACCNR=epic
+
+export account="-a ${ACCNR}"
+export workflow="-e"
+	#[[ ${UFS_PLATFORM} =  jet         ]] && workflow="-r"
+	#[[ ${UFS_PLATFORM} =  hera        ]] && workflow="-r"
+	#[[ ${UFS_PLATFORM} =~ clusternoaa ]] && workflow=""
+
+export opt="-l"
+export suite="rt.conf"
+	[[ -n ${WM_OPERATIONAL_TESTS}                 ]] && opt="-n" && suite="${WM_OPERATIONAL_TESTS} ${UFS_COMPILER}" || return 0
+	[[    ${WM_OPERATIONAL_TESTS} = default       ]] && opt="-n" && suite="control_p8 ${UFS_COMPILER}"
+	[[    ${WM_OPERATIONAL_TESTS} = comprehensive ]] && opt="-l" && suite="rt.conf"
+	[[    ${WM_OPERATIONAL_TESTS} = rt.conf       ]] && opt="-l" && suite="rt.conf"
+	[[   "${suite}"               = rt.conf       ]] && opt="-l"
+
+set -eu
+
+export machine=${NODE_NAME}
 
 SCRIPT_REALPATH=$(realpath "${BASH_SOURCE[0]}")
 SCRIPTS_DIR=$(dirname "${SCRIPT_REALPATH}")
@@ -24,23 +41,8 @@ ls -al .cicd/*
 ls -al ${TESTS_DIR}/rt.sh
 
 function regression_test() {
-	export machine=${NODE_NAME}
-	export PATH=$PATH:~/bin
+	local machine=${1:-${NODE_NAME}}
 	local WORKSPACE="$(pwd)"
-
-	account="-a ${ACCNR}"
-	workflow="-e"
-	#[[ ${UFS_PLATFORM} =  jet         ]] && workflow="-r"
-	#[[ ${UFS_PLATFORM} =  hera        ]] && workflow="-r"
-	#[[ ${UFS_PLATFORM} =~ clusternoaa ]] && workflow=""
-
-	opt="-l"
-	suite="rt.conf"
-	[[ -n ${WM_OPERATIONAL_TESTS}                 ]] && opt="-n" && suite="${WM_OPERATIONAL_TESTS} ${UFS_COMPILER}" || return 0
-	[[    ${WM_OPERATIONAL_TESTS} = default       ]] && opt="-n" && suite="control_p8 ${UFS_COMPILER}"
-	[[    ${WM_OPERATIONAL_TESTS} = comprehensive ]] && opt="-l" && suite="rt.conf"
-	[[    ${WM_OPERATIONAL_TESTS} = rt.conf       ]] && opt="-l" && suite="rt.conf"
-	[[   "${suite}"               = rt.conf       ]] && opt="-l"
 	local status=0
 
 	git submodule update --init --recursive
@@ -182,4 +184,4 @@ function post_test() {
 	#curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/$machine-RT
 }
 
-regression_test
+regression_test ${machine}

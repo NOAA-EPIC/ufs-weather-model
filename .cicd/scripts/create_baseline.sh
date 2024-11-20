@@ -1,10 +1,27 @@
 #!/bin/bash -x
-set -eu
 
+export PATH=$PATH:~/bin
 echo "USER=${USER}"
 echo "WORKSPACE=${WORKSPACE}"
-export machine=${NODE_NAME}
 export ACCNR=epic
+
+export account="-a ${ACCNR}"
+export workflow="-e"
+	#[[ ${UFS_PLATFORM} =  jet         ]] && workflow="-r"
+	#[[ ${UFS_PLATFORM} =  hera        ]] && workflow="-r"
+	#[[ ${UFS_PLATFORM} =~ clusternoaa ]] && workflow=""
+
+export opt="-l"
+export suite="rt.conf"
+	[[ -n ${WM_OPERATIONAL_TESTS}                 ]] && opt="-n" && suite="${WM_OPERATIONAL_TESTS} ${UFS_COMPILER}" || return 0
+	[[    ${WM_OPERATIONAL_TESTS} = default       ]] && opt="-n" && suite="control_p8 ${UFS_COMPILER}"
+	[[    ${WM_OPERATIONAL_TESTS} = comprehensive ]] && opt="-l" && suite="rt.conf"
+	[[    ${WM_OPERATIONAL_TESTS} = rt.conf       ]] && opt="-l" && suite="rt.conf"
+	[[   "${suite}"               = rt.conf       ]] && opt="-l"
+
+set -eu
+
+export machine=${NODE_NAME}
 
 SCRIPT_REALPATH=$(realpath "${BASH_SOURCE[0]}")
 SCRIPTS_DIR=$(dirname "${SCRIPT_REALPATH}")
@@ -24,23 +41,8 @@ ls -al .cicd/*
 ls -al ${TESTS_DIR}/rt.sh
 
 function create_baseline() {
-	export machine=${NODE_NAME}
-	export PATH=$PATH:~/bin
+	local machine=${1:-${NODE_NAME}}
 	local WORKSPACE="$(pwd)"
-
-	account="-a ${ACCNR}"
-	workflow="-e"
-	#[[ ${UFS_PLATFORM} =  jet         ]] && workflow="-r"
-	#[[ ${UFS_PLATFORM} =  hera        ]] && workflow="-r"
-	#[[ ${UFS_PLATFORM} =~ clusternoaa ]] && workflow=""
-
-	opt="-l"
-	suite="rt.conf"
-	[[ -n ${WM_OPERATIONAL_TESTS}                 ]] && opt="-n" && suite="${WM_OPERATIONAL_TESTS} ${UFS_COMPILER}" || return 0
-	[[    ${WM_OPERATIONAL_TESTS} = default       ]] && opt="-n" && suite="control_p8 ${UFS_COMPILER}"
-	[[    ${WM_OPERATIONAL_TESTS} = comprehensive ]] && opt="-l" && suite="rt.conf"
-	[[    ${WM_OPERATIONAL_TESTS} = rt.conf       ]] && opt="-l" && suite="rt.conf"
-	[[   "${suite}"               = rt.conf       ]] && opt="-l"
 	local status=0
 
 	git submodule update --init --recursive
@@ -73,7 +75,8 @@ function create_baseline() {
 		    cd ${DISKNM}/NEMSfv3gfs/
 		    mkdir -p develop-${BL_DATE}
 		    cd /work2/noaa/epic/stmp/role-epic/stmp/role-epic/FV3_RT
-		    ls -ld REGRESSION_TEST/. && rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
+		    ls -l REGRESSION_TEST/.
+		    rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
 		    cd ${DISKNM}/NEMSfv3gfs/
 		    ./adjust_permissions.sh hercules develop-${BL_DATE} || :
 		    chgrp noaa-hpc develop-${BL_DATE} || :
@@ -106,7 +109,8 @@ function create_baseline() {
 		    cd ${DISKNM}/NEMSfv3gfs/
 		    mkdir -p develop-${BL_DATE}
 		    cd  /work/noaa/epic/stmp/role-epic/stmp/role-epic/FV3_RT/
-		    ls -ld REGRESSION_TEST/. && rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
+		    ls -l REGRESSION_TEST/.
+		    rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
 		    cd ${DISKNM}/NEMSfv3gfs/
 		    ./adjust_permissions.sh orion develop-${BL_DATE} || :
 		    chgrp noaa-hpc develop-${BL_DATE} || :
@@ -132,7 +136,8 @@ function create_baseline() {
 		    cd ${DISKNM}/NEMSfv3gfs/
 		    mkdir -p develop-${BL_DATE}
 		    cd /gpfs/f5/epic/scratch/role.epic/FV3_RT
-		    ls -ld REGRESSION_TEST/. && rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
+		    ls -l REGRESSION_TEST/.
+		    rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
 		    cd ${DISKNM}/NEMSfv3gfs/
 		    chgrp ncep develop-${BL_DATE} || :
 		    cd $WORKSPACE/tests
@@ -158,7 +163,8 @@ function create_baseline() {
 		    cd ${DISKNM}/NEMSfv3gfs/
 		    mkdir -p develop-${BL_DATE}
 		    cd  /scratch1/NCEPDEV/stmp4/role.epic/FV3_RT
-		    ls -ld REGRESSION_TEST/. && rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
+		    ls -l REGRESSION_TEST/.
+		    rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
 		    cd $WORKSPACE/tests
 		    ./rt.sh -a ${ACCNR} -r ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    status=${PIPESTATUS[0]}
@@ -181,7 +187,8 @@ function create_baseline() {
 		    cd ${DISKNM}/NEMSfv3gfs/
 		    mkdir -p develop-${BL_DATE}
 		    cd /glade/derecho/scratch/epicufsrt/FV3_RT
-		    ls -ld REGRESSION_TEST/. && rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
+		    ls -l REGRESSION_TEST/.
+		    rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
 		    cd $WORKSPACE/tests
 		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    status=${PIPESTATUS[0]}
@@ -231,4 +238,4 @@ function post_test() {
 	#curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/$machine-BL
 }
 
-create_baseline
+create_baseline ${machine}
