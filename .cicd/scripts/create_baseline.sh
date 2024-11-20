@@ -72,8 +72,8 @@ function create_baseline() {
 		    cd /work2/noaa/epic/stmp/role-epic/stmp/role-epic/FV3_RT
 		    rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || :
 		    cd ${DISKNM}/NEMSfv3gfs/
-		    ./adjust_permissions.sh hercules develop-${BL_DATE}
-		    chgrp noaa-hpc develop-${BL_DATE}
+		    ./adjust_permissions.sh hercules develop-${BL_DATE} || :
+		    chgrp noaa-hpc develop-${BL_DATE} || :
 		    cd $WORKSPACE/tests
 		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    cd logs/
@@ -103,8 +103,8 @@ function create_baseline() {
 		    cd  /work/noaa/epic/stmp/role-epic/stmp/role-epic/FV3_RT/
 		    rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || :
 		    cd ${DISKNM}/NEMSfv3gfs/
-		    ./adjust_permissions.sh orion develop-${BL_DATE}
-		    chgrp noaa-hpc develop-${BL_DATE}
+		    ./adjust_permissions.sh orion develop-${BL_DATE} || :
+		    chgrp noaa-hpc develop-${BL_DATE} || :
 		    cd $WORKSPACE/tests
 		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    cd logs/
@@ -127,7 +127,7 @@ function create_baseline() {
 		    cd /gpfs/f5/epic/scratch/role.epic/FV3_RT
 		    rsync -a --no-t REGRESSION_TEST/ ${DISKNM}/NEMSfv3gfs/develop-${BL_DATE} || :
 		    cd ${DISKNM}/NEMSfv3gfs/
-		    chgrp ncep develop-${BL_DATE}
+		    chgrp ncep develop-${BL_DATE} || :
 		    cd $WORKSPACE/tests
 		    ./rt.sh -a ${ACCNR} -e ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
 		    cd logs/
