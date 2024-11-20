@@ -94,6 +94,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 	[[ ! -f tests/logs/RegressionTests_${UFS_PLATFORM,,}.log ]] || mv tests/logs/RegressionTests_${UFS_PLATFORM,,}.log tests/logs/RegressionTests_${UFS_PLATFORM,,}.log.orig
 
 	rm -f ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_*-log.txt
+	umask 002
 	if [[ ${WM_CREATE_BASELINE} = true ]] ; then
 		echo "start Creating baseline on ${UFS_PLATFORM} ..."
 		ls -al .cicd/*
