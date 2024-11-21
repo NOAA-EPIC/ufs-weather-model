@@ -73,7 +73,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 	set -x
 
 	#export PATH=$PATH:~/bin
-	echo "CHANGE_ID=${CHANGE_ID:=null}"
+	echo "CHANGE_ID=${CHANGE_ID:-null}"
 
 	export FV3_RT_DIR=
 	#export JENKINS_WORKSPACE=
