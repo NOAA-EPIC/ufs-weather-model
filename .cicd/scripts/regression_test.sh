@@ -60,7 +60,7 @@ function regression_test() {
 		if [[ $machine =~ "Jet" ]]
 		then
 		    echo "Running regression tests on $machine"
-		    export dprefix=/lfs1/NAGAPE/$ACCNR/$USER
+		    export dprefix=/lfs5/NAGAPE/$ACCNR/$USER
 		    sed 's|/lfs4/HFIP/${ACCNR}/${USER}|/lfs4/HFIP/hfv3gfs/${USER}|g' -i rt.sh
 		    local workflow="-r"
 		    ./rt.sh -a ${ACCNR} ${workflow} ${opt} "${suite}" | tee $WORKSPACE/tests/logs/RT-run-$machine.log
