@@ -37,8 +37,8 @@ function disk_usage() {
     cd ${directory} || exit 1
     echo "Platform,Build,Owner,Group,Inodes,${size:-k}bytes,Access Time,Filename"
     du -Px -d ${depth:-1} --inode --exclude='./workspace' | \
-        while read line ; do
-            eval arr=("${line}"); inode="${arr[0]}"; filename="${arr[1]}";
+        while IFS=' ' read -a line ; do
+            arr=(${line}); inode="${arr[0]}"; filename="${arr[1]}";
             echo "${UFS_PLATFORM}-${UFS_COMPILER:-compiler},${JOB_NAME:-ci}/${BUILD_NUMBER:-0},$(stat -c '%U,%G' ${filename}),${inode:-0},$(du -Px -s -${size:-k} --time ${filename})" | tr '\t' ',' ;
         done | sort -t, -k5 -n #-r
     )

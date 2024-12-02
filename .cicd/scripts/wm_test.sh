@@ -91,7 +91,8 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 	[[    ${WM_OPERATIONAL_TESTS} = rt.conf       ]] && opt="-l" && suite="rt.conf"
 	[[ ${suite} = rt.conf ]] && opt="-l"
 
-	[[ ${WM_CREATE_BASELINE} = true   ]] && export BL_DATE=$(cat tests/bl_date.conf | cut -d '=' -f2)
+	[[ ${WM_CREATE_BASELINE} = true   ]] && BL_DATE=$(cat tests/bl_date.conf | cut -d '=' -f2)
+        export BL_DATE
 	[[ ! -f tests/logs/RegressionTests_${UFS_PLATFORM,,}.log ]] || mv tests/logs/RegressionTests_${UFS_PLATFORM,,}.log tests/logs/RegressionTests_${UFS_PLATFORM,,}.log.orig
 
 	rm -f ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_*-log.txt

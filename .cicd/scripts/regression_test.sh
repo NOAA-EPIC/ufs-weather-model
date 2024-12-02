@@ -175,7 +175,8 @@ function post_test() {
 	echo "GIT_URL=${GIT_URL}"
 	git config user.email "ecc.platform@noaa.gov"
 	git config user.name "epic-cicd-jenkins"
-	export machine_name_logs=$(echo ${machine} | awk '{ print tolower($1) }')
+	machine_name_logs=$(echo ${machine} | awk '{ print tolower($1) }')
+	export machine_name_logs
 
 	git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
 	git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
