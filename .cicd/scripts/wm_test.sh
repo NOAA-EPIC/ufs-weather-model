@@ -28,7 +28,8 @@ echo "UFS_COMPILER=<${UFS_COMPILER}>"
 echo "WM_REGRESSION_TESTS=<${WM_REGRESSION_TESTS}>"
 echo "WM_OPERATIONAL_TESTS=<${WM_OPERATIONAL_TESTS}>"
 echo "WM_CREATE_BASELINE=<${WM_CREATE_BASELINE}>"
-export workspace=$(pwd)
+workspace=$(pwd)
+export workflow
 machine=${NODE_NAME}
 echo "machine=<${machine}>"
 machine_id=${UFS_PLATFORM}
@@ -43,7 +44,7 @@ status=0
 export LMOD_SH_DBG_ON=0
 echo "LMOD_VERSION=${LMOD_VERSION}"
 
-ls -l build/ufs_model
+ls -l build/ufs_model || : # just checking
 status=$?
 
 #[[ ${UFS_PLATFORM} == jet         ]] && WM_REGRESSION_TESTS=false   # takes too long
@@ -75,12 +76,12 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 	#export PATH=$PATH:~/bin
 	echo "CHANGE_ID=${CHANGE_ID:-null}"
 
-	export FV3_RT_DIR=
-	#export JENKINS_WORKSPACE=
-	workflow="-e" # -e = ecflow (default) || -r = rocoto
-
 	#export ACCNR=epic
 	echo "ACCNR=${ACCNR}"
+
+	export FV3_RT_DIR=
+	#export JENKINS_WORKSPACE=
+	#workflow="-e" # -e = ecflow (default) || -r = rocoto
 
 	opt="-l"
 	suite="rt.conf"
@@ -118,16 +119,16 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 	fi
 
 	cd tests/
+	pwd
+	ls -al .
+	ls -al $WORKSPACE/${machine_id}/tests/logs/.
+	ls -al logs/.
 
-		pwd
-		ls -al .
-		ls -al $WORKSPACE/${machine_id}/tests/logs/.
+	## Test Results ...
+	echo "ExperimentName: ${suite}" | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt | tee    ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
+	egrep " DIRECTORY: |Time: | Completed: |Result: " logs/RegressionTests_${UFS_PLATFORM,,}.log          | tee -a ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
+	egrep " -- COMPILE | -- TEST "                    logs/RegressionTests_${UFS_PLATFORM,,}.log          | tee -a ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 
-		ls -al logs/.
-		## Test Results ...
-		echo "ExperimentName: ${suite}" | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt | tee    ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
-		egrep " DIRECTORY: |Time: | Completed: |Result: " logs/RegressionTests_${UFS_PLATFORM,,}.log          | tee -a ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
-		egrep " -- COMPILE | -- TEST "                    logs/RegressionTests_${UFS_PLATFORM,,}.log          | tee -a ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 	cd ${workspace}
 	find ${workspace}/tests/logs -ls
 	echo "Pipeline Reqression Tests on ${UFS_PLATFORM} complete. status=$status"

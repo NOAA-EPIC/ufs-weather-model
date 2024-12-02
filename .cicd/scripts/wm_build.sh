@@ -28,7 +28,8 @@ pwd
 echo "NODE_NAME=${NODE_NAME}"
 echo "UFS_PLATFORM=${UFS_PLATFORM}"
 echo "UFS_COMPILER=${UFS_COMPILER}"
-export workspace=$(pwd)
+workspace=$(pwd)
+export workspace
 machine=${NODE_NAME}
 echo "machine=<${machine}>"
 machine_id=${UFS_PLATFORM}
