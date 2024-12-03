@@ -21,6 +21,8 @@ disable=SC2312
 # Disable info sed with single quote string litteral
 disable=SC2016
 
-
 # Disable info on not double-quoting variables
 disable=SC2086
+
+# Disable info on &&, || chaining
+disable=SC2015

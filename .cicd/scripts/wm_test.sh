@@ -91,7 +91,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 	[[    ${WM_OPERATIONAL_TESTS} = rt.conf       ]] && opt="-l" && suite="rt.conf"
 	[[ ${suite} = rt.conf ]] && opt="-l"
 
-	[[ ${WM_CREATE_BASELINE} = true   ]] && BL_DATE=$(cat tests/bl_date.conf | cut -d '=' -f2)
+	[[ ${WM_CREATE_BASELINE} = true   ]] && BL_DATE=$(cut -d '=' -f2 tests/bl_date.conf)
         export BL_DATE
 	[[ ! -f tests/logs/RegressionTests_${UFS_PLATFORM,,}.log ]] || mv tests/logs/RegressionTests_${UFS_PLATFORM,,}.log tests/logs/RegressionTests_${UFS_PLATFORM,,}.log.orig
 
@@ -102,11 +102,11 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 		ls -al .cicd/*
 		echo "Pipeline Creating Baseline Tests ${suite} on ${UFS_PLATFORM} ${UFS_COMPILER}: (${opt} [${suite:=rt.conf}])"
 		/usr/bin/time -p \
-			-o ${WORKSPACE}/${UFS_PLATFORM}-${UFS_COMPILER}-time-wm_test.json \
+			-o ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-time-wm_test.json \
 			-f '{\n  "cpu": "%P"\n, "memMax": "%M"\n, "mem": {"text": "%X", "data": "%D", "swaps": "%W", "context": "%c", "waits": "%w"}\n, "pagefaults": {"major": "%F", "minor": "%R"}\n, "filesystem": {"inputs": "%I", "outputs": "%O"}\n, "time": {"real": "%e", "user": "%U", "sys": "%S"}\n}' \
 			./.cicd/scripts/create_baseline.sh | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt
 		status=${PIPESTATUS[0]}
-		echo "Pipeline Completed Baseline Tests ${opt} ${suite} on ${UFS_PLATFORM} ${UFS_COMPILER}. status=$status"
+		echo "Pipeline Completed Baseline Tests ${opt} ${suite} on ${UFS_PLATFORM} ${UFS_COMPILER}. status=${status}"
 	else
 		echo "skip Creating baseline on ${UFS_PLATFORM}."
 		ls -al .cicd/*
@@ -116,19 +116,19 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 			-f '{\n  "cpu": "%P"\n, "memMax": "%M"\n, "mem": {"text": "%X", "data": "%D", "swaps": "%W", "context": "%c", "waits": "%w"}\n, "pagefaults": {"major": "%F", "minor": "%R"}\n, "filesystem": {"inputs": "%I", "outputs": "%O"}\n, "time": {"real": "%e", "user": "%U", "sys": "%S"}\n}' \
 			./.cicd/scripts/regression_test.sh | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt
 		status=${PIPESTATUS[0]}
-		echo "Pipeline Completed Regression Tests ${opt} ${suite} on ${UFS_PLATFORM} ${UFS_COMPILER}. status=$status"
+		echo "Pipeline Completed Regression Tests ${opt} ${suite} on ${UFS_PLATFORM} ${UFS_COMPILER}. status=${status}"
 	fi
 
 	cd tests/
 	pwd
 	ls -al .
-	ls -al $WORKSPACE/${machine_id}/tests/logs/.
+	ls -al ${workspace}/${machine_id}/tests/logs/.
 	ls -al logs/.
 
 	## Test Results ...
 	echo "ExperimentName: ${suite}" | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt | tee    ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
-	egrep " DIRECTORY: |Time: | Completed: |Result: " logs/RegressionTests_${UFS_PLATFORM,,}.log          | tee -a ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
-	egrep " -- COMPILE | -- TEST "                    logs/RegressionTests_${UFS_PLATFORM,,}.log          | tee -a ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
+	grep -E " DIRECTORY: |Time: | Completed: |Result: " logs/RegressionTests_${UFS_PLATFORM,,}.log        | tee -a ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
+	grep -E " -- COMPILE | -- TEST "                    logs/RegressionTests_${UFS_PLATFORM,,}.log        | tee -a ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 
 	cd ${workspace}
 	find ${workspace}/tests/logs -ls
