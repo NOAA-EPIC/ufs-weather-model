@@ -34,15 +34,15 @@ function disk_usage() {
     local size="${3:-k}"
     echo "Disk usage: ${JOB_NAME:-ci}/${UFS_PLATFORM}/$(basename ${directory})"
     (
-    cd ${directory} || exit 1
+    cd "${directory}" || exit 1
     echo "Platform,Build,Owner,Group,Inodes,${size:-k}bytes,Access Time,Filename"
     du -Px -d ${depth:-1} --inode --exclude='./workspace' | \
-        while read line ; do
+        while read -r line ; do
             read -ra arr<<<"${line}"; inode="${arr[0]}"; filename="${arr[1]}";
-            echo "${UFS_PLATFORM}-${UFS_COMPILER:-compiler},${JOB_NAME:-ci}/${BUILD_NUMBER:-0},$(stat -c '%U,%G' ${filename}),${inode:-0},$(du -Px -s -${size:-k} --time ${filename})" | tr '\t' ',' ;
+            echo "${UFS_PLATFORM}-${UFS_COMPILER:-compiler},${JOB_NAME:-ci}/${BUILD_NUMBER:-0},$(stat -c '%U,%G' "${filename}" || true),${inode:-0},$(du -Px -s -${size:-k} --time "${filename}" || true)" | tr '\t' ',' || true;
         done | sort -t, -k5 -n #-r
     )
     echo ""
 }
 
-disk_usage ${1} ${2} ${3} | tee ${outfile}
+disk_usage "${1}" "${2}" "${3}" | tee "${outfile}"

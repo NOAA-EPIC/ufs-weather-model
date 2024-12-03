@@ -67,7 +67,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 		echo "LMOD_VERSION=${LMOD_VERSION}"
 	fi
 
-	module use $PWD/modulefiles >/dev/null 2>&1
+	module use ${PWD}/modulefiles >/dev/null 2>&1
 	module load ufs_${machine_id}.${UFS_COMPILER} || true
 	[[ ${UFS_PLATFORM} = gaea ]] && module load cmake/3.23.1
 	module list
@@ -112,7 +112,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 		ls -al .cicd/*
 		echo "Pipeline Running Regression Tests ${suite} on ${UFS_PLATFORM} ${UFS_COMPILER}: (${opt} [${suite:=rt.conf}])"
 		/usr/bin/time -p \
-			-o ${WORKSPACE}/${UFS_PLATFORM}-${UFS_COMPILER}-time-wm_test.json \
+			-o ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-time-wm_test.json \
 			-f '{\n  "cpu": "%P"\n, "memMax": "%M"\n, "mem": {"text": "%X", "data": "%D", "swaps": "%W", "context": "%c", "waits": "%w"}\n, "pagefaults": {"major": "%F", "minor": "%R"}\n, "filesystem": {"inputs": "%I", "outputs": "%O"}\n, "time": {"real": "%e", "user": "%U", "sys": "%S"}\n}' \
 			./.cicd/scripts/regression_test.sh | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt
 		status=${PIPESTATUS[0]}
@@ -132,9 +132,9 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 
 	cd ${workspace}
 	find ${workspace}/tests/logs -ls
-	echo "Pipeline Reqression Tests on ${UFS_PLATFORM} complete. status=$status"
+	echo "Pipeline Reqression Tests on ${UFS_PLATFORM} complete. status=${status}"
 else
 	echo "Pipeline Regression Tests on ${UFS_PLATFORM} (${machine}) skipped."
 	echo "ExperimentName: null" > ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 fi
-exit $status
+exit ${status}
