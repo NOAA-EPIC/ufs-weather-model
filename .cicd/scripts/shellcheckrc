@@ -1,3 +1,5 @@
+# Ignore source-able files from the varyious platforms in our matrix
+disable=SC1091
 
 # Disable info on pipe-ing commands
 disable=SC2312
