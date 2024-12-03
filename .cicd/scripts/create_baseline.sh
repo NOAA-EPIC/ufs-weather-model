@@ -38,7 +38,7 @@ TESTS_DIR=${TESTS_DIR:-${UFS_MODEL_DIR}/tests}
 
 pwd
 ls -al .cicd/*
-ls -al "${TESTS_DIR}"/rt.sh
+ls -al ${TESTS_DIR}/rt.sh
 
 function create_baseline() {
 	local machine=${1:-${NODE_NAME}}
@@ -76,12 +76,12 @@ function create_baseline() {
 		    ./rt.sh -a "${ACCNR}" -c "${workflow}" "${opt}" "${suite}" | tee "${WORKSPACE}/tests/logs/RT-run-${machine}.log"
 		    status=${PIPESTATUS[0]}
 		    export DISKNM=/work/noaa/epic/hercules/UFS-WM_RT
-		    cd "${DISKNM}"/NEMSfv3gfs/
+		    cd ${DISKNM}/NEMSfv3gfs/
 		    mkdir -p develop-${BL_DATE}
 		    cd /work2/noaa/epic/stmp/role-epic/stmp/role-epic/FV3_RT
 		    ls -l REGRESSION_TEST/.
 		    rsync -a --no-t REGRESSION_TEST/ "${DISKNM}/NEMSfv3gfs/develop-${BL_DATE}" || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
-		    cd "${DISKNM}"/NEMSfv3gfs/
+		    cd ${DISKNM}/NEMSfv3gfs/
 		    ./adjust_permissions.sh hercules "develop-${BL_DATE}" || :
 		    chgrp noaa-hpc "develop-${BL_DATE}" || :
 		    cd ${WORKSPACE}/tests
@@ -110,12 +110,12 @@ function create_baseline() {
 		    ./rt.sh -a "${ACCNR}" -c "${workflow}" "${opt}" "${suite}" | tee "${WORKSPACE}/tests/logs/RT-run-${machine}.log"
 		    status=${PIPESTATUS[0]}
 		    export DISKNM=/work/noaa/epic/UFS-WM_RT
-		    cd "${DISKNM}"/NEMSfv3gfs/
+		    cd ${DISKNM}/NEMSfv3gfs/
 		    mkdir -p develop-${BL_DATE}
 		    cd  /work/noaa/epic/stmp/role-epic/stmp/role-epic/FV3_RT/
 		    ls -l REGRESSION_TEST/.
 		    rsync -a --no-t REGRESSION_TEST/ "${DISKNM}/NEMSfv3gfs/develop-${BL_DATE}" || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
-		    cd "${DISKNM}"/NEMSfv3gfs/
+		    cd ${DISKNM}/NEMSfv3gfs/
 		    ./adjust_permissions.sh orion "develop-${BL_DATE}" || :
 		    chgrp noaa-hpc "develop-${BL_DATE}" || :
 		    cd ${WORKSPACE}/tests
@@ -137,12 +137,12 @@ function create_baseline() {
 		    status=${PIPESTATUS[0]}
 		    unset LD_LIBRARY_PATH
 		    export DISKNM=/gpfs/f5/epic/world-shared/UFS-WM_RT
-		    cd "${DISKNM}"/NEMSfv3gfs/
+		    cd ${DISKNM}/NEMSfv3gfs/
 		    mkdir -p develop-${BL_DATE}
 		    cd /gpfs/f5/epic/scratch/role.epic/FV3_RT
 		    ls -l REGRESSION_TEST/.
 		    rsync -a --no-t REGRESSION_TEST/ "${DISKNM}/NEMSfv3gfs/develop-${BL_DATE}" || echo "#### Warning! rsync $(pwd)/REGRESSION_TEST/ incomplete."
-		    cd "${DISKNM}"/NEMSfv3gfs/
+		    cd ${DISKNM}/NEMSfv3gfs/
 		    chgrp ncep "develop-${BL_DATE}" || :
 		    cd ${WORKSPACE}/tests
 		    ./rt.sh -a "${ACCNR}" "${workflow}" "${opt}" "${suite}" | tee "${WORKSPACE}/tests/logs/RT-run-${machine}.log"
@@ -165,7 +165,7 @@ function create_baseline() {
 		    ./rt.sh -a "${ACCNR}" -c "${workflow}" "${opt}" "${suite}" | tee "${WORKSPACE}/tests/logs/RT-run-${machine}.log"
 		    status=${PIPESTATUS[0]}
 		    export DISKNM=/scratch2/NAGAPE/epic/UFS-WM_RT
-		    cd "${DISKNM}"/NEMSfv3gfs/
+		    cd ${DISKNM}/NEMSfv3gfs/
 		    mkdir -p develop-${BL_DATE}
 		    cd  /scratch1/NCEPDEV/stmp4/role.epic/FV3_RT
 		    ls -l REGRESSION_TEST/.
@@ -189,7 +189,7 @@ function create_baseline() {
 		    ./rt.sh -a "${ACCNR}" -c "${workflow}" "${opt}" "${suite}" | tee "${WORKSPACE}/tests/logs/RT-run-${machine}.log"
 		    status=${PIPESTATUS[0]}
 		    export DISKNM=/glade/derecho/scratch/epicufsrt/ufs-weather-model/RT/
-		    cd "${DISKNM}"/NEMSfv3gfs/
+		    cd ${DISKNM}/NEMSfv3gfs/
 		    mkdir -p develop-${BL_DATE}
 		    cd /glade/derecho/scratch/epicufsrt/FV3_RT
 		    ls -l REGRESSION_TEST/.
@@ -220,33 +220,32 @@ function create_baseline() {
 }
 
 function post_test() {
+	local machine=${1:-${NODE_NAME}}
+	local machine_id=${machine,,} # tolower
+	local machine_name_logs=$(echo "${machine}" | awk '{ print tolower($1) }')
 	echo "Testing concluded...removing labels for ${machine} from ${GIT_URL}"
-	echo "CHANGE_ID=${CHANGE_ID}"
-	SSH_ORIGIN=$(curl --silent "https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/${CHANGE_ID}" | jq -r '.head.repo.ssh_url')
-	FORK_BRANCH=$(curl --silent "https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/${CHANGE_ID}" | jq -r '.head.ref')
-	export SSH_ORIGIN
-	export FORK_BRANCH
 	echo "GIT_URL=${GIT_URL}"
+	echo "CHANGE_ID=${CHANGE_ID}"
+
 	git config user.email "ecc.platform@noaa.gov"
 	git config user.name "epic-cicd-jenkins"
-	machine_name_logs=$(echo "${machine}" | awk '{ print tolower($1) }')
-	export machine_name_logs
 
+	SSH_ORIGIN=$(curl --silent "https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/${CHANGE_ID}" | jq -r '.head.repo.ssh_url')
 	git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
 	git remote add sshorigin ${SSH_ORIGIN} > /dev/null 2>&1
 	#git add logs/RegressionTests_${machine_name_logs}.log
 	#git commit -m "[AutoRT] ${machine} Job Completed.\n\n\n on-behalf-of @ufs-community <ecc.platform@noaa.gov>"
+
+	#FORK_BRANCH=$(curl --silent "https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/${CHANGE_ID}" | jq -r '.head.ref')
 	#git pull sshorigin ${FORK_BRANCH}
 	#git push sshorigin HEAD:${FORK_BRANCH}
 
 	tar --create --gzip --verbose --dereference --file "${machine_name_logs}.tgz" ${WORKSPACE}/tests/logs/*.log
 
-	GIT_OWNER=$(echo ${GIT_URL} | cut -d '/' -f4)
-	GIT_REPO_NAME=$(echo ${GIT_URL} | cut -d '/' -f5 | cut -d '.' -f1)
-	export GIT_OWNER
-	export GIT_REPO_NAME
-
+	#GIT_OWNER=$(echo ${GIT_URL} | cut -d '/' -f4)
+	#GIT_REPO_NAME=$(echo ${GIT_URL} | cut -d '/' -f5 | cut -d '.' -f1)
 	#curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/${machine}-BL
 }
 
 create_baseline "${machine}"
+#post_test "${machine}"

@@ -47,9 +47,11 @@ echo "LMOD_VERSION=${LMOD_VERSION}"
 ls -l build/ufs_model || : # just checking
 status=$?
 
+[[ -n "${WM_REGRESSION_TESTS}"    ]] || WM_REGRESSION_TESTS=true     # default
 #[[ ${UFS_PLATFORM} == jet         ]] && WM_REGRESSION_TESTS=false   # takes too long
 #[[ ${UFS_PLATFORM} == derecho     ]] && WM_REGRESSION_TESTS=false
 [[ ${UFS_PLATFORM} =~ clusternoaa ]] && WM_REGRESSION_TESTS=false || :
+export WM_REGRESSION_TESTS
 
 rm -f ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
@@ -122,8 +124,9 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 	cd tests/
 	pwd
 	ls -al .
-	ls -al ${workspace}/${machine_id}/tests/logs/.
+	## Check for log files ...
 	ls -al logs/.
+	ls -al ${WORKSPACE:-"${workspace}/.."}/${machine_id}/tests/logs/. || :
 
 	## Test Results ...
 	echo "ExperimentName: ${suite}" | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt | tee    ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt

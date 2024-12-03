@@ -1,3 +1,8 @@
+# Shellcheck is used by Super-Linter to flag BASH shell oddities during CI pipeline.
+# global settings are at top-level: ../../.shellcheckrc
+# https://github.com/koalaman/shellcheck
+# https://github.com/super-linter/super-linter
+
 # Ignore source-able files from the varyious platforms in our matrix
 disable=SC1091
 
