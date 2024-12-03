@@ -3,6 +3,9 @@
 # https://github.com/koalaman/shellcheck
 # https://github.com/super-linter/super-linter
 
+# Allow to assign with local VAR=...
+disable=SC2155
+
 # Ignore source-able files from the varyious platforms in our matrix
 disable=SC1091
 
