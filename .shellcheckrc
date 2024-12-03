@@ -14,3 +14,13 @@ disable=SC1091
 
 # Disable -p -m only applies to deepest directory
 disable=SC2174
+
+# Disable info on pipe-ing commands
+disable=SC2312
+
+# Disable info sed with single quote string litteral
+disable=SC2016
+
+
+# Disable info on not double-quoting variables
+disable=SC2086

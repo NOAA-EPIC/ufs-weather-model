@@ -88,13 +88,13 @@ function create_baseline() {
 		    ./rt.sh -a "${ACCNR}" "${workflow}" "${opt}" "${suite}" | tee "${WORKSPACE}/tests/logs/RT-run-${machine}.log"
 		    status=${PIPESTATUS[0]}
 		    cd logs/
-		    cp "RegressionTests_${machine_id}.log" "$(dirname ${WORKSPACE})" #/work/noaa/epic/role-epic/jenkins/workspace
+		    cp "RegressionTests_${machine_id}.log" "$(dirname "${WORKSPACE}")" #/work/noaa/epic/role-epic/jenkins/workspace
 		    git remote -v
 		    git fetch --no-recurse-submodules origin
 		    git reset FETCH_HEAD --hard
 		    cd .. && cd .. && cd ..
 		    pwd
-		    cp "$(dirname ${WORKSPACE})/RegressionTests_${machine_id}.log" "${WORKSPACE}/tests/logs/"
+		    cp "$(dirname "${WORKSPACE}")/RegressionTests_${machine_id}.log" "${WORKSPACE}/tests/logs/"
 		    cd ${WORKSPACE}/tests/
 		elif [[ ${machine} =~ "Orion" ]]
 		then
@@ -122,13 +122,13 @@ function create_baseline() {
 		    ./rt.sh -a "${ACCNR}" "${workflow}" "${opt}" "${suite}" | tee "${WORKSPACE}/tests/logs/RT-run-${machine}.log"
 		    status=${PIPESTATUS[0]}
 		    cd logs/
-		    cp "RegressionTests_${machine_id}.log" "$(dirname ${WORKSPACE})" #/work/noaa/epic/role-epic/jenkins/workspace
+		    cp "RegressionTests_${machine_id}.log" "$(dirname "${WORKSPACE}")" #/work/noaa/epic/role-epic/jenkins/workspace
 		    git remote -v
 		    git fetch --no-recurse-submodules origin
 		    git reset FETCH_HEAD --hard
 		    cd .. && cd .. && cd ..
 		    pwd
-		    cp "$(dirname ${WORKSPACE})/RegressionTests_${machine_id}.log" "${WORKSPACE}/tests/logs/"
+		    cp "$(dirname "${WORKSPACE}")/RegressionTests_${machine_id}.log" "${WORKSPACE}/tests/logs/"
 		    cd ${WORKSPACE}/tests/
 		elif [[ ${machine} =~ "Gaea" ]]
 		then
@@ -148,13 +148,13 @@ function create_baseline() {
 		    ./rt.sh -a "${ACCNR}" "${workflow}" "${opt}" "${suite}" | tee "${WORKSPACE}/tests/logs/RT-run-${machine}.log"
 		    status=${PIPESTATUS[0]}
 		    cd logs/
-		    cp "RegressionTests_${machine_id}.log" "$(dirname ${WORKSPACE})" #/gpfs/f5/epic/scratch/role.epic/jenkins/workspace
+		    cp "RegressionTests_${machine_id}.log" "$(dirname "${WORKSPACE}")" #/gpfs/f5/epic/scratch/role.epic/jenkins/workspace
 		    git remote -v
 		    git fetch --no-recurse-submodules origin
 		    git reset FETCH_HEAD --hard
 		    cd .. && cd .. && cd ..
 		    pwd
-		    cp "$(dirname ${WORKSPACE})/RegressionTests_${machine_id}.log" "${WORKSPACE}/tests/logs/"
+		    cp "$(dirname "${WORKSPACE}")/RegressionTests_${machine_id}.log" "${WORKSPACE}/tests/logs/"
 		    cd ${WORKSPACE}/tests/
 		elif [[ ${machine} =~ "Hera" ]]
 		then
@@ -174,13 +174,13 @@ function create_baseline() {
 		    ./rt.sh -a "${ACCNR}" "${workflow}" "${opt}" "${suite}" | tee "${WORKSPACE}/tests/logs/RT-run-${machine}.log"
 		    status=${PIPESTATUS[0]}
 		    cd logs/
-		    cp "RegressionTests_${machine_id}.log" "$(dirname ${WORKSPACE})" #/scratch2/NAGAPE/epic/role.epic/jenkins/workspace
+		    cp "RegressionTests_${machine_id}.log" "$(dirname "${WORKSPACE}")" #/scratch2/NAGAPE/epic/role.epic/jenkins/workspace
 		    git remote -v
 		    git fetch --no-recurse-submodules origin
 		    git reset FETCH_HEAD --hard
 		    cd .. && cd .. && cd ..
 		    pwd
-		    cp "$(dirname ${WORKSPACE})/RegressionTests_${machine_id}.log" "${WORKSPACE}/tests/logs/"
+		    cp "$(dirname "${WORKSPACE}")/RegressionTests_${machine_id}.log" "${WORKSPACE}/tests/logs/"
 		    cd ${WORKSPACE}/tests/
 		elif [[ ${machine} =~ "Derecho" ]]
 		then
@@ -198,13 +198,13 @@ function create_baseline() {
 		    ./rt.sh -a "${ACCNR}" "${workflow}" "${opt}" "${suite}" | tee "${WORKSPACE}/tests/logs/RT-run-${machine}.log"
 		    status=${PIPESTATUS[0]}
 		    cd logs/
-		    cp "RegressionTests_${machine_id}.log" "$(dirname ${WORKSPACE})" #/glade/derecho/scratch/epicufsrt/jenkins/workspace
+		    cp "RegressionTests_${machine_id}.log" "$(dirname "${WORKSPACE}")" #/glade/derecho/scratch/epicufsrt/jenkins/workspace
 		    git remote -v
 		    git fetch --no-recurse-submodules origin
 		    git reset FETCH_HEAD --hard
 		    cd .. && cd .. && cd ..
 		    pwd
-		    cp "$(dirname ${WORKSPACE})/RegressionTests_${machine_id}.log" "${WORKSPACE}/tests/logs/"
+		    cp "$(dirname "${WORKSPACE}")/RegressionTests_${machine_id}.log" "${WORKSPACE}/tests/logs/"
 		    cd ${WORKSPACE}/tests/
 		else
 		    echo "Creating baselines on ${machine}"
@@ -215,38 +215,38 @@ function create_baseline() {
 
 	cd ${WORKSPACE}
 
-	echo "Testing concluded for ${machine}. status=$status"
-	return $status
+	echo "Testing concluded for ${machine}. status=${status}"
+	return ${status}
 }
 
 function post_test() {
-	echo "Testing concluded...removing labels for ${machine} from $GIT_URL"
-	echo $CHANGE_ID
-	SSH_ORIGIN=$(curl --silent "https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/$CHANGE_ID" | jq -r '.head.repo.ssh_url')
-	FORK_BRANCH=$(curl --silent "https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/$CHANGE_ID" | jq -r '.head.ref')
+	echo "Testing concluded...removing labels for ${machine} from ${GIT_URL}"
+	echo "CHANGE_ID=${CHANGE_ID}"
+	SSH_ORIGIN=$(curl --silent "https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/${CHANGE_ID}" | jq -r '.head.repo.ssh_url')
+	FORK_BRANCH=$(curl --silent "https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/${CHANGE_ID}" | jq -r '.head.ref')
 	export SSH_ORIGIN
 	export FORK_BRANCH
 	echo "GIT_URL=${GIT_URL}"
 	git config user.email "ecc.platform@noaa.gov"
 	git config user.name "epic-cicd-jenkins"
-	machine_name_logs=$(echo ${machine} | awk '{ print tolower($1) }')
+	machine_name_logs=$(echo "${machine}" | awk '{ print tolower($1) }')
 	export machine_name_logs
 
 	git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
-	git remote add sshorigin $SSH_ORIGIN > /dev/null 2>&1
+	git remote add sshorigin ${SSH_ORIGIN} > /dev/null 2>&1
 	#git add logs/RegressionTests_${machine_name_logs}.log
 	#git commit -m "[AutoRT] ${machine} Job Completed.\n\n\n on-behalf-of @ufs-community <ecc.platform@noaa.gov>"
-	#git pull sshorigin $FORK_BRANCH
-	#git push sshorigin HEAD:$FORK_BRANCH
+	#git pull sshorigin ${FORK_BRANCH}
+	#git push sshorigin HEAD:${FORK_BRANCH}
 
 	tar --create --gzip --verbose --dereference --file "${machine_name_logs}.tgz" ${WORKSPACE}/tests/logs/*.log
 
-	GIT_OWNER=$(echo $GIT_URL | cut -d '/' -f4)
-	GIT_REPO_NAME=$(echo $GIT_URL | cut -d '/' -f5 | cut -d '.' -f1)
+	GIT_OWNER=$(echo ${GIT_URL} | cut -d '/' -f4)
+	GIT_REPO_NAME=$(echo ${GIT_URL} | cut -d '/' -f5 | cut -d '.' -f1)
 	export GIT_OWNER
 	export GIT_REPO_NAME
 
 	#curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/${machine}-BL
 }
 
-create_baseline ${machine}
+create_baseline "${machine}"
