@@ -87,7 +87,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 	if [[ ${WM_CREATE_BASELINE} = true ]] ; then
 		echo "start Creating baseline on ${UFS_PLATFORM} ..."
 		ls -al .cicd/*
-		echo "Pipeline Creating Baseline Tests ${WM_OPERATIONAL_TESTS:=rt.conf} on ${UFS_PLATFORM} ${UFS_COMPILER}"
+		echo "Pipeline Creating Baseline Tests ${WM_OPERATIONAL_TESTS:=default} on ${UFS_PLATFORM} ${UFS_COMPILER}"
 		/usr/bin/time -p \
 			-o ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-time-wm_test.json \
 			-f '{\n  "cpu": "%P"\n, "memMax": "%M"\n, "mem": {"text": "%X", "data": "%D", "swaps": "%W", "context": "%c", "waits": "%w"}\n, "pagefaults": {"major": "%F", "minor": "%R"}\n, "filesystem": {"inputs": "%I", "outputs": "%O"}\n, "time": {"real": "%e", "user": "%U", "sys": "%S"}\n}' \
@@ -97,7 +97,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 	else
 		echo "skip Creating baseline on ${UFS_PLATFORM}."
 		ls -al .cicd/*
-		echo "Pipeline Running Regression Tests ${WM_OPERATIONAL_TESTS:=rt.conf} on ${UFS_PLATFORM} ${UFS_COMPILER}"
+		echo "Pipeline Running Regression Tests ${WM_OPERATIONAL_TESTS:=default} on ${UFS_PLATFORM} ${UFS_COMPILER}"
 		/usr/bin/time -p \
 			-o ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-time-wm_test.json \
 			-f '{\n  "cpu": "%P"\n, "memMax": "%M"\n, "mem": {"text": "%X", "data": "%D", "swaps": "%W", "context": "%c", "waits": "%w"}\n, "pagefaults": {"major": "%F", "minor": "%R"}\n, "filesystem": {"inputs": "%I", "outputs": "%O"}\n, "time": {"real": "%e", "user": "%U", "sys": "%S"}\n}' \
@@ -113,7 +113,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 	ls -al logs/.
 
 	## Test Results ...
-	echo "ExperimentName: ${suite}" | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt | tee    ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
+	echo "ExperimentName: ${WM_OPERATIONAL_TESTS:=default}" | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt | tee    ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 	grep -E " DIRECTORY: |Time: | Completed: |Result: " logs/RegressionTests_${UFS_PLATFORM,,}.log        | tee -a ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 	grep -E " -- COMPILE | -- TEST "                    logs/RegressionTests_${UFS_PLATFORM,,}.log        | tee -a ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 
