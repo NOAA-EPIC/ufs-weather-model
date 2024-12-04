@@ -20,7 +20,12 @@ TESTS_DIR=${TESTS_DIR:-${UFS_MODEL_DIR}/tests}
 	ls -al ./rt.sh
 )
 
+export GIT_URL=${GIT_URL:-"ufs-weather-model"}
+export CHANGE_ID=${CHANGE_ID:-"develop"}
+
 pwd
+echo "GIT_URL=${GIT_URL}"
+echo "CHANGE_ID=${CHANGE_ID}"
 echo "NODE_NAME=${NODE_NAME}"
 echo "USER=${USER}"
 echo "UFS_PLATFORM=<${UFS_PLATFORM}>"
