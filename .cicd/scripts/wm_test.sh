@@ -1,5 +1,7 @@
 #!/bin/bash -x
 set -eu
+export UFS_PLATFORM=${UFS_PLATFORM:-${NODE_NAME}}
+export UFS_COMPILER=${UFS_COMPILER:-intel}
 
 SCRIPT_REALPATH=$(realpath "${BASH_SOURCE[0]}")
 SCRIPTS_DIR=$(dirname "${SCRIPT_REALPATH}")
@@ -33,6 +35,7 @@ echo "UFS_COMPILER=<${UFS_COMPILER}>"
 echo "WM_REGRESSION_TESTS=<${WM_REGRESSION_TESTS}>"
 echo "WM_OPERATIONAL_TESTS=<${WM_OPERATIONAL_TESTS}>"
 echo "WM_CREATE_BASELINE=<${WM_CREATE_BASELINE}>"
+
 machine=${NODE_NAME}
 echo "machine=<${machine}>"
 machine_id=${UFS_PLATFORM}
@@ -99,6 +102,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 			./.cicd/scripts/create_baseline.sh | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt
 		status=${PIPESTATUS[0]}
 		echo "Pipeline Completed Baseline Tests ${WM_OPERATIONAL_TESTS} on ${UFS_PLATFORM} ${UFS_COMPILER}. status=${status}"
+		./.cicd/scripts/post_test_results.sh "${UFS_PLATFORM}" "BL"
 	else
 		echo "skip Creating baseline on ${UFS_PLATFORM}."
 		ls -al .cicd/*
@@ -109,6 +113,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 			./.cicd/scripts/regression_test.sh | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt
 		status=${PIPESTATUS[0]}
 		echo "Pipeline Completed Regression Tests ${WM_OPERATIONAL_TESTS} on ${UFS_PLATFORM} ${UFS_COMPILER}. status=${status}"
+		./.cicd/scripts/post_test_results.sh "${UFS_PLATFORM}" "RT"
 	fi
 
 	cd tests/
