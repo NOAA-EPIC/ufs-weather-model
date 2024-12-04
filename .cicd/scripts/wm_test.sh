@@ -102,7 +102,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 			./.cicd/scripts/create_baseline.sh | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt
 		status=${PIPESTATUS[0]}
 		echo "Pipeline Completed Baseline Tests ${WM_OPERATIONAL_TESTS} on ${UFS_PLATFORM} ${UFS_COMPILER}. status=${status}"
-		./.cicd/scripts/post_test_results.sh "${UFS_PLATFORM}" "BL"
+		#./.cicd/scripts/post_test_results.sh "${UFS_PLATFORM}" "BL"
 	else
 		echo "skip Creating baseline on ${UFS_PLATFORM}."
 		ls -al .cicd/*
@@ -113,7 +113,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 			./.cicd/scripts/regression_test.sh | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt
 		status=${PIPESTATUS[0]}
 		echo "Pipeline Completed Regression Tests ${WM_OPERATIONAL_TESTS} on ${UFS_PLATFORM} ${UFS_COMPILER}. status=${status}"
-		./.cicd/scripts/post_test_results.sh "${UFS_PLATFORM}" "RT"
+		#./.cicd/scripts/post_test_results.sh "${UFS_PLATFORM}" "RT"
 	fi
 
 	cd tests/
