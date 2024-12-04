@@ -169,6 +169,7 @@ function post_test() {
 	local machine=${1:-${NODE_NAME}}
 	local machine_id=${machine,,} # tolower
 	local machine_name_logs=$(echo "${machine}" | awk '{ print tolower($1) }')
+	local label=${2:-"undef"}
 	echo "Testing concluded...removing labels for ${machine} from ${GIT_URL}"
 	echo "GIT_URL=${GIT_URL}"
 	echo "CHANGE_ID=${CHANGE_ID}"
@@ -190,8 +191,8 @@ function post_test() {
 
 	#GIT_OWNER=$(echo ${GIT_URL} | cut -d '/' -f4)
 	#GIT_REPO_NAME=$(echo ${GIT_URL} | cut -d '/' -f5 | cut -d '.' -f1)
-	#curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/${machine}-RT
+	#curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/${machine}-${label}
 }
 
 regression_test "${machine}"
-#post_test "${machine}"
+post_test "${machine}" "RT"
