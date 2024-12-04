@@ -170,6 +170,8 @@ function post_test() {
 	local machine_id=${machine,,} # tolower
 	local machine_name_logs=$(echo "${machine}" | awk '{ print tolower($1) }')
 	local label=${2:-"undef"}
+	local WORKSPACE
+	WORKSPACE="$(pwd)"
 	GIT_URL=${GIT_URL:-"ufs-weather-model"}
 	CHANGE_ID=${CHANGE_ID:-"develop"}
 	echo "GIT_URL=${GIT_URL}"
