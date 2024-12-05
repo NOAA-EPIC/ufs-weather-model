@@ -56,7 +56,7 @@ status=$?
 [[ -n "${WM_REGRESSION_TESTS}"    ]] || WM_REGRESSION_TESTS=true     # default
 #[[ ${UFS_PLATFORM} == jet         ]] && WM_REGRESSION_TESTS=false   # takes too long
 #[[ ${UFS_PLATFORM} == derecho     ]] && WM_REGRESSION_TESTS=false
-[[ ${UFS_PLATFORM} =~ clusternoaa ]] && WM_REGRESSION_TESTS=false || :
+#[[ ${UFS_PLATFORM} =~ clusternoaa ]] && WM_REGRESSION_TESTS=false || :
 export WM_REGRESSION_TESTS
 
 rm -f ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
