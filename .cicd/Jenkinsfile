@@ -1,60 +1,78 @@
 matchedNode = []
 generateBaselineNode = []
 for (label in pullRequest.labels) {
-   listOfLabelNodeNames = jenkins.model.Jenkins.instance.nodes.collect {
-   node -> node.getLabelString().contains(label) ? node.name : null
+    listOfLabelNodeNames = jenkins.model.Jenkins.instance.nodes.collect {
+        node -> node.getLabelString().contains(label) ? node.name : null
 
-   if ((label.matches(node.getLabelString()+"-(.*)"))) {
-     matchedNode += node.getLabelString()
-   }
+        if ((label.matches(node.getLabelString()+"-(.*)"))) {
+            matchedNode += node.getLabelString()
+        }
 
-   if ((label.matches(node.getLabelString()+"(.*)-BL"))) {
-     generateBaselineNode += node.getLabelString() 
-   }
- }
+        if ((label.matches(node.getLabelString()+"(.*)-BL"))) {
+            generateBaselineNode += node.getLabelString() 
+        }
+    }
 }
 
 modifiedLabels = matchedNode.collect{"'" + it + "'"} 
 baselineLabels = generateBaselineNode.collect{"'" + it + "'"} 
 def generateStage(nodeLabel) {
     return {
-        stage("Running on ${nodeLabel}") {
+        stage("Test on ${nodeLabel}") {
             node(nodeLabel) {
-               cleanWs()
-               checkout scm
-               script {
-                 try {
-                    echo "Running on ${nodeLabel}"
-                    if (baselineLabels.contains(nodeLabel)) {
-                        sh "WM_CREATE_BASELINE=true"  + 'bash --login "${WORKSPACE}/.cicd/scripts/wm_test.sh"'
-                    }
-                    else {
-                        sh "WM_CREATE_BASELINE=false" + 'bash --login "${WORKSPACE}/.cicd/scripts/wm_test.sh"'
-                    }
-		    s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: true, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "**/*tgz*", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
-                  }
-                  catch(err) {
-                    sh '''
-                        export machine=${NODE_NAME}
-                        export CHANGE_ID=${CHANGE_ID}
+                cleanWs()
+                checkout scm
+                script {
+                    try {
+                        echo "Running on ${nodeLabel}"
+                        if (baselineLabels.contains(nodeLabel)) {
+                            sh "WM_CREATE_BASELINE=true"  + 'bash --login "${WORKSPACE}/.cicd/scripts/wm_test.sh"'
+                        }
+                        else {
+                            sh "WM_CREATE_BASELINE=false" + 'bash --login "${WORKSPACE}/.cicd/scripts/wm_test.sh"'
+                        }
+		        s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: true, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "**/*tgz*", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
+                        }
+                        catch(err) {
+                        sh '''
+                            export machine=${NODE_NAME}
+                            export CHANGE_ID=${CHANGE_ID}
 
-                        cd ${WORKSPACE}/tests
-                        export machine_name_logs=$(echo $machine | awk '{ print tolower($1) }')
-                        tar --create --gzip --verbose --dereference --file "${machine_name_logs}.tgz" ${WORKSPACE}/tests/logs/*.log
+                            cd ${WORKSPACE}/tests
+                            export machine_name_logs=$(echo $machine | awk '{ print tolower($1) }')
+                            tar --create --gzip --verbose --dereference --file "${machine_name_logs}.tgz" ${WORKSPACE}/tests/logs/*.log
 
-                        echo "Testing concluded...removing labels for $machine from $GIT_URL"
-                        GIT_OWNER=$(echo $GIT_URL | cut -d '/' -f4)
-                        GIT_REPO_NAME=$(echo $GIT_URL | cut -d '/' -f5 | cut -d '.' -f1)
-                        #curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/{$machine-RT,$machine-BL}
-                    '''
-                    s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: true, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "**/*tgz*", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
-                    currentBuild.result = 'FAILURE'
-                  }
-                  sh "STAGE_NAME=${env.STAGE_NAME} " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
+                            echo "Testing concluded...removing labels for $machine from $GIT_URL"
+                            GIT_OWNER=$(echo $GIT_URL | cut -d '/' -f4)
+                            GIT_REPO_NAME=$(echo $GIT_URL | cut -d '/' -f5 | cut -d '.' -f1)
+                            #curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/{$machine-RT,$machine-BL}
+                        '''
+                        s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: true, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "**/*tgz*", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
+                        currentBuild.result = 'FAILURE'
+                    }
+                    sh "STAGE_NAME=${env.STAGE_NAME} " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
                 }
-              }
-           }
-       }
+            }
+        }
+        stage("Post from ${nodeLabel}") {
+            node(nodeLabel) {
+                script {
+                    try {
+                        echo "Post Results from ${nodeLabel}"
+                        if (baselineLabels.contains(nodeLabel)) {
+                            sh 'bash --login "${WORKSPACE}/.cicd/scripts/post_test_results.sh ${NODE_NAME} BL"'
+                        }
+                        else {
+                            sh 'bash --login "${WORKSPACE}/.cicd/scripts/post_test_results.sh ${NODE_NAME} RT"'
+                        }
+                    }
+                    catch(err) {
+                        echo "Error: Post Results from ${nodeLabel}"
+                    }
+                }
+            }
+        }
+    }
 }
 
 def parallelStagesMap = modifiedLabels.collectEntries {
@@ -93,24 +111,24 @@ pipeline {
                     parallel parallelStagesMap
                 }
             }
-        }       
-    }   
-        post {
-         success {
-             node('built-in') {
+        }
+    }
+    post {
+        success {
+            node('built-in') {
                 echo 'This will run only if successful.'
                 sh '''
                   aws sns publish --topic-arn "arn:aws:sns:us-east-1:${AWS_PROD_ACCOUNT_ID}:${AWS_PROD_SNS_TOPIC}" --region us-east-1 --message '{"version":"1.0","source":"custom","content":{"description":":sunny: Jenkins build *'"$JOB_NAME"' '"$BUILD_NUMBER"'* with *PR-'"$CHANGE_ID"'*  *succeeded*"}}'
                '''
-             }
-         }
-         failure {
-             node('built-in') {
+            }
+        }
+        failure {
+            node('built-in') {
                 echo 'This will run only if the run was marked as unstable.'
                 sh '''
                   aws sns publish --topic-arn "arn:aws:sns:us-east-1:${AWS_PROD_ACCOUNT_ID}:${AWS_PROD_SNS_TOPIC}" --region us-east-1 --message '{"version":"1.0","source":"custom","content":{"description":":warning: Jenkins build *'"$JOB_NAME"' '"$BUILD_NUMBER"'* with *PR-'"$CHANGE_ID"'*  *failed!*"}}'
                '''
-             }
-         }
-     } 
+            }
+        }
+    }
 }
