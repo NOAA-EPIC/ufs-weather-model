@@ -35,6 +35,7 @@ echo "UFS_COMPILER=<${UFS_COMPILER}>"
 echo "WM_REGRESSION_TESTS=<${WM_REGRESSION_TESTS}>"
 echo "WM_OPERATIONAL_TESTS=<${WM_OPERATIONAL_TESTS}>"
 echo "WM_CREATE_BASELINE=<${WM_CREATE_BASELINE}>"
+echo "WM_POST_TEST_RESULTS=<${WM_POST_TEST_RESULTS}>"
 
 machine=${NODE_NAME}
 echo "machine=<${machine}>"
@@ -58,6 +59,8 @@ status=$?
 #[[ ${UFS_PLATFORM} == derecho     ]] && WM_REGRESSION_TESTS=false
 #[[ ${UFS_PLATFORM} =~ clusternoaa ]] && WM_REGRESSION_TESTS=false || :
 export WM_REGRESSION_TESTS
+[[ -n "${WM_CREATE_BASELINE}"     ]] || WM_CREATE_BASELINE=false     # default
+[[ -n "${WM_POST_TEST_RESULTS}"   ]] || WM_POST_TEST_RESULTS=false   # default
 
 rm -f ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 
@@ -102,7 +105,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 			./.cicd/scripts/create_baseline.sh | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt
 		status=${PIPESTATUS[0]}
 		echo "Pipeline Completed Baseline Tests ${WM_OPERATIONAL_TESTS} on ${UFS_PLATFORM} ${UFS_COMPILER}. status=${status}"
-		#./.cicd/scripts/post_test_results.sh "${UFS_PLATFORM}" "BL"
+		[[ ${WM_POST_TEST_RESULTS} = true ]] && ./.cicd/scripts/post_test_results.sh "${UFS_PLATFORM}" "BL" || echo "post test results seprately"
 	else
 		echo "skip Creating baseline on ${UFS_PLATFORM}."
 		ls -al .cicd/*
@@ -113,7 +116,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 			./.cicd/scripts/regression_test.sh | tee -a ${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt
 		status=${PIPESTATUS[0]}
 		echo "Pipeline Completed Regression Tests ${WM_OPERATIONAL_TESTS} on ${UFS_PLATFORM} ${UFS_COMPILER}. status=${status}"
-		#./.cicd/scripts/post_test_results.sh "${UFS_PLATFORM}" "RT"
+		[[ ${WM_POST_TEST_RESULTS} = true ]] && ./.cicd/scripts/post_test_results.sh "${UFS_PLATFORM}" "RT" || echo "post test results seprately"
 	fi
 
 	cd tests/

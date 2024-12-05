@@ -31,7 +31,7 @@ TESTS_DIR=${TESTS_DIR:-${UFS_MODEL_DIR}/tests}
 function post_test() {
 	local machine=${1:-${NODE_NAME}}
 	#local machine_id=${machine,,} # tolower
-	local machine_name_logs=$(echo "${machine}" | awk '{ print tolower($1) }')
+	#local machine_name_logs=$(echo "${machine}" | awk '{ print tolower($1) }')
 	local label=${2:-"undef"}
 	local WORKSPACE
 	WORKSPACE="$(pwd)"
@@ -46,14 +46,14 @@ function post_test() {
 	SSH_ORIGIN=$(curl --silent "https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/${CHANGE_ID}" | jq -r '.head.repo.ssh_url')
 	git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
 	git remote add sshorigin ${SSH_ORIGIN} > /dev/null 2>&1
-	#git add logs/RegressionTests_${machine_name_logs}.log
+	#git add logs/RegressionTests_${machine,,}.log
 	#git commit -m "[AutoRT] ${machine} Job Completed.\n\n\n on-behalf-of @ufs-community <ecc.platform@noaa.gov>"
 
 	#FORK_BRANCH=$(curl --silent "https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/${CHANGE_ID}" | jq -r '.head.ref')
 	#git pull sshorigin ${FORK_BRANCH}
 	#git push sshorigin HEAD:${FORK_BRANCH}
 
-	tar --create --gzip --verbose --dereference --file "${machine_name_logs}.tgz" ${WORKSPACE}/tests/logs/*.log
+	#tar --create --gzip --verbose --dereference --file "${machine,,}.tgz" ${WORKSPACE}/tests/logs/*.log
 
 	echo "Testing concluded...removing label ${label} for ${machine} from ${GIT_URL}"
 	#GIT_OWNER=$(echo ${GIT_URL} | cut -d '/' -f4)
