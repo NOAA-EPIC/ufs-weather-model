@@ -54,14 +54,14 @@ status=0
 ls -l build/ufs_model || : # just checking
 status=$?
 
-[[ -n "${WM_REGRESSION_TESTS}"    ]] || WM_REGRESSION_TESTS=true     # default
+[[ -n "${WM_REGRESSION_TESTS:-""}"    ]] || WM_REGRESSION_TESTS=true     # default
 #[[ ${UFS_PLATFORM} == jet         ]] && WM_REGRESSION_TESTS=false   # takes too long
 #[[ ${UFS_PLATFORM} == derecho     ]] && WM_REGRESSION_TESTS=false
 #[[ ${UFS_PLATFORM} =~ clusternoaa ]] && WM_REGRESSION_TESTS=false || :
 export WM_REGRESSION_TESTS
-[[ -n "${WM_CREATE_BASELINE}"     ]] || WM_CREATE_BASELINE=false     # default
+[[ -n "${WM_CREATE_BASELINE:-""}"     ]] || WM_CREATE_BASELINE=false     # default
 export WM_CREATE_BASELINE
-[[ -n "${WM_POST_TEST_RESULTS}"   ]] || WM_POST_TEST_RESULTS=false   # default
+[[ -n "${WM_POST_TEST_RESULTS:-""}"   ]] || WM_POST_TEST_RESULTS=false   # default
 export WM_POST_TEST_RESULTS
 
 rm -f ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
