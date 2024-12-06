@@ -22,6 +22,16 @@ def generateStage(nodeLabel) {
             node(nodeLabel) {
                 cleanWs()
                 checkout scm
+		script {
+                    sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
+		}
+            }
+        }
+        stage("Build on ${nodeLabel}") {
+            node(nodeLabel) {
+		script {
+                    sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
+		}
             }
         }
         stage("Test on ${nodeLabel}") {
@@ -54,7 +64,7 @@ def generateStage(nodeLabel) {
                         s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: true, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "**/*tgz*", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
                         currentBuild.result = 'FAILURE'
                     }
-                    sh "STAGE_NAME=${env.STAGE_NAME} " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
+                    sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
                 }
             }
         }
