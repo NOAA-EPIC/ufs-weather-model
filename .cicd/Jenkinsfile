@@ -30,10 +30,10 @@ def generateStage(nodeLabel) {
                     try {
                         echo "Running on ${nodeLabel}"
                         if (baselineLabels.contains(nodeLabel)) {
-                            sh "WM_CREATE_BASELINE=true"  + '/usr/bin/bash --login "${WORKSPACE}/.cicd/scripts/wm_test.sh"'
+                            sh "WM_CREATE_BASELINE=true "  + 'bash --login "${WORKSPACE}/.cicd/scripts/wm_test.sh"'
                         }
                         else {
-                            sh "WM_CREATE_BASELINE=false" + '/usr/bin/bash --login "${WORKSPACE}/.cicd/scripts/wm_test.sh"'
+                            sh "WM_CREATE_BASELINE=false " + 'bash --login "${WORKSPACE}/.cicd/scripts/wm_test.sh"'
                         }
 		        s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: true, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "**/*tgz*", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
                         }
