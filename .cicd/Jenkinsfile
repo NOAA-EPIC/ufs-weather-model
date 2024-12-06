@@ -18,10 +18,20 @@ modifiedLabels = matchedNode.collect{"'" + it + "'"}
 baselineLabels = generateBaselineNode.collect{"'" + it + "'"} 
 def generateStage(nodeLabel) {
     return {
-        stage("Test on ${nodeLabel}") {
+        stage("Initialize on ${nodeLabel}") {
             node(nodeLabel) {
                 cleanWs()
                 checkout scm
+            }
+        }
+        stage("Test on ${nodeLabel}") {
+            when {
+                beforeAgent true
+                allOf {
+                    not { expression { return env.NODE_NAME.contains('clusternoaa') } } 
+                }
+            }
+            node(nodeLabel) {
                 script {
                     try {
                         echo "Running on ${nodeLabel}"
@@ -55,6 +65,12 @@ def generateStage(nodeLabel) {
             }
         }
         stage("Post from ${nodeLabel}") {
+            when {
+                beforeAgent true
+                allOf {
+                    not { expression { return env.NODE_NAME.contains('clusternoaa') } } 
+                }
+            }
             node(nodeLabel) {
                 script {
                     try {
