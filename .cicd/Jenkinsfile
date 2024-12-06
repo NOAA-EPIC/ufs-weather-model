@@ -25,12 +25,6 @@ def generateStage(nodeLabel) {
             }
         }
         stage("Test on ${nodeLabel}") {
-            when {
-                beforeAgent true
-                allOf {
-                    not { expression { return env.NODE_NAME.contains('clusternoaa') } } 
-                }
-            }
             node(nodeLabel) {
                 script {
                     try {
@@ -65,12 +59,6 @@ def generateStage(nodeLabel) {
             }
         }
         stage("Post from ${nodeLabel}") {
-            when {
-                beforeAgent true
-                allOf {
-                    not { expression { return env.NODE_NAME.contains('clusternoaa') } } 
-                }
-            }
             node(nodeLabel) {
                 script {
                     try {
