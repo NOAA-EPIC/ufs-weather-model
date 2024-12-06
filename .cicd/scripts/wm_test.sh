@@ -32,10 +32,10 @@ echo "NODE_NAME=${NODE_NAME}"
 echo "USER=${USER}"
 echo "UFS_PLATFORM=<${UFS_PLATFORM}>"
 echo "UFS_COMPILER=<${UFS_COMPILER}>"
-echo "WM_REGRESSION_TESTS=<${WM_REGRESSION_TESTS}>"
-echo "WM_OPERATIONAL_TESTS=<${WM_OPERATIONAL_TESTS}>"
-echo "WM_CREATE_BASELINE=<${WM_CREATE_BASELINE}>"
-echo "WM_POST_TEST_RESULTS=<${WM_POST_TEST_RESULTS}>"
+echo "WM_REGRESSION_TESTS=<${WM_REGRESSION_TESTS}:-"">"
+echo "WM_OPERATIONAL_TESTS=<${WM_OPERATIONAL_TESTS:-""}>"
+echo "WM_CREATE_BASELINE=<${WM_CREATE_BASELINE:-""}>"
+echo "WM_POST_TEST_RESULTS=<${WM_POST_TEST_RESULTS:-""}>"
 
 machine=${NODE_NAME}
 echo "machine=<${machine}>"
@@ -60,7 +60,9 @@ status=$?
 #[[ ${UFS_PLATFORM} =~ clusternoaa ]] && WM_REGRESSION_TESTS=false || :
 export WM_REGRESSION_TESTS
 [[ -n "${WM_CREATE_BASELINE}"     ]] || WM_CREATE_BASELINE=false     # default
+export WM_CREATE_BASELINE
 [[ -n "${WM_POST_TEST_RESULTS}"   ]] || WM_POST_TEST_RESULTS=false   # default
+export WM_POST_TEST_RESULTS
 
 rm -f ${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt
 
