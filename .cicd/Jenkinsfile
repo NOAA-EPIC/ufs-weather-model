@@ -30,7 +30,9 @@ def generateStage(nodeLabel) {
         stage("Build on ${nodeLabel}") {
             node(nodeLabel) {
 		script {
-                    sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
+                        echo "Building on ${nodeLabel}"
+                        sh 'bash --login "${WORKSPACE}/.cicd/scripts/wm_build.sh"'
+                        sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
 		}
             }
         }
@@ -95,6 +97,10 @@ def parallelStagesMap = modifiedLabels.collectEntries {
 
 pipeline {
     agent none
+    parameters {
+        // Regression Test Suite ?
+        choice(name: 'WM_OPERATIONAL_TESTS', choices: ['default', 'control_p8' 'cpld_control_p8' 'comprehensive' 'rt.sh', 'none'], description: 'Specify the suite of tests to run')
+    }
     environment {
         ACCNR = 'epic'
         AWS_PROD_ACCOUNT_ID = credentials('AWS_PROD_ACCOUNT_ID')
