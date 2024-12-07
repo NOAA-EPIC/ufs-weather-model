@@ -39,8 +39,8 @@ echo "WM_POST_TEST_RESULTS=<${WM_POST_TEST_RESULTS:-""}>"
 
 machine=${NODE_NAME}
 echo "machine=<${machine}>"
-machine_id=${UFS_PLATFORM}
-if [[ ${UFS_PLATFORM} =~ clusternoaa ]] ; then
+machine_id=${UFS_PLATFORM,,}
+if [[ ${UFS_PLATFORM,,} =~ clusternoaa ]] ; then
 	machine_id="noaacloud"
 	#sed -i -e "s|EPIC/spack-stack/spack-stack-1.5.0|spack-stack/spack-stack-1.5.1|g" modulefiles/ufs_noaacloud.intel.lua
 fi
@@ -55,9 +55,9 @@ ls -l build/ufs_model || : # just checking
 status=$?
 
 [[ -n "${WM_REGRESSION_TESTS:-""}"    ]] || WM_REGRESSION_TESTS=true     # default
-#[[ ${UFS_PLATFORM} == jet         ]] && WM_REGRESSION_TESTS=false   # takes too long
-#[[ ${UFS_PLATFORM} == derecho     ]] && WM_REGRESSION_TESTS=false
-#[[ ${UFS_PLATFORM} =~ clusternoaa ]] && WM_REGRESSION_TESTS=false || :
+#[[ ${UFS_PLATFORM,,} == jet         ]] && WM_REGRESSION_TESTS=false   # takes too long
+#[[ ${UFS_PLATFORM,,} == derecho     ]] && WM_REGRESSION_TESTS=false
+#[[ ${UFS_PLATFORM,,} =~ clusternoaa ]] && WM_REGRESSION_TESTS=false || :
 export WM_REGRESSION_TESTS
 [[ -n "${WM_CREATE_BASELINE:-""}"     ]] || WM_CREATE_BASELINE=false     # default
 export WM_CREATE_BASELINE
@@ -73,20 +73,20 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 	echo "LMOD_VERSION=${LMOD_VERSION}"
 
 	set +x
-	if [[ ${UFS_PLATFORM} = orion ]] ; then
+	if [[ ${UFS_PLATFORM,,} = orion ]] ; then
 		#module --ignore_cache load git/2.28.0
 		git --version
 		git submodule update --init --recursive
 	fi
 
-	if [[ ${UFS_PLATFORM} = gaea ]] ; then
+	if [[ ${UFS_PLATFORM,,} = gaea ]] ; then
 		source /gpfs/f5/epic/scratch/role.epic/contrib/Lmod_init_C5.sh
 		echo "LMOD_VERSION=${LMOD_VERSION}"
 	fi
 
 	module use ${PWD}/modulefiles >/dev/null 2>&1
 	module load ufs_${machine_id}.${UFS_COMPILER} || true
-	[[ ${UFS_PLATFORM} = gaea ]] && module load cmake/3.23.1
+	[[ ${UFS_PLATFORM,,} = gaea ]] && module load cmake/3.23.1
 	module list
 	set -x
 

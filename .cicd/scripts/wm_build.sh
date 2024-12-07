@@ -1,6 +1,6 @@
 #!/bin/bash
 set -eu
-export UFS_PLATFORM=${UFS_PLATFORM:-${NODE_NAME,,}}
+export UFS_PLATFORM=${UFS_PLATFORM:-${NODE_NAME}}
 export UFS_COMPILER=${UFS_COMPILER:-intel}
 
 SCRIPT_REALPATH=$(realpath "${BASH_SOURCE[0]}")
@@ -34,14 +34,14 @@ workspace=$(pwd)
 export workspace
 machine=${NODE_NAME}
 echo "machine=<${machine}>"
-machine_id=${UFS_PLATFORM}
-if [[ ${UFS_PLATFORM} =~ clusternoaa ]] ; then
+machine_id=${UFS_PLATFORM,,}
+if [[ ${UFS_PLATFORM,,} =~ clusternoaa ]] ; then
 	machine_id="noaacloud"
 	sed -e "s|EPIC/spack-stack/spack-stack-1.5.0|spack-stack/spack-stack-1.5.1|g" -i modulefiles/ufs_noaacloud.intel.lua
 fi
 echo "machine_id=<${machine_id}>"
 
-if [[ ${UFS_PLATFORM} = derecho ]] ; then
+if [[ ${UFS_PLATFORM,,} = derecho ]] ; then
 	export ACCNR=nral0032
 else
 	export ACCNR=epic
@@ -50,14 +50,14 @@ echo "ACCNR=${ACCNR}"
 
 export LMOD_SH_DBG_ON=0
 echo "LMOD_VERSION=${LMOD_VERSION}"
-if [[ ${UFS_PLATFORM} = gaea ]] ; then
+if [[ ${UFS_PLATFORM,,} = gaea ]] ; then
 	source /gpfs/f5/epic/scratch/role.epic/contrib/Lmod_init_C5.sh
 	echo "LMOD_VERSION=${LMOD_VERSION}"
 fi
 set +x
 module use ${PWD}/modulefiles >/dev/null 2>&1
 module load ufs_${machine_id}.${UFS_COMPILER} || true
-[[ ${UFS_PLATFORM} = gaea ]] && module load cmake/3.23.1 || true
+[[ ${UFS_PLATFORM,,} = gaea ]] && module load cmake/3.23.1 || true
 module list
 
 echo "Pipeline Building WM on ${UFS_PLATFORM} ${UFS_COMPILER} with Account=${ACCNR}."
