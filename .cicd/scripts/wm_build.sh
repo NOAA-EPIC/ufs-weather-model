@@ -1,6 +1,6 @@
 #!/bin/bash
 set -eu
-export UFS_PLATFORM=${UFS_PLATFORM:-${NODE_NAME}}
+export UFS_PLATFORM=${UFS_PLATFORM:-${NODE_NAME,,}}
 export UFS_COMPILER=${UFS_COMPILER:-intel}
 
 SCRIPT_REALPATH=$(realpath "${BASH_SOURCE[0]}")
