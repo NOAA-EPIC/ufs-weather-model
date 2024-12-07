@@ -31,7 +31,7 @@ def generateStage(nodeLabel) {
             node(nodeLabel) {
 		script {
                         echo "Building on ${nodeLabel}"
-                        sh 'bash --login "${WORKSPACE}/.cicd/scripts/wm_build.sh"'
+                        echo 'bash --login "${WORKSPACE}/.cicd/scripts/wm_build.sh"'
                         sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
 		}
             }
