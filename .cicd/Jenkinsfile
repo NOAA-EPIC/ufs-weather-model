@@ -28,15 +28,8 @@ def generateStage(nodeLabel) {
             }
         }
         stage("Build on ${nodeLabel}") {
-            node(nodeLabel) {
-	    when {
-		beforeAgent true
-		allOf {
-		    expression { params.WM_BUILD }
-		}
-	    }
-
-		steps {
+	    if (params.WM_BUILD == true ) {
+                node(nodeLabel) {
 		    script {
                         echo "Building on ${nodeLabel}"
                         currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel} <compiler>"
