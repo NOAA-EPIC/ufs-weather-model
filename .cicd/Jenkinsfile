@@ -28,6 +28,7 @@ def generateStage(nodeLabel) {
             }
         }
         stage("Build on ${nodeLabel}") {
+            node(nodeLabel) {
 	    when {
 		beforeAgent true
 		allOf {
@@ -35,7 +36,6 @@ def generateStage(nodeLabel) {
 		}
 	    }
 
-            node(nodeLabel) {
 		steps {
 		    script {
                         echo "Building on ${nodeLabel}"
