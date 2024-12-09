@@ -24,6 +24,7 @@ def generateStage(nodeLabel) {
                 checkout scm
 		script {
                         currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel}"
+                        sh 'bash --login "${WORKSPACE}/.cicd/scripts/wm_init.sh"'
                         sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
 		}
             }
