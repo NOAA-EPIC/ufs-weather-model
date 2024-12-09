@@ -36,13 +36,15 @@ def generateStage(nodeLabel) {
 	    }
 
             node(nodeLabel) {
-		script {
+		steps {
+		    script {
                         echo "Building on ${nodeLabel}"
                         currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel} <compiler>"
                         //currentBuild.description = ""
 
                         sh 'bash --login "${WORKSPACE}/.cicd/scripts/wm_build.sh"'
                         sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
+		    }
 		}
             }
         }
