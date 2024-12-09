@@ -23,6 +23,7 @@ def generateStage(nodeLabel) {
                 cleanWs()
                 checkout scm
 		script {
+                        currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel}"
                         sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
 		}
             }
@@ -39,7 +40,9 @@ def generateStage(nodeLabel) {
                         sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
 		    }
 		}
-            }
+            } else {
+		echo "Building on ${nodeLabel} skipped"
+	    }
         }
         stage("Test on ${nodeLabel}") {
             node(nodeLabel) {
