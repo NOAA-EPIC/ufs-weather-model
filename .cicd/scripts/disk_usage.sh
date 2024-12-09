@@ -26,7 +26,7 @@ else
 fi
 
 echo "STAGE_NAME=${STAGE_NAME}" # from pipeline
-outfile="${4:-${workspace}-${UFS_COMPILER}-disk-usage${STAGE_NAME}.csv}"
+outfile="${4:-${workspace}-${UFS_COMPILER}-disk-usage${STAGE_NAME%% *}.csv}"
 
 function disk_usage() {
     local directory="${1:-${PWD}}"
