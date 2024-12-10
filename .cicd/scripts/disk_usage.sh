@@ -10,6 +10,8 @@
 #    size=$3
 #    outfile=$4
 
+export UFS_PLATFORM=${UFS_PLATFORM:-${NODE_NAME,,}}
+export UFS_COMPILER=${UFS_COMPILER:-intel}
 [[ -n ${WORKSPACE} ]] || WORKSPACE="$(pwd)"
 [[ -n ${UFS_PLATFORM} ]] || UFS_PLATFORM="$(hostname -s 2>/dev/null)" || UFS_PLATFORM="$(hostname 2>/dev/null)"
 [[ -n ${UFS_COMPILER} ]] || UFS_COMPILER="compiler"
@@ -25,7 +27,7 @@ else
     workspace="$(cd -- "${script_dir}/../.." && pwd)"
 fi
 
-echo "STAGE_NAME=${STAGE_NAME}" # from pipeline
+echo "STAGE_NAME=${STAGE_NAME%% *}" # from pipeline
 outfile="${4:-${workspace}-${UFS_COMPILER}-disk-usage${STAGE_NAME%% *}.csv}"
 
 function disk_usage() {
