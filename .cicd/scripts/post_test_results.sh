@@ -13,6 +13,8 @@ export ACCNR=epic
 
 export account="-a ${ACCNR}"
 
+which jq
+
 set -eu
 
 SCRIPT_REALPATH=$(realpath "${BASH_SOURCE[0]}")

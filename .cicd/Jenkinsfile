@@ -106,6 +106,7 @@ def generateStage(nodeLabel) {
 			def UFS_PLATFORM = nodeLabel.replaceAll("'","")
                     try {
                         echo "Post Results from ${nodeLabel}"
+                            sh 'bash --login "ls -l ${WORKSPACE}/.cicd/scripts"'
                         if (baselineLabels.contains(nodeLabel)) {
                             sh 'bash --login "${WORKSPACE}/.cicd/scripts/post_test_results.sh ${NODE_NAME} BL"'
                         }
