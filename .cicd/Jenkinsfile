@@ -38,7 +38,7 @@ def generateStage(nodeLabel) {
 		    script {
                         echo "Building on ${nodeLabel}"
                         currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel} ${UFS_COMPILER}"
-                        //currentBuild.description = ""
+                        currentBuild.description = "build ${UFS_PLATFORM}/${UFS_COMPILER}"
 
                         sh 'bash --login "${WORKSPACE}/.cicd/scripts/wm_build.sh"'
                         sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
@@ -127,7 +127,7 @@ pipeline {
         AWS_PROD_SNS_TOPIC = credentials('AWS_PROD_SNS_TOPIC')
         GITHUB_TOKEN = credentials('GithubJenkinsNew')
         GIT_URL = 'https://github.com/ufs-community/ufs-weather-model.git'
-	UFS_PLATFORM = "${NODE_NAME}"
+	UFS_PLATFORM = env.NODE_NAME
 	UFS_COMPILER = 'intel'
     }
     stages {
