@@ -20,21 +20,18 @@ def generateStage(nodeLabel) {
     return {
         stage("Initialize on ${nodeLabel}") {
             node(nodeLabel) {
-		environment {
-			UFS_PLATFORM = env.nodeLabel.toLowerCase()
-		}
 		script {
-                        currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel}"
+                        currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel} ${params.WM_OPERATIONAL_TEST}" ) {
 		}
                 cleanWs()
                 checkout scm
 		script {
-			def MY_PLATFORM = nodeLabel.toLowerCase()
-			echo "nodeLabel=${nodeLabel} MY_PLATFORM=${MY_PLATFORM} NODE_NAME=${NODE_NAME} UFS_PLATFORM=${env.UFS_PLATFORM} UFS_COMPILER=${env.UFS_COMPILER}"
+			def UFS_PLATFORM = nodeLabel.replaceAll("'","")
+			echo "nodeLabel=${nodeLabel} NODE_NAME=${NODE_NAME} UFS_PLATFORM=${env.UFS_PLATFORM} UFS_COMPILER=${env.UFS_COMPILER}"
                         sh 'bash --login "${WORKSPACE}/.cicd/scripts/wm_init.sh"'
                         sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
 			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "*-*-time-wm_init.json", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
-			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "${MY_PLATFORM}-*-disk-usageInit*.csv", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
+			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "${UFS_PLATFORM}-*-disk-usageInit*.csv", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
 		}
             }
         }
@@ -60,7 +57,7 @@ def generateStage(nodeLabel) {
 	    }
         }
         stage("Test on ${nodeLabel}") {
-	    if (params.WM_OPERATIONAL_TEST != "none" ) {
+	    if (params.WM_OPERATIONAL_TEST != 'none' ) {
               node(nodeLabel) {
 		environment {
 			UFS_PLATFORM = nodeLabel.toLowerCase()
@@ -104,7 +101,7 @@ def generateStage(nodeLabel) {
 	    }
         }
         stage("Post from ${nodeLabel}") {
-	    if (params.WM_OPERATIONAL_TEST != "none" ) {
+	    if (params.WM_OPERATIONAL_TEST != 'none' ) {
               node(nodeLabel) {
                 script {
                     try {
