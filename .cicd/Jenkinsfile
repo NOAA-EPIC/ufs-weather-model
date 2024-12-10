@@ -29,20 +29,21 @@ def generateStage(nodeLabel) {
                 cleanWs()
                 checkout scm
 		script {
-			echo "nodeLabel=${nodeLabel} NODE_NAME=${NODE_NAME} UFS_PLATFORM=${env.UFS_PLATFORM} UFS_COMPILER=${env.UFS_COMPILER}"
+			def MY_PLATFORM = nodeLabel.toLowerCase()
+			echo "nodeLabel=${nodeLabel} MY_PLATFORM=${MY_PLATFORM} NODE_NAME=${NODE_NAME} UFS_PLATFORM=${env.UFS_PLATFORM} UFS_COMPILER=${env.UFS_COMPILER}"
                         sh 'bash --login "${WORKSPACE}/.cicd/scripts/wm_init.sh"'
                         sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
 			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "*-*-time-wm_init.json", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
-			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "*-*-disk-usageInit*.csv", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
+			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "${MY_PLATFORM}-*-disk-usageInit*.csv", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
 		}
             }
         }
         stage("Build on ${nodeLabel}") {
 	    if (params.WM_BUILD == true ) {
                 node(nodeLabel) {
-		environment {
-			UFS_PLATFORM = nodeLabel.toLowerCase()
-		}
+		    environment {
+			UFS_PLATFORM = ${nodeLabel.toLowerCase()}
+		    }
 		    script {
                         currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel} ${UFS_COMPILER}"
                         currentBuild.description = "build ${NODE_NAME}/${UFS_COMPILER}"
@@ -59,7 +60,8 @@ def generateStage(nodeLabel) {
 	    }
         }
         stage("Test on ${nodeLabel}") {
-            node(nodeLabel) {
+	    if (params.WM_OPERATIONAL_TEST != "none" ) {
+              node(nodeLabel) {
 		environment {
 			UFS_PLATFORM = nodeLabel.toLowerCase()
 		}
@@ -98,10 +100,12 @@ def generateStage(nodeLabel) {
 			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "*-*-disk-usageTest.csv", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
 
                 }
-            }
+              }
+	    }
         }
         stage("Post from ${nodeLabel}") {
-            node(nodeLabel) {
+	    if (params.WM_OPERATIONAL_TEST != "none" ) {
+              node(nodeLabel) {
                 script {
                     try {
                         echo "Post Results from ${nodeLabel}"
@@ -116,6 +120,7 @@ def generateStage(nodeLabel) {
                         echo "Error: Post Results from ${nodeLabel}"
                     }
                 }
+              }
             }
         }
     }
