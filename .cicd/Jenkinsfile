@@ -21,7 +21,7 @@ def generateStage(nodeLabel) {
         stage("Initialize on ${nodeLabel}") {
             node(nodeLabel) {
 		script {
-                        currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel} ${params.WM_OPERATIONAL_TEST}"
+                        currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel} ${params.WM_OPERATIONAL_TESTS}"
 		}
                 cleanWs()
                 checkout scm
@@ -57,7 +57,7 @@ def generateStage(nodeLabel) {
 	    }
         }
         stage("Test on ${nodeLabel}") {
-	    if (params.WM_OPERATIONAL_TEST != 'none' ) {
+	    if (params.WM_OPERATIONAL_TESTS != 'none' ) {
               node(nodeLabel) {
 		environment {
 			UFS_PLATFORM = nodeLabel.toLowerCase()
@@ -101,7 +101,7 @@ def generateStage(nodeLabel) {
 	    }
         }
         stage("Post from ${nodeLabel}") {
-	    if (params.WM_OPERATIONAL_TEST != 'none' ) {
+	    if (params.WM_OPERATIONAL_TESTS != 'none' ) {
               node(nodeLabel) {
                 script {
                     try {
