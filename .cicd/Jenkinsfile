@@ -20,10 +20,13 @@ def generateStage(nodeLabel) {
     return {
         stage("Initialize on ${nodeLabel}") {
             node(nodeLabel) {
+		environment {
+			UFS_PLATFORM = "${NODE_NAME}"
+		}
                 cleanWs()
                 checkout scm
 		script {
-                        currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel}"
+                        currentBuild.displayName = "#${BUILD_NUMBER} ${UFS_PLATFORM}"
                         sh 'bash --login "${WORKSPACE}/.cicd/scripts/wm_init.sh"'
                         sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
 			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "${env.UFS_PLATFORM}-*-time-wm_init.json", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
@@ -35,6 +38,9 @@ def generateStage(nodeLabel) {
         stage("Build on ${nodeLabel}") {
 	    if (params.WM_BUILD == true ) {
                 node(nodeLabel) {
+		environment {
+			UFS_PLATFORM = "${NODE_NAME}"
+		}
 		    script {
                         echo "Building on ${nodeLabel}"
                         currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel} ${UFS_COMPILER}"
@@ -52,6 +58,9 @@ def generateStage(nodeLabel) {
         }
         stage("Test on ${nodeLabel}") {
             node(nodeLabel) {
+		environment {
+			UFS_PLATFORM = "${NODE_NAME}"
+		}
                 script {
                     try {
                         echo "Running on ${nodeLabel}"
@@ -127,7 +136,6 @@ pipeline {
         AWS_PROD_SNS_TOPIC = credentials('AWS_PROD_SNS_TOPIC')
         GITHUB_TOKEN = credentials('GithubJenkinsNew')
         GIT_URL = 'https://github.com/ufs-community/ufs-weather-model.git'
-	UFS_PLATFORM = env.NODE_NAME
 	UFS_COMPILER = 'intel'
     }
     stages {
