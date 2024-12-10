@@ -21,7 +21,7 @@ def generateStage(nodeLabel) {
         stage("Initialize on ${nodeLabel}") {
             node(nodeLabel) {
 		script {
-                        currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel} ${params.WM_OPERATIONAL_TEST}" ) {
+                        currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel} ${params.WM_OPERATIONAL_TEST}"
 		}
                 cleanWs()
                 checkout scm
