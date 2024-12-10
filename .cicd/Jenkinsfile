@@ -32,8 +32,7 @@ def generateStage(nodeLabel) {
                         sh 'bash --login "${WORKSPACE}/.cicd/scripts/wm_init.sh"'
                         sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
 		}
-			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "${nodeLabel}-*-time-wm_init.json", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
-			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "${UFS_PLATFORM}-*-disk-usageInit*.csv", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
+			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "${env.UFS_PLATFORM}-*-time-wm_init.json", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
 			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "${env.UFS_PLATFORM}-*-disk-usageInit*.csv", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
 
             }
@@ -45,10 +44,10 @@ def generateStage(nodeLabel) {
 			UFS_PLATFORM = "${NODE_NAME}"
 		}
 		    script {
-                        echo "Building on ${nodeLabel}"
                         currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel} ${UFS_COMPILER}"
-                        currentBuild.description = "build ${UFS_PLATFORM}/${UFS_COMPILER}"
+                        //currentBuild.description = "build ${UFS_PLATFORM}/${UFS_COMPILER}"
 
+                        echo "Building on ${nodeLabel}"
                         sh 'bash --login "${WORKSPACE}/.cicd/scripts/wm_build.sh"'
                         sh "STAGE_NAME='${env.STAGE_NAME}' " + 'bash --login "${WORKSPACE}/.cicd/scripts/disk_usage.sh"'
 		    }
