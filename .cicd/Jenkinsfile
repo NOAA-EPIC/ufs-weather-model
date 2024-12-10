@@ -18,10 +18,10 @@ modifiedLabels = matchedNode.collect{"'" + it + "'"}
 baselineLabels = generateBaselineNode.collect{"'" + it + "'"} 
 def generateStage(nodeLabel) {
     return {
-        stage("Initialize on ${nodeLabel}") {
+        stage("Initialize on ${nodeLabel.replaceAll("'","")}") {
             node(nodeLabel) {
 		script {
-                        currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel} ${params.WM_OPERATIONAL_TESTS}"
+                        currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel.replaceAll("'","")} test=${params.WM_OPERATIONAL_TESTS}"
 		}
                 cleanWs()
                 checkout scm
@@ -35,13 +35,13 @@ def generateStage(nodeLabel) {
 		}
             }
         }
-        stage("Build on ${nodeLabel}") {
+        stage("Build on ${nodeLabel.replaceAll("'","")}") {
 	    if (params.WM_BUILD == true ) {
                 node(nodeLabel) {
 		    script {
 			def UFS_PLATFORM = nodeLabel.replaceAll("'","")
-                        currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel.replaceAll("'","")} ${UFS_COMPILER}"
-                        currentBuild.description = "build ${UFS_PLATFORM}/${UFS_COMPILER}"
+                        //currentBuild.displayName = "#${BUILD_NUMBER} ${nodeLabel.replaceAll("'","")} ${UFS_COMPILER}"
+                        currentBuild.description = "build ${UFS_PLATFORM}-${UFS_COMPILER}"
 
                         echo "Building on ${nodeLabel}"
                         sh 'bash --login "${WORKSPACE}/.cicd/scripts/wm_build.sh"'
@@ -54,7 +54,7 @@ def generateStage(nodeLabel) {
 		echo "Building on ${nodeLabel} skipped"
 	    }
         }
-        stage("Test on ${nodeLabel}") {
+        stage("Test on ${nodeLabel.replaceAll("'","")}") {
 	    if (params.WM_OPERATIONAL_TESTS != 'none' ) {
               node(nodeLabel) {
                 script {
@@ -68,8 +68,7 @@ def generateStage(nodeLabel) {
                             sh "WM_CREATE_BASELINE=false " + 'bash --login "${WORKSPACE}/.cicd/scripts/wm_test.sh"'
                         }
 		        s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: true, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "**/*tgz*", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
-			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "${UFS_PLATFORM}/wm_test_results-*-*.txt", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
-
+			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "tests/wm_test_results-*-*.txt", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
                         }
                         catch(err) {
                         sh '''
@@ -92,16 +91,19 @@ def generateStage(nodeLabel) {
 			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "${UFS_PLATFORM}-*-time-wm_test.json", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
 			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "${UFS_PLATFORM}-*-disk-usageTest.csv", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
 
+			sh "[[ -d tests/logs ]] && cd tests/logs && tar --create --gzip --verbose --dereference --file ../../wm_test_logs-${UFS_PLATFORM}-${env.UFS_COMPILER}.tgz log_${UFS_PLATFORM}/* RegressionTests_${UFS_PLATFORM}.log || cat /dev/null > ../../wm_test_logs-${UFS_PLATFORM}-${env.UFS_COMPILER}.tgz"
+			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "wm_test_logs-${UFS_PLATFORM}-${env.UFS_COMPILER}.tgz", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
                 }
               }
             } else {
 		echo "Running Tests on ${nodeLabel} skipped"
 	    }
         }
-        stage("Post from ${nodeLabel}") {
+        stage("Post from ${nodeLabel.replaceAll("'","")}") {
 	    if (params.WM_OPERATIONAL_TESTS != 'none' ) {
               node(nodeLabel) {
                 script {
+			def UFS_PLATFORM = nodeLabel.replaceAll("'","")
                     try {
                         echo "Post Results from ${nodeLabel}"
                         if (baselineLabels.contains(nodeLabel)) {
