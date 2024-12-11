@@ -1,9 +1,9 @@
 #!/bin/bash -x
 # RT - RegressionTest label
-# BL - Baselins label
+# BL - Baseline label
 
 export machine=${1:-${NODE_NAME}}
-label=$2
+label=${2:-${WM_TEST_LABEL}}
 [[ -n "${label}" ]] || exit 1
 
 export PATH=${PATH}:~/bin

@@ -66,9 +66,12 @@ def generateStage(nodeLabel) {
                         }
                         else {
                             sh "WM_CREATE_BASELINE=false " + 'bash --login "${WORKSPACE}/.cicd/scripts/wm_test.sh"'
+                            sh '''
+				${WORKSPACE}/.cicd/scripts/post_test_results.sh ${NODE_NAME} RT
+			    '''
                         }
 		        s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: true, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "**/*tgz*", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
-			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "tests/wm_test_results-*-*.txt", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
+			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "./wm_test_results-*-*.txt", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
                         }
                         catch(err) {
                         sh '''
@@ -111,7 +114,7 @@ def generateStage(nodeLabel) {
                             sh 'bash --login "${WORKSPACE}/.cicd/scripts/post_test_results.sh ${NODE_NAME} BL"'
                         }
                         else {
-                            sh 'bash --login "${WORKSPACE}/.cicd/scripts/post_test_results.sh ${NODE_NAME} RT"'
+                            sh "WM_TEST_LABEL=RT " + 'bash --login "${WORKSPACE}/.cicd/scripts/post_test_results.sh"'
                         }
                     }
                     catch(err) {
