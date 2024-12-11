@@ -66,12 +66,10 @@ def generateStage(nodeLabel) {
                         }
                         else {
                             sh "WM_CREATE_BASELINE=false " + 'bash --login "${WORKSPACE}/.cicd/scripts/wm_test.sh"'
-                            sh '''
-				${WORKSPACE}/.cicd/scripts/post_test_results.sh ${NODE_NAME} RT
-			    '''
+                            //sh ''' ${WORKSPACE}/.cicd/scripts/post_test_results.sh ${NODE_NAME} RT '''
                         }
 		        s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: true, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "**/*tgz*", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
-			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "./wm_test_results-*-*.txt", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
+			s3Upload consoleLogLevel: 'INFO', dontSetBuildResultOnFailure: false, dontWaitForConcurrentBuildCompletion: false, entries: [[bucket: 'noaa-epic-prod-jenkins-artifacts', excludedFile: '', flatten: false, gzipFiles: false, keepForever: false, managedArtifacts: true, noUploadOnFailure: false, selectedRegion: 'us-east-1', showDirectlyInBrowser: false, sourceFile: "wm_test_results-*-*.txt", storageClass: 'STANDARD', uploadFromSlave: false, useServerSideEncryption: false]], pluginFailureResultConstraint: 'FAILURE', profileName: 'main', userMetadata: []
                         }
                         catch(err) {
                         sh '''
@@ -109,9 +107,9 @@ def generateStage(nodeLabel) {
 			def UFS_PLATFORM = nodeLabel.replaceAll("'","")
                     try {
                         echo "Post Results from ${nodeLabel}"
-                            sh 'bash --login "ls -l ${WORKSPACE}/.cicd/scripts"'
                         if (baselineLabels.contains(nodeLabel)) {
-                            sh 'bash --login "${WORKSPACE}/.cicd/scripts/post_test_results.sh ${NODE_NAME} BL"'
+                            //sh 'bash --login "${WORKSPACE}/.cicd/scripts/post_test_results.sh ${NODE_NAME} BL"'
+                            sh "WM_TEST_LABEL=BL " + 'bash --login "${WORKSPACE}/.cicd/scripts/post_test_results.sh"'
                         }
                         else {
                             sh "WM_TEST_LABEL=RT " + 'bash --login "${WORKSPACE}/.cicd/scripts/post_test_results.sh"'
@@ -188,5 +186,20 @@ pipeline {
                '''
             }
         }
+	always {
+            script {
+                // Trigger another job to collect all build statistics
+                CI_JOB_NAME=env.JOB_NAME.replace("/${env.BRANCH_NAME}","")
+                CI_BRANCH_NAME=env.BRANCH_NAME.replace("%2F","%252F")
+                echo "post: Triggering ufs-weather-model/ufs-wm-metrics job for ${CI_JOB_NAME} on branch build ${CI_BRANCH_NAME}/${env.BUILD_NUMBER} ..."
+
+                build job: '/ufs-weather-model/ufs-wm-metrics', parameters: [
+                        string(name: 'CI_JOB_NAME', value: "${CI_JOB_NAME}"),
+                        string(name: 'CI_BUILD_NUMBER', value: "${CI_BRANCH_NAME}/${env.BUILD_NUMBER}")
+                ], wait: false
+
+                echo "#### post: ufs-weather-model/ufs-wm-metrics COMPLETE."
+            }
+	}
     }
 }
