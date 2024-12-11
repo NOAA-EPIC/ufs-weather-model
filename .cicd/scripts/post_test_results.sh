@@ -42,6 +42,7 @@ function post_test() {
 	echo "GIT_URL=${GIT_URL}"
 	echo "CHANGE_ID=${CHANGE_ID}"
 
+set -x
 	git config user.email "ecc.platform@noaa.gov"
 	git config user.name "epic-cicd-jenkins"
 
@@ -57,14 +58,17 @@ function post_test() {
 	git status
 	#git push sshorigin HEAD:${FORK_BRANCH}
 
-	echo "Testing concluded...removing label ${label} for ${machine} from ${GIT_URL}"
 	GIT_OWNER=$(echo ${GIT_URL} | cut -d '/' -f4)
 	GIT_REPO_NAME=$(echo ${GIT_URL} | cut -d '/' -f5 | cut -d '.' -f1)
+set +x
+
+	echo "Testing concluded...removing label ${label} for ${machine} from ${GIT_URL}"
 	echo "GIT_OWNER=${GIT_OWNER} GIT_REPO_NAME=${GIT_REPO_NAME}"
 	echo "https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/${machine}-${label}"
 	#curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/${machine}-${label}
 }
 
 pwd
-post_test "${machine}" "${label}"
 tar --create --gzip --verbose --dereference --file "${machine,,}.tgz" tests/logs/*.log
+set +x
+post_test "${machine}" "${label}"
