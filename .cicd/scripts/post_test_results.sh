@@ -48,19 +48,23 @@ function post_test() {
 	SSH_ORIGIN=$(curl --silent "https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/${CHANGE_ID}" | jq -r '.head.repo.ssh_url')
 	git remote -v | grep -w sshorigin > /dev/null 2>&1 && git remote remove sshorigin > /dev/null 2>&1
 	git remote add sshorigin ${SSH_ORIGIN} > /dev/null 2>&1
-	#git add logs/RegressionTests_${machine,,}.log
-	#git commit -m "[AutoRT] ${machine} Job Completed.\n\n\n on-behalf-of @ufs-community <ecc.platform@noaa.gov>"
+	git add tests/logs/RegressionTests_${machine,,}.log
+	git status
+	git commit -m "[AutoRT] ${machine} Job Completed.\n\n\n on-behalf-of @ufs-community <ecc.platform@noaa.gov>"
 
-	#FORK_BRANCH=$(curl --silent "https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/${CHANGE_ID}" | jq -r '.head.ref')
-	#git pull sshorigin ${FORK_BRANCH}
+	FORK_BRANCH=$(curl --silent "https://api.github.com/repos/ufs-community/ufs-weather-model/pulls/${CHANGE_ID}" | jq -r '.head.ref')
+	git pull sshorigin ${FORK_BRANCH}
+	git status
 	#git push sshorigin HEAD:${FORK_BRANCH}
 
-	#tar --create --gzip --verbose --dereference --file "${machine,,}.tgz" ${WORKSPACE}/tests/logs/*.log
-
 	echo "Testing concluded...removing label ${label} for ${machine} from ${GIT_URL}"
-	#GIT_OWNER=$(echo ${GIT_URL} | cut -d '/' -f4)
-	#GIT_REPO_NAME=$(echo ${GIT_URL} | cut -d '/' -f5 | cut -d '.' -f1)
+	GIT_OWNER=$(echo ${GIT_URL} | cut -d '/' -f4)
+	GIT_REPO_NAME=$(echo ${GIT_URL} | cut -d '/' -f5 | cut -d '.' -f1)
+	echo "GIT_OWNER=${GIT_OWNER} GIT_REPO_NAME=${GIT_REPO_NAME}"
+	echo "https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/${machine}-${label}"
 	#curl --silent -X DELETE -H "Accept: application/vnd.github.v3+json" -H "Authorization: Bearer ${GITHUB_TOKEN}"  https://api.github.com/repos/${GIT_OWNER}/${GIT_REPO_NAME}/issues/${CHANGE_ID}/labels/${machine}-${label}
 }
 
+pwd
 post_test "${machine}" "${label}"
+tar --create --gzip --verbose --dereference --file "${machine,,}.tgz" tests/logs/*.log
