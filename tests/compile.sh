@@ -122,6 +122,11 @@ if [[ ${MACHINE_ID} == linux ]]; then
 else
   cp "${PATHTR}/modulefiles/ufs_${MACHINE_ID}.${RT_COMPILER}.lua" "${PATHTR}/tests/modules.${BUILD_NAME}.lua"
 fi
+if [[ ${CONTAINERIZED} == true ]]; then
+  mkdir -p ./container-exec && mv ${PATHTR}/tests/fv3_${COMPILE_ID}.exe ${PATHTR}/tests/container-exec
+  singularity exec -e $IMG ${PATHTR}/tests/externalize.sh
+  sed -i 's/srun --label/srun --mpi=pmi2 --label/g' ${PATHTR}/tests/fv3_conf/fv3_slurm.IN_${MACHINE_ID}
+fi 
 
 [[ ${clean_after} == YES ]] && rm -rf "${BUILD_DIR}"
 

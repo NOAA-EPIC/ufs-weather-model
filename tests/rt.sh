@@ -1,5 +1,6 @@
 #!/bin/bash
 set -eu
+set -x
 set -o errexit #Lets trap exit info as error for logging
 echo "******Regression Testing Script Started******"
 SECONDS=0
@@ -11,7 +12,7 @@ die() { echo "$@" >&2; exit 1; }
 usage() {
   set +x #No reason to print out a bunch of echo statements here
   echo
-  echo "Usage: $0 -a <account> | -b <file> | -c | -d | -e | -h | -k | -l <file> | -m | -n <name> | -o | -r | -v | -w"
+  echo "Usage: $0 -a <account> | -b <file> | -c | -d | -e | -h | -k | -l <file> | -m | -n <name> | -o | -R | -r | -v | -w | -C <img> "
   echo
   echo "  -a  <account> to use on for HPC queue"
   echo "  -b  create new baselines only for tests listed in <file>"
@@ -24,6 +25,8 @@ usage() {
   echo "  -m  compare against new baseline results"
   echo "  -n  run single test <name>"
   echo "  -o  compile only, skip tests"
+  echo "  -R  run only, do not recompile"
+  echo "  -C  Use containerization"
   echo "  -r  use Rocoto workflow manager"
   echo "  -v  verbose output"
   echo "  -w  for weekly_test, skip comparing baseline results"
@@ -203,6 +206,7 @@ EOF
   [[ ${RTPWD_NEW_BASELINE} == true ]] && echo "* (-m) - COMPARE AGAINST CREATED BASELINES" >> "${REGRESSIONTEST_LOG}"
   [[ ${RUN_SINGLE_TEST} == true ]] && echo "* (-n) - RUN SINGLE TEST: ${SINGLE_OPTS}" >> "${REGRESSIONTEST_LOG}"
   [[ ${COMPILE_ONLY} == true ]]&& echo "* (-o) - COMPILE ONLY, SKIP TESTS" >> "${REGRESSIONTEST_LOG}"
+  [[ ${RUN_ONLY} == true ]]&& echo "* (-R) - RUN ONLY, DO NOT RECOMPILE" >> "${REGRESSIONTEST_LOG}"
   [[ ${delete_rundir} == true ]] && echo "* (-d) - DELETE RUN DIRECTORY" >> "${REGRESSIONTEST_LOG}"
   [[ ${skip_check_results} == true ]] && echo "* (-w) - SKIP RESULTS CHECK" >> "${REGRESSIONTEST_LOG}"
   [[ ${KEEP_RUNDIR} == true ]] && echo "* (-k) - KEEP RUN DIRECTORY" >> "${REGRESSIONTEST_LOG}"
@@ -220,6 +224,7 @@ EOF
     [[ ${line} == \#* ]] && continue
     local valid_compile=false
     local valid_test=false
+
 
     if [[ ${line} == COMPILE* ]] ; then
 
@@ -296,6 +301,11 @@ EOF
         echo "${COMPILE_RESULT} -- COMPILE '${COMPILE_ID}' [${RT_COMPILE_TIME}, ${COMPILE_TIME}]${COMPILE_WARNINGS}" >> "${REGRESSIONTEST_LOG}"
         [[ -n ${FAIL_LOG} ]] && FAILED_COMPILES+=("COMPILE ${COMPILE_ID}: ${COMPILE_RESULT}")
         [[ -n ${FAIL_LOG} ]] && FAILED_COMPILE_LOGS+=("${FAIL_LOG}")
+        if [[ ${RUN_ONLY} ]]; then
+           COMPILE_RESULT="PASS"
+           FAILED_COMPILES=()
+           FAILED_COMPILE_LOGS=()
+        fi
       fi
 
     elif [[ ${line} =~ RUN ]]; then
@@ -443,8 +453,10 @@ Result: SUCCESS
 ====END OF ${MACHINE_ID^^} REGRESSION TESTING LOG====
 EOF
     echo "Performing Cleanup..."
-    rm -f fv3_*.x fv3_*.exe modules.fv3_* modulefiles/modules.fv3_* keep_tests.tmp
-    [[ ${KEEP_RUNDIR} == false ]] && rm -rf "${RUNDIR_ROOT}" && rm "${PATHRT}/run_dir"
+    if [[ ${KEEP_RUNDIR} == false ]]; then
+      rm -f fv3_*.x fv3_*.exe modules.fv3_* modulefiles/modules.fv3_* keep_tests.tmp
+      rm -rf "${RUNDIR_ROOT}" && rm "${PATHRT}/run_dir"
+    fi
     [[ ${ROCOTO} == true ]] && rm -f "${ROCOTO_XML}" "${ROCOTO_DB}" "${ROCOTO_STATE}" ./*_lock.db
     [[ ${TEST_35D} == true ]] && rm -f tests/cpld_bmark*_20*
     echo "REGRESSION TEST RESULT: SUCCESS"
@@ -516,6 +528,7 @@ fi
 }
 
 handle_error() {
+
   echo "rt.sh: Getting error information..."
   local exit_code=$1
   local exit_line=$2
@@ -581,6 +594,8 @@ export skip_check_results=false
 export delete_rundir=false
 
 COMPILE_ONLY=false
+export RUN_ONLY=false
+export CONTAINERIZED=false
 RTPWD_NEW_BASELINE=false
 TESTS_FILE='rt.conf'
 NEW_BASELINES_FILE=''
@@ -591,7 +606,7 @@ export RTVERBOSE
 export STOP_ECFLOW_AT_END=false
 ACCNR=${ACCNR:-""}
 
-while getopts ":a:b:cl:mn:dwkreovh" opt; do
+while getopts ":a:b:cl:mn:C:dwkreovhR" opt; do
   case ${opt} in
     a)
       ACCNR=${OPTARG}
@@ -607,12 +622,47 @@ while getopts ":a:b:cl:mn:dwkreovh" opt; do
       TESTS_FILE=${OPTARG}
       grep -q '[^[:space:]]' < "${TESTS_FILE}" ||  die "${TESTS_FILE} empty, exiting..."
       ;;
+    R)
+      export RUN_ONLY=true
+      ;;
     o)
       COMPILE_ONLY=true
       ;;
     m)
       # redefine RTPWD to point to newly created baseline outputs
       RTPWD_NEW_BASELINE=true
+      ;;
+    C)
+      export CONTAINERIZED=true
+      IFS=' ' read -r -a CONTAINER_OPTS <<< "${OPTARG}"
+
+      if [[ ${#CONTAINER_OPTS[@]} != 1 ]]; then
+        die 'The -C option needs the full path to the container image'
+      fi
+
+      export IMG="${CONTAINER_OPTS[0]}"
+# /opt/container/scripts/gen-build-tools.sh will create cmake and make wrappers that will
+# have all the necessary modules from inside the container loaded. The cmake wrapper can
+# then be run directly on the host system
+      cat << EOF > gen-tools.sh
+source /usr/lmod/lmod/init/bash
+module use /opt/spack-stack/spack-stack-1.9.1/envs/unified-env/install/modulefiles/Core
+module load stack-oneapi
+module load stack-intel-oneapi-mpi
+module load cmake
+module load jedi-ufs-env sp crtm/2.4.0.1 scotch
+/opt/container-scripts//gen-build-tools.sh -e $PWD/bin
+EOF
+      chmod +x ./gen-tools.sh
+# need to create an externalize script that has the proper module loaded, so cp gen-tools
+# and then change to use externalize.sh instead.
+      cp ./gen-tools.sh ./externalize.sh
+      sed -i '/gen-build-tools/d' externalize.sh
+      echo "/opt/container-scripts/externalize.sh -e $PWD $PWD/container-exec/*" >> ./externalize.sh
+      singularity exec -e $IMG ./gen-tools.sh
+      export PATH=$PWD/bin:$PATH
+      export CMAKE=$PWD/bin/cmake
+      sed -i "s|^cmake|$PWD/bin/cmake -DCMAKE_Fortran_COMPILER=mpiifort|g" ../build.sh
       ;;
     n)
       RUN_SINGLE_TEST=true
@@ -1016,7 +1066,7 @@ if [[ "${CREATE_BASELINE}" == false ]] ; then
 fi
 
 INPUTDATA_ROOT=${INPUTDATA_ROOT:-${DISKNM}/NEMSfv3gfs/input-data-20240501}
-INPUTDATA_ROOT_WW3=${INPUTDATA_ROOT}/WW3_input_data_20250225
+INPUTDATA_ROOT_WW3=${INPUTDATA_ROOT}/WW3_input_data_20250212 
 INPUTDATA_LM4=${INPUTDATA_LM4:-${INPUTDATA_ROOT}/LM4_input_data}
 
 shift $((OPTIND-1))
@@ -1201,7 +1251,11 @@ while read -r line || [[ -n "${line}" ]]; do
       fi
     fi
 
-    create_or_run_compile_task
+    if [[ ${RUN_ONLY} == true ]]; then
+       continue
+    else
+       create_or_run_compile_task
+    fi
     continue
 
   elif [[ ${line} == RUN* ]]; then

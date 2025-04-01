@@ -156,6 +156,7 @@ endif()
 
 find_package(NetCDF 4.7.4 REQUIRED C Fortran)
 find_package(ESMF 8.3.0 MODULE REQUIRED)
+add_library(ESMF::ESMF ALIAS esmf)
 if(FMS)
   find_package(FMS 2022.04 REQUIRED COMPONENTS R4 R8)
   if(APP MATCHES "^(HAFSW)$")

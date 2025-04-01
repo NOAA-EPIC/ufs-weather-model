@@ -483,7 +483,15 @@ rocoto_create_run_task() {
   fi
 
   NATIVE=""
-
+  if [[ ${RUN_ONLY} == true ]]; then
+  cat << EOF >> "${ROCOTO_XML}"
+    <task name="${TEST_ID}${RT_SUFFIX}" maxtries="${ROCOTO_TEST_MAXTRIES:-3}">
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; ${TEST_NAME} ${TEST_ID} ${COMPILE_ID} 2>&amp;1 | tee &LOG;/run_${TEST_ID}${RT_SUFFIX}.log' </command>
+      <jobname>${TEST_ID}${RT_SUFFIX}</jobname>
+      <account>${ACCNR}</account>
+      ${ROCOTO_NODESIZE:+<nodesize>${ROCOTO_NODESIZE}</nodesize>}
+EOF
+  else
   cat << EOF >> "${ROCOTO_XML}"
     <task name="${TEST_ID}${RT_SUFFIX}" maxtries="${ROCOTO_TEST_MAXTRIES:-3}">
       <dependency> ${DEP_STRING} </dependency>
@@ -492,6 +500,7 @@ rocoto_create_run_task() {
       <account>${ACCNR}</account>
       ${ROCOTO_NODESIZE:+<nodesize>${ROCOTO_NODESIZE}</nodesize>}
 EOF
+  fi
 
   if [[ "${MACHINE_ID}" == gaeac5 || "${MACHINE_ID}" ==  gaeac6 ]] ; then
     cat << EOF >> "${ROCOTO_XML}"
