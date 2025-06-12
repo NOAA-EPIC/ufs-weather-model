@@ -74,6 +74,9 @@ elif [[ ${MACHINE_ID} = gaeac6 ]]; then
         source /opt/cray/pe/lmod/lmod/init/bash
     fi
     module reset
+#   module use /gpfs/f6/bil-fire8/world-shared/role.epic/containers/modulefiles/spack-stack-1.6.0/Core
+    module purge
+    
 
 elif [[ ${MACHINE_ID} = noaacloud ]] ; then
     # We are on NOAA Cloud

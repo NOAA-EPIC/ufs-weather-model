@@ -43,7 +43,7 @@ if [ "${JOB_SHOULD_FAIL:-NO}" = WHEN_RUNNING ] ; then
     false
 fi
 
-srun --label -n @[TASKS] --cpus-per-task=@[THRD] ./fv3.exe
+srun --mpi=pmi2 --label -n @[TASKS] --cpus-per-task=@[THRD] ./fv3.exe
 
 echo "Model ended:    " `date`
 echo -n " $( date +%s )," >> job_timestamp.txt

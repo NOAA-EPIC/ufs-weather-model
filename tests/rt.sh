@@ -29,7 +29,7 @@ usage() {
   echo "  -w  for weekly_test, skip comparing baseline results"
   echo
 }
-
+set -x
 [[ $# -eq 0 ]] && usage
 
 update_rtconf() {

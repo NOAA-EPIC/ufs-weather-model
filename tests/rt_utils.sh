@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu
+set -eux
 
 if [[ "$0" = "${BASH_SOURCE[0]}" ]]; then
   echo "$0 must be sourced"

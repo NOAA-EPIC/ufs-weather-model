@@ -66,6 +66,7 @@ case ${MACHINE_ID} in
     fi
     if [[ ${MACHINE_ID} == gaeac6 ]]; then
       module reset
+      module purge
     elif [[ ${MACHINE_ID} == hercules ]]; then
       module purge
     fi
@@ -117,6 +118,8 @@ export CMAKE_FLAGS
 bash -x "${PATHTR}/build.sh"
 
 rsync --remove-source-files "${BUILD_DIR}/ufs_model" "${PATHTR}/tests/${BUILD_NAME}.exe"
+make-external ${PATHTR}/tests/${BUILD_NAME}.exe
+
 if [[ ${MACHINE_ID} == linux ]]; then
   cp "${PATHTR}/modulefiles/ufs_${MACHINE_ID}.${RT_COMPILER}" "${PATHTR}/tests/modules.${BUILD_NAME}"
 else
