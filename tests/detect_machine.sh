@@ -26,6 +26,8 @@ case $(hostname -f) in
   gaea6[1-8])          MACHINE_ID=gaeac6 ;; ### gaea61-68
   gaea6[1-8].ncrc.gov) MACHINE_ID=gaeac6 ;; ### gaea61-68
 
+  ip.*.ec2.internal)       MACHINE_ID=ami ;; ### HSD AMI
+
   hfe0[1-9]) MACHINE_ID=hera ;; ### hera01-09
   hfe1[0-2]) MACHINE_ID=hera ;; ### hera10-12
   hecflow01) MACHINE_ID=hera ;; ### heraecflow01
@@ -88,6 +90,9 @@ elif [[ -d /mnt/lfs1 ]]; then
 elif [[ -d /scratch1 ]]; then
   # We are on NOAA Hera
   MACHINE_ID=hera
+elif [[ -d /home/ubuntu ]]; then
+  # We are on AMI
+  MACHINE_ID=ami
 elif [[ -d /collab1 ]]; then
   # We are on NOAA Ursa
   MACHINE_ID=ursa
@@ -112,3 +117,5 @@ elif [[ -d /data/prod ]]; then
 else
   echo WARNING: UNKNOWN PLATFORM 1>&2
 fi
+
+echo $MACHINE_ID
