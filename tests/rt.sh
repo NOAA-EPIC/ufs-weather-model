@@ -840,8 +840,8 @@ case ${MACHINE_ID} in
     COMPILE_QUEUE="batch"
 
     PARTITION="compute"
-    dprefix="/scratch"
-    DISKNM="/home/ubuntu/NAGAPE/UFS-WM_RT"
+    dprefix="/scratch/${USER}"
+    DISKNM="/home/ubuntu/UFS-WM_RT"
     STMP="${STMP:-${dprefix}/RT_BASELINE}"
     PTMP="${PTMP:-${dprefix}/RT_RUNDIRS}"
 
