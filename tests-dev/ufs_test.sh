@@ -191,7 +191,10 @@ fi
 
 if [[ ${MACHINE_ID} == "ursa" ]]; then
     PYTHON_VER="python3"
-else 
+elif [[ ${MACHINE_ID} == "ami" ]]; then 
+    PYTHON_VER="python3"
+    export PATH="/usr/bin:$PATH" 
+else
     PYTHON_VER="python"
 fi
 

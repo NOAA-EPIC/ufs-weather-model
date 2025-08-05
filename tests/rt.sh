@@ -825,6 +825,7 @@ case ${MACHINE_ID} in
   ami)
     echo "rt.sh: Setting up AMI..."
     if [[ "${ROCOTO:-false}" == true ]] ; then
+      module use /opt/modulefiles
       module load rocoto
       ROCOTO_SCHEDULER=slurm
     fi
@@ -1088,7 +1089,7 @@ if [[ "${CREATE_BASELINE}" == false ]] ; then
   fi
 fi
 
-INPUTDATA_ROOT=${INPUTDATA_ROOT:-${DISKNM}/NEMSfv3gfs/input-data-20250507}
+INPUTDATA_ROOT=${INPUTDATA_ROOT:-${DISKNM}/NEMSfv3gfs/input-data-20240501}
 INPUTDATA_ROOT_WW3=${INPUTDATA_ROOT}/WW3_input_data_20250225
 INPUTDATA_LM4=${INPUTDATA_LM4:-${INPUTDATA_ROOT}/LM4_input_data}
 
