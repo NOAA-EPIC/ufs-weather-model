@@ -16,7 +16,7 @@ date_s_start=$(date +%s)
 echo -n "${date_s_start}," > job_timestamp.txt
 
 set +x
-export MACHINE_ID=ursa
+export MACHINE_ID=ami
 source ./module-setup.sh
 module use "${PWD}/modulefiles"
 module load modules.fv3
@@ -35,6 +35,7 @@ export ESMF_RUNTIME_PROFILE=ON
 export ESMF_RUNTIME_PROFILE_OUTPUT="SUMMARY"
 export PSM_RANKS_PER_CONTEXT=4
 export PSM_SHAREDCONTEXTS=1
+export I_MPI_PMI_LIBRARY=/opt/slurm/lib/libpmi.so
 
 # Avoid job errors because of filesystem synchronization delays
 sync && sleep 1
