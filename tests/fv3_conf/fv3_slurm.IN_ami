@@ -37,6 +37,8 @@ export PSM_RANKS_PER_CONTEXT=4
 export PSM_SHAREDCONTEXTS=1
 export I_MPI_PMI_LIBRARY=/opt/slurm/lib/libpmi.so
 
+module load libfabric-aws/2.1.0amzn2.0
+
 # Avoid job errors because of filesystem synchronization delays
 sync && sleep 1
 
