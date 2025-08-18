@@ -1,1 +1,4 @@
-pm_ideal_supercell intel
+cpld_control_gfsv17_iau intel
+cpld_control_gfsv17_nowav_iau intel
+cpld_restart_gfsv17_nowav_iau intel
+control_c384gdas intel
