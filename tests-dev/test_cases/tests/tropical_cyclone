@@ -102,6 +102,4 @@ export UFS_CONFIGURE=ufs.configure.tc.IN
 export FV3_RUN=tropical_cyclone.IN
 export HSD_CASE=true
 export WLCLK=30
-export TPN=40
-export TASKS=220
-export UFS_TASKS=220
+export TPN=55
