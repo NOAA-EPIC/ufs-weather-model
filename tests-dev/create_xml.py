@@ -4,6 +4,8 @@ import subprocess
 import yaml
 from ufs_test_utils import get_testcase, write_logfile, rrmdir, machine_check_off
 
+#just get GH to accept changes
+
 def rocoto_create_entries(RTPWD,MACHINE_ID,INPUTDATA_ROOT,INPUTDATA_ROOT_WW3,INPUTDATA_ROOT_BMIC,RUNDIR_ROOT,NEW_BASELINE,ROCOTO_XML):
     """Generate header information for Rocoto XML file
 

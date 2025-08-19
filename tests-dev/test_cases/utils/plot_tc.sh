@@ -19,6 +19,10 @@ export PATH=.:${PATH}
 chmod 755 g2ctl
 
 # load modules grads and wgrib2
+module use /opt/modulefiles
+module use /opt/spack-stack/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
+module load stack-oneapi
+module load stack-intel-oneapi-mpi
 module load grads wgrib2
 
 # check existance of model output file:

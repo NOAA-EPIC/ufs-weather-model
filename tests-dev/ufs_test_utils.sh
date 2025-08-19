@@ -3,9 +3,6 @@ set -eux
 
 if [[ ${MACHINE_ID} == "ursa" ]]; then
     PYTHON_VER="python3"
-elif [[ ${MACHINE_ID} == "ami" ]]; then
-    PYTHON_VER="python3"
-    export PATH="/usr/bin:$PATH"
 else
     PYTHON_VER="python"
 fi
@@ -33,6 +30,11 @@ function set_run_task() {
     fi
 
     export WLCLK
+	export TASKS
+    export NODES
+    export TPN
+    export PPN
+    export THRD
      
     ${PYTHON_VER} -c "import create_xml; create_xml.write_runtest_env()"
     rocoto_create_run_task
