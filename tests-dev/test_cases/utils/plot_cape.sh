@@ -51,7 +51,8 @@ export PATH=.:${PATH}
 chmod 755 g2ctl
 
 # if color bar script is not present, get it from web:
-[[ -f cbar.gs ]] || wget -q http://cola.gmu.edu/grads/scripts/cbar.gs
+#[[ -f cbar.gs ]] || wget -q http://cola.gmu.edu/grads/scripts/cbar.gs
+[[ -f cbar.gs ]] || curl -O https://raw.githubusercontent.com/NOAA-EPIC/ufs-weather-model/refs/heads/feature/HSD_training/tests-dev/test_cases/utils/cbar.gs
 
 # load modules grads and wgrib2
 HOSTNAME=$(hostname)
