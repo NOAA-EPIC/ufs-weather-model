@@ -96,6 +96,9 @@ elif [[ -d /scratch3 ]]; then
   elif [[ ${mount} =~ "hera" ]]; then
     MACHINE_ID=hera
   fi
+elif [[ -d /home/ubuntu ]]; then
+  # We are on AMI
+  MACHINE_ID=ami
 elif [[ -d /work ]]; then
   # We are on MSU Orion or Hercules
   mount=$(findmnt -n -o SOURCE /home)   
