@@ -1,0 +1,43 @@
+name: Regression Resource Check
+
+on:
+  pull_request:
+    branches: [develop]
+  push:
+    branches: ['**']
+
+jobs:
+  check-resources:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+
+      - name: Fetch baseline logs
+        run: |
+          mkdir -p logs/baseline
+          for machine in hera gaeac6 ursa orion hercules derecho wcoss2 acorn; do
+            curl -sSf -o logs/baseline/RegressionTests_${machine}.log \
+              https://raw.githubusercontent.com/ufs-community/ufs-weather-model/develop/tests/logs/RegressionTests_${machine}.log || echo "Missing baseline for $machine"
+          done
+
+      - name: Compare logs and collect warnings
+        run: |
+          mkdir -p logs/feature
+          python scripts/collect_updated_warnings.py logs/feature/ logs/baseline/ summary.md
+
+      - name: Post summary to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('summary.md', 'utf8');
+            if (summary.trim().length > 0) {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: summary
+              });
+            }
