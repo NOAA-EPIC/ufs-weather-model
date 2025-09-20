@@ -1,6 +1,3 @@
-
-
-
 import requests
 import os
 import json
@@ -10,15 +7,14 @@ import numpy as np
 
 def get_commits(machine, token):
 
-   base_url="https://api.github.com/repos/ufs-community/ufs-weather-model/"
-   commit_endpoint=f"commits?path=tests/logs/RegressionTests_{machine}.log"
+   url=f"https://api.github.com/repos/ufs-community/ufs-weather-model/commits?path=tests/logs/RegressionTests_{machine}.log"
    headers = {
       "Accept": "application/vnd.github.v3+json",
       "Authorization": "token {token}",
       "X-GitHub-Api-Version": "2022-11-28"
    }
 
-   response = requests.get(base_url+commit_endpoint, headers=headers, auth=("gspetro-NOAA", token)) 
+   response = requests.get(url, headers=headers, auth=("gspetro-NOAA", token)) 
    response = json.loads(response.text)
    commits = []
    for num in range(len(response)): 
@@ -45,13 +41,7 @@ def get_file_info(commits, machine, token):
    return contents
    
 def parse_file(file_contents):
-   #date_pattern = "Starting Date/Time: *\n"
-   #date = re.search(date_pattern)
-   
    test_data = {}
-   field_names = ["date", "runtime", "memory"]
-
-   #PASS -- TEST 'cpld_control_p8_mixedmode_intel' [08:49, 06:43](2189 MB)
    test_pattern = r"TEST \'(.*)\' \[\d+:\d+, (\d+):(\d+)\]\((\d+) MB\)"
    
    for item in file_contents:
@@ -76,7 +66,6 @@ def parse_file(file_contents):
                test_data[test_name]["date"].append(date)
                test_data[test_name]["runtime"].append(total_minutes)
                test_data[test_name]["memory"].append(int(mem))
-               #print(test_name, test_data[test_name])
             except(KeyError): 
                total_minutes = int(hh) * 60 + int(mm)
                test_data[test_name] = {"date": [date], "runtime": [total_minutes], "memory": [int(mem)]}
@@ -96,23 +85,30 @@ def calculate_stats(test_hist):
 
    return stats
 
-if __name__ == "__main__":
-
+def create_machine_stats(stats, machine):
    
-   token = os.environ.get('GITHUB_TOKEN')
-   commits = get_commits("ursa", token)
-   contents = get_file_info(commits, "ursa", token)
-   historical_results = parse_file(contents)
-   stats = calculate_stats(historical_results)
-
-   #print(stats)
-
-   with open("stats.txt", 'a') as fh:
+   with open(f"stats_{machine}.txt", 'a') as fh:
       for test in stats: 
-         #print("Test: ", test)
+         print(test)
          stats_list = [str(test), str(stats[test][0]), str(stats[test][1]), str(stats[test][2]), str(stats[test][3])]
          stats_string = ", ".join(stats_list)
          fh.write(stats_string + "\n")
+
+
+if __name__ == "__main__":
+
+   token = os.environ.get('GITHUB_TOKEN')
+   machines = ["hera", "ursa", "orion", "hercules", "derecho", "wcoss2", "acorn", "gaeac6", ]
+   for machine in machines:
+      print(machine)
+      commits = get_commits(machine, token)
+      contents = get_file_info(commits, machine, token)
+      historical_results = parse_file(contents)
+      stats = calculate_stats(historical_results)
+      create_machine_stats(stats, machine)
+
+
+   
 
    
 
