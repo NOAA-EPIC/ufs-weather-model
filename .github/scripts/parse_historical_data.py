@@ -6,6 +6,7 @@ import os
 import json
 from datetime import datetime
 import re
+import numpy as np
 
 def get_commits(machine, token):
 
@@ -48,6 +49,7 @@ def parse_file(file_contents):
    #date = re.search(date_pattern)
    
    test_data = {}
+   field_names = ["date", "runtime", "memory"]
 
    #PASS -- TEST 'cpld_control_p8_mixedmode_intel' [08:49, 06:43](2189 MB)
    test_pattern = r"TEST \'(.*)\' \[\d+:\d+, (\d+):(\d+)\]\((\d+) MB\)"
@@ -55,17 +57,12 @@ def parse_file(file_contents):
    for item in file_contents:
       date_pattern = r"Starting Date/Time: .*\n"
       date_match = re.search(date_pattern, item)
-      print(date_match)
       if date_match:
          date_string = date_match.group(0)[19:].strip()
          try:
             date = datetime.strptime(date_string, "%Y%m%d %H:%M:%S")
-            print("Date:", date)
-            test_data[date] = {}
          except(ValueError):
             date = datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
-            print("Date:", date)
-            test_data[date] = {}
          except: 
             print("Skipping log for ", date_string)
             continue
@@ -73,18 +70,31 @@ def parse_file(file_contents):
       for line in item:
          test_match = re.search(test_pattern, line)
          if test_match:
-            print("Match Groups:", test_match.groups())
             test_name, hh, mm, mem = test_match.groups()
-            total_minutes = int(hh) * 60 + int(mm)
-            test_data[date][test_name] = {
-               "core_minutes": total_minutes,
-               "memory_MB": int(mem)
-            }
-            print(test_data[date][test_name])
+            try:
+               total_minutes = int(hh) * 60 + int(mm)
+               test_data[test_name]["date"].append(date)
+               test_data[test_name]["runtime"].append(total_minutes)
+               test_data[test_name]["memory"].append(int(mem))
+               #print(test_name, test_data[test_name])
+            except(KeyError): 
+               total_minutes = int(hh) * 60 + int(mm)
+               test_data[test_name] = {"date": [date], "runtime": [total_minutes], "memory": [int(mem)]}
+
    return test_data
 
-def calculate_stdev(data):
-   pass
+def calculate_stats(test_hist):
+   stats = {}
+   for test in test_hist:
+      runtime_mean = np.mean(test_hist[test]["runtime"])
+      runtime_stdev = np.std(test_hist[test]["runtime"])
+      memory_mean = np.mean(test_hist[test]["memory"])
+      memory_stdev = np.std(test_hist[test]["memory"])
+      stats[test] = [runtime_mean, runtime_stdev, memory_mean, memory_stdev]
+      
+      print("Test: ", test, stats[test])
+
+   return stats
 
 if __name__ == "__main__":
 
@@ -93,10 +103,16 @@ if __name__ == "__main__":
    commits = get_commits("ursa", token)
    contents = get_file_info(commits, "ursa", token)
    historical_results = parse_file(contents)
+   stats = calculate_stats(historical_results)
 
+   #print(stats)
 
-   with open("sample.txt", 'w') as fh:
-      fh.write(contents[0])
+   with open("stats.txt", 'a') as fh:
+      for test in stats: 
+         #print("Test: ", test)
+         stats_list = [str(test), str(stats[test][0]), str(stats[test][1]), str(stats[test][2]), str(stats[test][3])]
+         stats_string = ", ".join(stats_list)
+         fh.write(stats_string + "\n")
 
    
 
