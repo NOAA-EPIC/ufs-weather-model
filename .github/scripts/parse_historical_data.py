@@ -49,6 +49,8 @@ def parse_file(file_contents):
       date_match = re.search(date_pattern, item)
       if date_match:
          date_string = date_match.group(0)[19:].strip()
+         # Strip microseconds
+         date_string = re.sub(r"\.\d+", "", date_string)
          try:
             date = datetime.strptime(date_string, "%Y%m%d %H:%M:%S")
          except(ValueError):
@@ -80,8 +82,7 @@ def calculate_stats(test_hist):
       memory_mean = np.mean(test_hist[test]["memory"])
       memory_stdev = np.std(test_hist[test]["memory"])
       stats[test] = [runtime_mean, runtime_stdev, memory_mean, memory_stdev]
-      
-      print("Test: ", test, stats[test])
+      #print("Test: ", test, stats[test])
 
    return stats
 
@@ -89,7 +90,6 @@ def create_machine_stats(stats, machine):
    
    with open(f"stats_{machine}.txt", 'a') as fh:
       for test in stats: 
-         print(test)
          stats_list = [str(test), str(stats[test][0]), str(stats[test][1]), str(stats[test][2]), str(stats[test][3])]
          stats_string = ", ".join(stats_list)
          fh.write(stats_string + "\n")
@@ -98,9 +98,9 @@ def create_machine_stats(stats, machine):
 if __name__ == "__main__":
 
    token = os.environ.get('GITHUB_TOKEN')
-   machines = ["hera", "ursa", "orion", "hercules", "derecho", "wcoss2", "acorn", "gaeac6", ]
+   machines = ["acorn", "derecho", "gaeac6", "hera", "hercules", "orion", "ursa", "wcoss2"]
    for machine in machines:
-      print(machine)
+      print(machine.upper())
       commits = get_commits(machine, token)
       contents = get_file_info(commits, machine, token)
       historical_results = parse_file(contents)
