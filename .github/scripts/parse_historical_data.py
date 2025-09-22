@@ -87,7 +87,7 @@ def create_machine_stats(stats_dict):
 
 if __name__ == "__main__":
 
-   os.environ('HEADERS') = { 
+   os.environ['HEADERS'] = { 
       "Accept": "application/vnd.github.v3+json",
       "Authorization": "token ${{ secrets.GITHUB_TOKEN }}",
       "X-GitHub-Api-Version": "2022-11-28",
