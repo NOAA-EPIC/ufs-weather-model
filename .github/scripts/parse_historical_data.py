@@ -5,46 +5,38 @@ from datetime import datetime
 import re
 import numpy as np
 
-def get_commits(machine, token):
-
-   url=f"https://api.github.com/repos/ufs-community/ufs-weather-model/commits?path=tests/logs/RegressionTests_{machine}.log"
-   headers = {
-      "Accept": "application/vnd.github.v3+json",
-      "Authorization": "token {token}",
-      "X-GitHub-Api-Version": "2022-11-28"
-   }
-
-   response = requests.get(url, headers=headers, auth=("gspetro-NOAA", token)) 
+def get_commits(machine):
+   """Get a list of commits a given platform's log files."""
+   
+   url=f"{os.environ.get('BASE_URL')}/commits?path=tests/logs/RegressionTests_{machine}.log"
+   response = requests.get(url, headers=os.environ.get('HEADERS')) #auth=("gspetro-NOAA", token)) 
    response = json.loads(response.text)
-   commits = []
+   commit_list = []
    for num in range(len(response)): 
-      commits.append(response[num]['sha'])
-   
-   return commits
+      commit_list.append(response[num]['sha'])
 
-def get_file_info(commits, machine, token): 
+   return commit_list
 
-   contents = []
-   base_url=f"https://api.github.com/repos/ufs-community/ufs-weather-model/contents/tests/logs/RegressionTests_{machine}.log"
-   headers = {
-      "Accept": "application/vnd.github.v3+json",
-      "Authorization": "token {token}",
-      "X-GitHub-Api-Version": "2022-11-28",
-      "Accept": "application/vnd.github.raw"
-   }
-   
-   for num in range(len(commits)): 
-      url = base_url+f"?ref={commits[num]}"
-      r = requests.get(url, headers=headers, auth=("gspetro-NOAA", token))
-      contents.append(r.text)
+def get_file_info(commit_list, machine): 
+   """For each commit of a machine's log file, extract the file text."""
 
-   return contents
+   file_contents = []
+   commit_url=f"{os.environ.get('BASE_URL')}/contents/tests/logs/RegressionTests_{machine}.log"
    
+   for num in range(len(commit_list)): 
+      url = commit_url + (f"?ref={commit_list[num]}") #Could use a path join?
+      r = requests.get(url, headers=os.environ.get('HEADERS')) #, auth=("gh_username", token))
+      file_contents.append(r.text)
+
+   return file_contents
+
 def parse_file(file_contents):
+   """Parse file to determine the memory usage and runtime for each test."""
+   
    test_data = {}
    test_pattern = r"TEST \'(.*)\' \[\d+:\d+, (\d+):(\d+)\]\((\d+) MB\)"
    
-   for item in file_contents:
+   for item in file_contents: # Refactor into get_date() and get_test_data()
       date_pattern = r"Starting Date/Time: .*\n"
       date_match = re.search(date_pattern, item)
       if date_match:
@@ -75,6 +67,7 @@ def parse_file(file_contents):
    return test_data
 
 def calculate_stats(test_hist):
+   """For each test, calculate the mean and standard deviation of memory and runtime."""
    stats = {}
    for test in test_hist:
       runtime_mean = np.mean(test_hist[test]["runtime"])
@@ -86,26 +79,25 @@ def calculate_stats(test_hist):
 
    return stats
 
-def create_machine_stats(stats, machine):
-   
-   with open(f"stats_{machine}.txt", 'a') as fh:
-      for test in stats: 
-         stats_list = [str(test), str(stats[test][0]), str(stats[test][1]), str(stats[test][2]), str(stats[test][3])]
-         stats_string = ", ".join(stats_list)
-         fh.write(stats_string + "\n")
+def create_machine_stats(stats_dict):
+   """Create a json file with statistic for each test on each machine"""
 
+   with open(f"stats.json", 'a') as fh:
+      json.dump(stats_dict, fh, indent=4)
 
 if __name__ == "__main__":
 
    token = os.environ.get('GITHUB_TOKEN')
    machines = ["acorn", "derecho", "gaeac6", "hera", "hercules", "orion", "ursa", "wcoss2"]
+   stats_by_machine = {}
    for machine in machines:
       print(machine.upper())
-      commits = get_commits(machine, token)
-      contents = get_file_info(commits, machine, token)
+      commit_list = get_commits(machine)
+      contents = get_file_info(commit_list, machine)
+
       historical_results = parse_file(contents)
-      stats = calculate_stats(historical_results)
-      create_machine_stats(stats, machine)
+      stats_by_machine[machine] = calculate_stats(historical_results)
+   create_machine_stats(stats_by_machine)
 
 
    
