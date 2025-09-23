@@ -9,11 +9,7 @@ TIME_THRESHOLD_RATIO = 0.50
 MACHINES = ["hera", "gaeac6", "ursa", "orion", "hercules", "derecho", "wcoss2", "acorn"]
 
 def parse_test_resources(log_path):
-    pattern = r"test '(.+?)' -- 
-
-\[core hour in min (\d+):(\d+)\]
-
- \(mem (\d+) MB\)"
+    pattern = r"TEST \'(.*)\' \[\d+:\d+, (\d+):(\d+)\]\((\d+) MB\)"
     results = {}
     with open(log_path) as f:
         for line in f:

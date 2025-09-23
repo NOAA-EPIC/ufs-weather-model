@@ -5,11 +5,11 @@ from datetime import datetime
 import re
 import numpy as np
 
-def get_commits(machine):
+def get_commits(machine, headers):
    """Get a list of commits a given platform's log files."""
    
    url=f"https://{os.environ.get('BASE_URL')}/commits?path=tests/logs/RegressionTests_{machine}.log"
-   response = requests.get(url, headers=os.environ.get('HEADERS')) #auth=("gspetro-NOAA", token)) 
+   response = requests.get(url, headers=headers) #auth=("gspetro-NOAA", token)) 
    response = json.loads(response.text)
    commit_list = []
    for num in range(len(response)): 
@@ -17,7 +17,7 @@ def get_commits(machine):
 
    return commit_list
 
-def get_file_info(commit_list, machine): 
+def get_file_info(commit_list, machine, headers): 
    """For each commit of a machine's log file, extract the file text."""
 
    file_contents = []
@@ -25,7 +25,7 @@ def get_file_info(commit_list, machine):
    
    for num in range(len(commit_list)): 
       url = commit_url + (f"?ref={commit_list[num]}") #Could use a path join?
-      r = requests.get(url, headers=os.environ.get('HEADERS')) #, auth=("gh_username", token))
+      r = requests.get(url, headers=headers) #, auth=("gh_username", token))
       file_contents.append(r.text)
 
    return file_contents
@@ -87,18 +87,19 @@ def create_machine_stats(stats_dict):
 
 if __name__ == "__main__":
 
-   os.environ['HEADERS'] = '"Accept": "application/vnd.github.v3+json" \
-      "Authorization": "token ${{ secrets.GITHUB_TOKEN }}" \
-      "X-GitHub-Api-Version": "2022-11-28" \
-      "Accept": "application/vnd.github.raw"'
+   headers = {
+      "Accept": "application/vnd.github.v3+json",
+      "Authorization": "token ${{ secrets.GITHUB_TOKEN }}",
+      "X-GitHub-Api-Version": "2022-11-28",
+      "Accept": "application/vnd.github.raw"
+   }
    token = os.environ.get('GITHUB_TOKEN')
-   machines = ["acorn", "derecho", "gaeac6", "hera", "hercules", "orion", "ursa", "wcoss2"]
+   machines = os.environ.get('MACHINES').split()
    stats_by_machine = {}
    for machine in machines:
       print(machine.upper())
       commit_list = get_commits(machine)
       contents = get_file_info(commit_list, machine)
-
       historical_results = parse_file(contents)
       stats_by_machine[machine] = calculate_stats(historical_results)
    create_machine_stats(stats_by_machine)
