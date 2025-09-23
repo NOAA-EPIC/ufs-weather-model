@@ -11,6 +11,7 @@ def get_commits(machine, headers):
    url=f"{os.environ.get('BASE_URL')}/commits?path=tests/logs/RegressionTests_{machine}.log"
    response = requests.get(url, headers=headers) #auth=("gspetro-NOAA", token)) 
    response = json.loads(response.text)
+   print(response)
    commit_list = []
    for num in range(len(response)): 
       if response[num]['sha']:
