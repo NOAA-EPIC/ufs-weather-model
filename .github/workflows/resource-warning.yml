@@ -26,7 +26,7 @@ jobs:
     steps: 
       - name: Install dependencies
         run: |
-          pip install requests json numpy
+          pip install requests numpy
       - name: Get develop branch commits
         run: python scripts/parse_historical_data.py
       - name: Upload json
@@ -56,7 +56,7 @@ jobs:
         run: |
           mkdir -p logs/feature
           echo $PWD
-          python ./tests/ci/scripts/collect_updated_warnings.py logs/feature/ logs/baseline/ summary.md
+          ./tests/ci/scripts/collect_updated_warnings.py logs/feature/ logs/baseline/ summary.md
 
       - name: Post summary to PR
         if: github.event_name == 'pull_request'
