@@ -17,7 +17,7 @@ concurrency:
 
 env: 
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  MACHINES: '"acorn" "derecho" "gaeac6" "hera" "hercules" "orion" "ursa" "wcoss2"'
+  MACHINES: "acorn derecho gaeac6 hera hercules orion ursa wcoss2"
   BASE_URL: ${GITHUB_API_URL}/repos/ufs-community/ufs-weather-model
 
 jobs:
