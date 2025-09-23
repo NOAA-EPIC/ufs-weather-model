@@ -28,7 +28,7 @@ jobs:
         run: |
           pip install requests numpy
       - name: Get develop branch commits
-        run: python scripts/parse_historical_data.py
+        run: python .github/scripts/parse_historical_data.py
       - name: Upload json
         uses: actions/upload-artifact@v4
         with: 
