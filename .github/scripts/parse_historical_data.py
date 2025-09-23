@@ -8,7 +8,7 @@ import numpy as np
 def get_commits(machine):
    """Get a list of commits a given platform's log files."""
    
-   url=f"{os.environ.get('BASE_URL')}/commits?path=tests/logs/RegressionTests_{machine}.log"
+   url=f"https://{os.environ.get('BASE_URL')}/commits?path=tests/logs/RegressionTests_{machine}.log"
    response = requests.get(url, headers=os.environ.get('HEADERS')) #auth=("gspetro-NOAA", token)) 
    response = json.loads(response.text)
    commit_list = []
@@ -21,7 +21,7 @@ def get_file_info(commit_list, machine):
    """For each commit of a machine's log file, extract the file text."""
 
    file_contents = []
-   commit_url=f"{os.environ.get('BASE_URL')}/contents/tests/logs/RegressionTests_{machine}.log"
+   commit_url=f"https://{os.environ.get('BASE_URL')}/contents/tests/logs/RegressionTests_{machine}.log"
    
    for num in range(len(commit_list)): 
       url = commit_url + (f"?ref={commit_list[num]}") #Could use a path join?
