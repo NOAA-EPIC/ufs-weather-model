@@ -98,8 +98,8 @@ if __name__ == "__main__":
    stats_by_machine = {}
    for machine in machines:
       print(machine.upper())
-      commit_list = get_commits(machine)
-      contents = get_file_info(commit_list, machine)
+      commit_list = get_commits(machine, headers)
+      contents = get_file_info(commit_list, machine, headers)
       historical_results = parse_file(contents)
       stats_by_machine[machine] = calculate_stats(historical_results)
    create_machine_stats(stats_by_machine)
