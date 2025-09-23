@@ -24,6 +24,8 @@ jobs:
   get-historical-data:
     runs-on: ubuntu-latest
     steps: 
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           pip install requests numpy
