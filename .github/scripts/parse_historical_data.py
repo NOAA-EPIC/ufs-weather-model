@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
    headers = {
       "Accept": "application/vnd.github.v3+json",
-      "Authorization": "token ${{ secrets.GITHUB_TOKEN }}",
+      "Authorization": "token {token}",
       "X-GitHub-Api-Version": "2022-11-28",
       "Accept": "application/vnd.github.raw"
    }
