@@ -87,12 +87,10 @@ def create_machine_stats(stats_dict):
 
 if __name__ == "__main__":
 
-   os.environ['HEADERS'] = { 
-      "Accept": "application/vnd.github.v3+json",
-      "Authorization": "token ${{ secrets.GITHUB_TOKEN }}",
-      "X-GitHub-Api-Version": "2022-11-28",
-      "Accept": "application/vnd.github.raw"
-   }
+   os.environ['HEADERS'] = '"Accept": "application/vnd.github.v3+json" \
+      "Authorization": "token ${{ secrets.GITHUB_TOKEN }}" \
+      "X-GitHub-Api-Version": "2022-11-28" \
+      "Accept": "application/vnd.github.raw"'
    token = os.environ.get('GITHUB_TOKEN')
    machines = ["acorn", "derecho", "gaeac6", "hera", "hercules", "orion", "ursa", "wcoss2"]
    stats_by_machine = {}
