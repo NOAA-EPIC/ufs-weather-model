@@ -13,7 +13,10 @@ def get_commits(machine, headers):
    response = json.loads(response.text)
    commit_list = []
    for num in range(len(response)): 
-      commit_list.append(response[num]['sha'])
+      if response[num]['sha']:
+         commit_list.append(response[num]['sha'])
+      else: 
+         print(response[num]['sha'], "does not exist!")
 
    return commit_list
 
