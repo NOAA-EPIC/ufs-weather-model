@@ -5,10 +5,6 @@ on:
       - opened
       - reopened
       - labeled
-  #repository_dispatch:
-    #types: [add-to-project, label-project]
-  #schedule:
-    #- cron: "1 * * * *"
 
 jobs:
   add-to-project:
