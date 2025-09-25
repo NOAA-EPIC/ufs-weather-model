@@ -34,7 +34,7 @@ jobs:
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
           project-url: https://github.com/orgs/NOAA-EPIC/projects/18
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PR_PROJECT_TOKEN }}
           field-name: 'Baseline Changes'
           field-value: 'Yes'
       - name: No baseline changes
@@ -43,6 +43,6 @@ jobs:
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
           project-url: https://github.com/orgs/NOAA-EPIC/projects/18
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PR_PROJECT_TOKEN }}
           field-name: 'Baseline Changes'
           field-value: 'No'
