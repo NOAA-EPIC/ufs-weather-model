@@ -42,7 +42,8 @@ jobs:
           field-value: 'Unknown'
       - name: Baseline changes labels
         if: |
-            (contains(github.event.pull_request.labels.*.name, 'Baseline Updates') || contains(github.event.pull_request.labels.*.name, 'New Baselines')) && 
+            (contains(github.event.pull_request.labels.*.name, 'Baseline Updates') || 
+            contains(github.event.pull_request.labels.*.name, 'New Baselines')) && 
             !contains(github.event.pull_request.labels.*.name, 'No Baseline Change')
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
@@ -54,7 +55,8 @@ jobs:
       - name: No baseline changes label
         if: | 
             contains(github.event.pull_request.labels.*.name, 'No Baseline Change') && 
-            !contains(github.event.pull_request.labels.*.name, 'Baseline Updates') && !contains(github.event.pull_request.labels.*.name, 'New Baselines'))
+            !contains(github.event.pull_request.labels.*.name, 'Baseline Updates') && 
+            !contains(github.event.pull_request.labels.*.name, 'New Baselines')
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -88,6 +90,7 @@ jobs:
           github-token: ${{ secrets.PR_PROJECT_TOKEN }}
           field-name: "Input Data Req'd"
           field-value: 'No'
+  #Figure out "Combine" toggle & logic
   priority-labels:
     name: Update project with priority labels
     runs-on: ubuntu-latest
@@ -108,7 +111,7 @@ jobs:
           field-name: 'Priority'
           field-value: 'Normal'
       - name: Critical priority
-        if: contains(github.event.pull_request.labels.*.name, 'Priority: Critical')
+        if: "contains(github.event.pull_request.labels.*.name, 'Priority: Critical')"
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -117,7 +120,7 @@ jobs:
           field-name: 'Priority'
           field-value: 'Yes'
       - name: High Priority
-        if: (contains(github.event.pull_request.labels.*.name, 'Priority: High'))
+        if: "(contains(github.event.pull_request.labels.*.name, 'Priority: High'))"
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -136,20 +139,3 @@ jobs:
           github-token: ${{ secrets.PR_PROJECT_TOKEN }}
           field-name: 'Priority'
           field-value: 'Unknown'
-  subcomponent-labels:
-    name: Update project with input data labels
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-      issues: write
-    steps:
-      - name: TBD
-        #if: (contains(github.event.pull_request.labels.*.name, 'Priority: High'))
-        #uses: nipe0324/update-project-v2-item-field@v2.0.2
-        #with:
-          #project-url: https://github.com/orgs/ufs-community/projects/70
-          #project-url: https://github.com/orgs/NOAA-EPIC/projects/18
-          #github-token: ${{ secrets.PR_PROJECT_TOKEN }}
-          #field-name: 'Baseline Changes'
-          #field-value: 'Yes'
