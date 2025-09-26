@@ -139,3 +139,20 @@ jobs:
           github-token: ${{ secrets.PR_PROJECT_TOKEN }}
           field-name: 'Priority'
           field-value: 'Unknown'
+  subcomponent-labels:
+    name: Update project with input data labels
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: TBD
+        #if: (contains(github.event.pull_request.labels.*.name, 'Priority: High'))
+        #uses: nipe0324/update-project-v2-item-field@v2.0.2
+        #with:
+          #project-url: https://github.com/orgs/ufs-community/projects/70
+          #project-url: https://github.com/orgs/NOAA-EPIC/projects/18
+          #github-token: ${{ secrets.PR_PROJECT_TOKEN }}
+          #field-name: 'Baseline Changes'
+          #field-value: 'Yes'
