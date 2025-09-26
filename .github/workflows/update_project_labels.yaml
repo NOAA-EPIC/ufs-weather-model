@@ -109,7 +109,7 @@ jobs:
           field-name: 'Priority'
           field-value: 'Normal'
       - name: Critical priority
-        if: contains(github.event.pull_request.labels.*.name, 'Priority: Critical')
+        if: "contains(github.event.pull_request.labels.*.name, 'Priority: Critical')"
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -118,7 +118,7 @@ jobs:
           field-name: 'Priority'
           field-value: 'Yes'
       - name: High Priority
-        if: (contains(github.event.pull_request.labels.*.name, 'Priority: High'))
+        if: "(contains(github.event.pull_request.labels.*.name, 'Priority: High'))"
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -137,4 +137,3 @@ jobs:
           github-token: ${{ secrets.PR_PROJECT_TOKEN }}
           field-name: 'Priority'
           field-value: 'Unknown'
-
