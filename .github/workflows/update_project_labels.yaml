@@ -7,6 +7,7 @@ on:
       - labeled
       - unlabeled
 
+
 jobs:
   baseline-labels:
     name: Update project with baseline labels
