@@ -74,7 +74,7 @@ jobs:
       issues: write
     steps:
       - name: Input data required
-        if: contains(github.event.pull_request_target.labels.*.name, 'Input Data Changes')
+        if: contains(github.event.pull_request.labels.*.name, 'Input Data Changes')
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -83,7 +83,7 @@ jobs:
           field-name: "Input Data Req'd"
           field-value: 'Yes'
       - name: No input data changes
-        if: (!contains(github.event.pull_request_target.labels.*.name, 'Input Data Changes'))
+        if: (!contains(github.event.pull_request.labels.*.name, 'Input Data Changes'))
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
