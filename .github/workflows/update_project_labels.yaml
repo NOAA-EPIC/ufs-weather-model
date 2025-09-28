@@ -18,9 +18,9 @@ jobs:
     steps:
       - name: Lack of baseline labels
         if: | 
-            !contains(github.event.pull_request_target.labels.*.name, 'No Baseline Change') && 
-            !contains(github.event.pull_request_target.labels.*.name, 'Baseline Updates') &&  
-            !contains(github.event.pull_request_target.labels.*.name, 'New Baselines')
+            !contains(github.event.pull_request.labels.*.name, 'No Baseline Change') && 
+            !contains(github.event.pull_request.labels.*.name, 'Baseline Updates') &&  
+            !contains(github.event.pull_request.labels.*.name, 'New Baselines')
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -30,9 +30,9 @@ jobs:
           field-value: 'Unknown'
       - name: Contradictory labels
         if: | 
-            contains(github.event.pull_request_target.labels.*.name, 'No Baseline Change') && 
-            (contains(github.event.pull_request_target.labels.*.name, 'Baseline Updates') ||  
-            contains(github.event.pull_request_target.labels.*.name, 'New Baselines'))
+            contains(github.event.pull_request.labels.*.name, 'No Baseline Change') && 
+            (contains(github.event.pull_request.labels.*.name, 'Baseline Updates') ||  
+            contains(github.event.pull_request.labels.*.name, 'New Baselines'))
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -42,9 +42,9 @@ jobs:
           field-value: 'Unknown'
       - name: Baseline changes labels
         if: |
-            (contains(github.event.pull_request_target.labels.*.name, 'Baseline Updates') || 
-            contains(github.event.pull_request_target.labels.*.name, 'New Baselines')) && 
-            !contains(github.event.pull_request_target.labels.*.name, 'No Baseline Change')
+            (contains(github.event.pull_request.labels.*.name, 'Baseline Updates') || 
+            contains(github.event.pull_request.labels.*.name, 'New Baselines')) && 
+            !contains(github.event.pull_request.labels.*.name, 'No Baseline Change')
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -54,9 +54,9 @@ jobs:
           field-value: 'Yes'
       - name: No baseline changes label
         if: | 
-            contains(github.event.pull_request_target.labels.*.name, 'No Baseline Change') && 
-            !contains(github.event.pull_request_target.labels.*.name, 'Baseline Updates') && 
-            !contains(github.event.pull_request_target.labels.*.name, 'New Baselines')
+            contains(github.event.pull_request.labels.*.name, 'No Baseline Change') && 
+            !contains(github.event.pull_request.labels.*.name, 'Baseline Updates') && 
+            !contains(github.event.pull_request.labels.*.name, 'New Baselines')
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -73,7 +73,7 @@ jobs:
       issues: write
     steps:
       - name: Input data required
-        if: contains(github.event.pull_request_target.labels.*.name, 'Input Data Changes')
+        if: contains(github.event.pull_request.labels.*.name, 'Input Data Changes')
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -82,7 +82,7 @@ jobs:
           field-name: "Input Data Req'd"
           field-value: 'Yes'
       - name: No input data changes
-        if: (!contains(github.event.pull_request_target.labels.*.name, 'Input Data Changes'))
+        if: (!contains(github.event.pull_request.labels.*.name, 'Input Data Changes'))
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -101,8 +101,8 @@ jobs:
     steps:
       - name: Normal Priority
         if: |
-            !contains(github.event.pull_request_target.labels.*.name, 'Priority: Critical') &&
-            !contains(github.event.pull_request_target.labels.*.name, 'Priority: High')
+            !contains(github.event.pull_request.labels.*.name, 'Priority: Critical') &&
+            !contains(github.event.pull_request.labels.*.name, 'Priority: High')
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -111,7 +111,7 @@ jobs:
           field-name: 'Priority'
           field-value: 'Normal'
       - name: Critical priority
-        if: "contains(github.event.pull_request_target.labels.*.name, 'Priority: Critical')"
+        if: "contains(github.event.pull_request.labels.*.name, 'Priority: Critical')"
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -120,7 +120,7 @@ jobs:
           field-name: 'Priority'
           field-value: 'Yes'
       - name: High Priority
-        if: "(contains(github.event.pull_request_target.labels.*.name, 'Priority: High'))"
+        if: "(contains(github.event.pull_request.labels.*.name, 'Priority: High'))"
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -130,8 +130,8 @@ jobs:
           field-value: 'High'
       - name: Unknown Priority
         if: |
-            contains(github.event.pull_request_target.labels.*.name, 'Priority: Critical') &&
-            contains(github.event.pull_request_target.labels.*.name, 'Priority: High')
+            contains(github.event.pull_request.labels.*.name, 'Priority: Critical') &&
+            contains(github.event.pull_request.labels.*.name, 'Priority: High')
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
