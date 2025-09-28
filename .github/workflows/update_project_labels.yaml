@@ -10,7 +10,7 @@ on:
 
 jobs:
   baseline-labels:
-    name: Update project with baseline labels
+    name: Baseline labels
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -66,7 +66,7 @@ jobs:
           field-name: 'Baseline Changes'
           field-value: 'No'
   data-labels:
-    name: Update project with input data labels
+    name: Input data
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -93,7 +93,7 @@ jobs:
           field-value: 'No'
   #Figure out "Combine" toggle & logic
   priority-labels:
-    name: Update project with priority labels
+    name: Priority
     runs-on: ubuntu-latest
     permissions:
       contents: read
