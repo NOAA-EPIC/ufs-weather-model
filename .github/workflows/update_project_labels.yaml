@@ -97,31 +97,7 @@ jobs:
       contents: read
       pull-requests: write
       issues: write
-    env:
-      - PRIORITY: ''
     steps:
-      - name: Read Priority field
-        uses: EndBug/project-fields@v2
-        id: priority_field
-        with:
-          operation: get
-          fields: Priority
-          github_token: ${{ secrets.PR_PROJECT_TOKEN }}
-          project_url: ${{ github.event.pull_request.html_url }}
-      - name: Assign value to Priority field
-        run: PRIORITY=${{ steps.priority_field.outputs.values }}
-      - name: Normal Priority
-        if: |
-            !contains(github.event.pull_request.labels.*.name, 'Priority: Critical') &&
-            !contains(github.event.pull_request.labels.*.name, 'Priority: High') &&
-            $PRIORITY!='Combine'
-        uses: nipe0324/update-project-v2-item-field@v2.0.2
-        with:
-          #project-url: https://github.com/orgs/ufs-community/projects/70
-          project-url: https://github.com/orgs/NOAA-EPIC/projects/18
-          github-token: ${{ secrets.PR_PROJECT_TOKEN }}
-          field-name: 'Priority'
-          field-value: 'Normal'
       - name: Critical priority
         if: "contains(github.event.pull_request.labels.*.name, 'Priority: Critical')"
         uses: nipe0324/update-project-v2-item-field@v2.0.2
