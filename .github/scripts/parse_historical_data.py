@@ -9,7 +9,7 @@ def get_commits(machine, headers):
    """Get a list of commits a given platform's log files."""
    
    url=f"{os.environ.get('BASE_URL')}/commits?path=tests/logs/RegressionTests_{machine}.log"
-   response = requests.get(url, headers=headers) #auth=("gspetro-NOAA", token)) 
+   response = requests.get(url, headers=headers)
    response = json.loads(response.text)
    print(response)
    commit_list = []
@@ -29,7 +29,7 @@ def get_file_info(commit_list, machine, headers):
    
    for num in range(len(commit_list)): 
       url = commit_url + (f"?ref={commit_list[num]}") #Could use a path join?
-      r = requests.get(url, headers=headers) #, auth=("gh_username", token))
+      r = requests.get(url, headers=headers)
       file_contents.append(r.text)
 
    return file_contents
@@ -79,7 +79,6 @@ def calculate_stats(test_hist):
       memory_mean = np.mean(test_hist[test]["memory"])
       memory_stdev = np.std(test_hist[test]["memory"])
       stats[test] = [runtime_mean, runtime_stdev, memory_mean, memory_stdev]
-      #print("Test: ", test, stats[test])
 
    return stats
 
@@ -107,6 +106,7 @@ if __name__ == "__main__":
       contents = get_file_info(commit_list, machine, headers)
       historical_results = parse_file(contents)
       stats_by_machine[machine] = calculate_stats(historical_results)
+   print(stats_by_machine)
    create_machine_stats(stats_by_machine)
 
 
