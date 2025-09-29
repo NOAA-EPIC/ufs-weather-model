@@ -107,8 +107,8 @@ jobs:
           operation: get
           fields: Priority
           github_token: ${{ secrets.PR_PROJECT_TOKEN }}
-          #project-url: https://github.com/orgs/ufs-community/projects/70
-          project-url: https://github.com/orgs/NOAA-EPIC/projects/18
+          #project_url: https://github.com/orgs/ufs-community/projects/70
+          project_url: https://github.com/orgs/NOAA-EPIC/projects/18
           resource_url: ${{ github.event.pull_request.html_url }}
       - name: Assign value to Priority field
         run: |
