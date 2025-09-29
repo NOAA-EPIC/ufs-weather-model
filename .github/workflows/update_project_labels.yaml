@@ -98,11 +98,25 @@ jobs:
       contents: read
       pull-requests: write
       issues: write
+    env:
+      - PRIORITY: ''
     steps:
+      - name: Combinable?
+        uses: EndBug/project-fields@v2
+        id: fields
+        with:
+          operation: get
+          fields: Priority
+          github_token: ${{ secrets.PR_PROJECT_TOKEN }}
+          project_url: https://github.com/ufs-community/ufs-weather-model/pull/${{ github.event.pull_request.number }}
+        run: |
+          echo ${{ github.event.pull_request.number }}
+          PRIORITY=${{ steps.fields.outputs.values }}
       - name: Normal Priority
         if: |
             !contains(github.event.pull_request.labels.*.name, 'Priority: Critical') &&
-            !contains(github.event.pull_request.labels.*.name, 'Priority: High')
+            !contains(github.event.pull_request.labels.*.name, 'Priority: High') &&
+            $PRIORITY!='Combine'
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
