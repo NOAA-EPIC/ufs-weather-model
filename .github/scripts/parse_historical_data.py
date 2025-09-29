@@ -74,10 +74,10 @@ def calculate_stats(test_hist):
    """For each test, calculate the mean and standard deviation of memory and runtime."""
    stats = {}
    for test in test_hist:
-      runtime_mean = np.mean(test_hist[test]["runtime"])
-      runtime_stdev = np.std(test_hist[test]["runtime"])
-      memory_mean = np.mean(test_hist[test]["memory"])
-      memory_stdev = np.std(test_hist[test]["memory"])
+      runtime_mean = round(np.mean(test_hist[test]["runtime"]), 5)
+      runtime_stdev = round(np.std(test_hist[test]["runtime"]), 5)
+      memory_mean = round(np.mean(test_hist[test]["memory"]), 5)
+      memory_stdev = round(np.std(test_hist[test]["memory"]), 5)
       stats[test] = [runtime_mean, runtime_stdev, memory_mean, memory_stdev]
 
    return stats
