@@ -95,9 +95,9 @@ if __name__ == "__main__":
       "Accept": "application/vnd.github.v3+json",
       "Authorization": "Bearer {token}",
       "X-GitHub-Api-Version": "2022-11-28",
-      #"Accept": "application/vnd.github.raw"
+      "Accept": "application/vnd.github.raw"
    }
-   token = os.environ.get('GITHUB_TOKEN')
+   token = os.environ.get('TOKEN')
    machines = os.environ.get('MACHINES').split()
    stats_by_machine = {}
    for machine in machines:

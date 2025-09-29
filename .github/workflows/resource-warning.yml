@@ -1,7 +1,7 @@
 name: Regression Resource Check
 
 on:
-  pull_request:
+  pull_request_target:
     branches: [develop]
   push:
     branches: ['**']
@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 env: 
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  TOKEN: ${{ secrets.PR_PROJECT_TOKEN }}
   MACHINES: "acorn derecho gaeac6 hera hercules orion ursa wcoss2"
   BASE_URL: https://api.github.com/repos/ufs-community/ufs-weather-model
 
@@ -48,7 +48,7 @@ jobs:
           for machine in hera gaeac6 ursa orion hercules derecho wcoss2 acorn; do
             curl -sSfL -o logs/baseline/RegressionTests_${machine}.log \
             -H "Accept: application/vnd.github.object" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: Bearer $TOKEN" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/ufs-community/ufs-weather-model/contents/tests/logs/RegressionTests_${machine}.log \
             || echo "Missing baseline for $machine"
