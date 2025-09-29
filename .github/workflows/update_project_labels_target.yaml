@@ -119,7 +119,7 @@ jobs:
           project-url: https://github.com/orgs/NOAA-EPIC/projects/18
           github-token: ${{ secrets.PR_PROJECT_TOKEN }}
           field-name: 'Priority'
-          field-value: 'Yes'
+          field-value: 'Critical'
       - name: High Priority
         if: "(contains(github.event.pull_request.labels.*.name, 'Priority: High'))"
         uses: nipe0324/update-project-v2-item-field@v2.0.2
