@@ -91,7 +91,7 @@ def create_machine_stats(stats_dict):
 
 if __name__ == "__main__":
 
-   token = os.environ.get('TOKEN')
+   token = os.environ.get('GITHUB_TOKEN')
    headers = {
       "Accept": "application/vnd.github.v3+json",
       "Authorization": f"Bearer {token}",
