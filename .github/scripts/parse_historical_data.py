@@ -91,13 +91,13 @@ def create_machine_stats(stats_dict):
 
 if __name__ == "__main__":
 
+   token = os.environ.get('TOKEN')
    headers = {
       "Accept": "application/vnd.github.v3+json",
-      "Authorization": "Bearer {token}",
+      f"Authorization": "Bearer {token}",
       "X-GitHub-Api-Version": "2022-11-28",
       "Accept": "application/vnd.github.raw"
    }
-   token = os.environ.get('TOKEN')
    machines = os.environ.get('MACHINES').split()
    stats_by_machine = {}
    for machine in machines:
