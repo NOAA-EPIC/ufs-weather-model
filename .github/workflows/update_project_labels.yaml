@@ -109,7 +109,7 @@ jobs:
           github_token: ${{ secrets.PR_PROJECT_TOKEN }}
           project_url: ${{ github.event.pull_request.html_url }}
       - name: Assign value to Priority field
-        run: PRIORITY=${{ steps.priority_field.outputs.values }}
+        run: echo "PRIORITY=${{ steps.priority_field.outputs.values }}" >> $GITHUB_ENV
       - name: Normal Priority
         if: |
             !contains(github.event.pull_request.labels.*.name, 'Priority: Critical') &&
