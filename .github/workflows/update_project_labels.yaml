@@ -114,12 +114,11 @@ jobs:
         run: |
           priority="${{ steps.priority_field.outputs.values }}"
           echo "PRIORITY=$priority" >> $GITHUB_ENV
-          echo ${{ env.PRIORITY }}
       - name: Normal Priority
         if: |
             !contains(github.event.pull_request.labels.*.name, 'Priority: Critical') &&
             !contains(github.event.pull_request.labels.*.name, 'Priority: High') &&
-            ${{ env.PRIORITY }}!='Combine'
+            $PRIORITY!='Combine'
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
