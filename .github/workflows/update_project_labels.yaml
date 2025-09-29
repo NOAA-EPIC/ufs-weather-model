@@ -100,17 +100,16 @@ jobs:
     env:
       - PRIORITY: ''
     steps:
-      - name: Combinable?
+      - name: Read Priority field
         uses: EndBug/project-fields@v2
-        id: fields
+        id: priority_field
         with:
           operation: get
           fields: Priority
           github_token: ${{ secrets.PR_PROJECT_TOKEN }}
-          project_url: https://github.com/ufs-community/ufs-weather-model/pull/${{ github.event.pull_request.number }}
-        run: |
-          echo ${{ github.event.pull_request.number }}
-          PRIORITY=${{ steps.fields.outputs.values }}
+          project_url: ${{ github.event.pull_request.html_url }}
+      - name: Assign value to Priority field
+        run: PRIORITY=${{ steps.priority_field.outputs.values }}
       - name: Normal Priority
         if: |
             !contains(github.event.pull_request.labels.*.name, 'Priority: Critical') &&
