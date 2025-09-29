@@ -19,9 +19,9 @@ jobs:
     steps:
       - name: Lack of baseline labels
         if: | 
-            (!contains(github.event.pull_request.labels.*.name, 'No Baseline Change')) && 
-            (!contains(github.event.pull_request.labels.*.name, 'Baseline Updates')) &&  
-            (!contains(github.event.pull_request.labels.*.name, 'New Baselines'))
+            "!contains(github.event.pull_request.labels.*.name, 'No Baseline Change')" && 
+            "!contains(github.event.pull_request.labels.*.name, 'Baseline Updates')" &&  
+            "!contains(github.event.pull_request.labels.*.name, 'New Baselines')"
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
