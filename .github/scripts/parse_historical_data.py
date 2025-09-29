@@ -94,7 +94,7 @@ if __name__ == "__main__":
    token = os.environ.get('TOKEN')
    headers = {
       "Accept": "application/vnd.github.v3+json",
-      f"Authorization": "Bearer {token}",
+      "Authorization": f"Bearer {token}",
       "X-GitHub-Api-Version": "2022-11-28",
       "Accept": "application/vnd.github.raw"
    }
