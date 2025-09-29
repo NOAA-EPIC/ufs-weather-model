@@ -20,7 +20,7 @@ jobs:
       - name: Lack of baseline labels
         if: | 
             "!contains(github.event.pull_request.labels.*.name, 'No Baseline Change')" && 
-            "!contains(github.event.pull_request.labels.*.name, 'Baseline Updates')" &&  
+            "!contains(github.event.pull_request.labels.*.name, 'Baseline Updates')" && 
             "!contains(github.event.pull_request.labels.*.name, 'New Baselines')"
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
@@ -32,7 +32,7 @@ jobs:
       - name: Contradictory labels
         if: | 
             contains(github.event.pull_request.labels.*.name, 'No Baseline Change') && 
-            (contains(github.event.pull_request.labels.*.name, 'Baseline Updates') ||  
+            (contains(github.event.pull_request.labels.*.name, 'Baseline Updates') || 
             contains(github.event.pull_request.labels.*.name, 'New Baselines'))
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
