@@ -38,6 +38,7 @@ jobs:
           path: ${{ github.workspace }}/stats.json
   compare-resources:
     runs-on: ubuntu-latest
+    needs: get-historical-data
     steps:
       - name: Checkout feature branch
         uses: actions/checkout@v4
@@ -58,6 +59,7 @@ jobs:
           path: ${{ github.workspace }}/test_results.json
   write-results:  
     runs-on: ubuntu-latest
+    needs: compare-resources
     steps:
       - name: Checkout feature branch
         uses: actions/checkout@v4
