@@ -42,6 +42,9 @@ jobs:
     steps:
       - name: Checkout feature branch
         uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          pip install requests numpy
       - name: Download historical data
         uses: actions/download-artifact@v5
         with: 
