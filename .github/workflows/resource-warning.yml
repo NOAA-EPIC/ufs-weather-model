@@ -49,7 +49,7 @@ jobs:
         uses: actions/download-artifact@v5
         with: 
           name: stats.json
-          path: ${{ github.workspace }}/stats.json
+          path: ${{ github.workspace }}
       - name: Fetch baseline logs and check stats
         run: |
           python ${{ github.workspace }}/.github/scripts/compare_logs.py
