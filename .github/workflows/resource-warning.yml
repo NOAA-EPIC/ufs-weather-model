@@ -21,7 +21,7 @@ env:
   BASE_URL: https://api.github.com/repos/ufs-community/ufs-weather-model
 
 jobs:
-  get-historical-data:
+  get-historical-data: #Add: If already exists, don't run again! 
     runs-on: ubuntu-latest
     steps: 
       - name: Checkout feature branch
@@ -36,24 +36,36 @@ jobs:
         with: 
           name: stats.json
           path: ${{ github.workspace }}/stats.json
-  check-resources:
+  compare-resources:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout feature branch
         uses: actions/checkout@v4
-
-      - name: Fetch baseline logs
+      - name: Download historical data
+        uses: actions/download-artifact@v5
+        with: 
+          name: stats.json
+          path: ${{ github.workspace }}/stats.json
+      - name: Fetch baseline logs and check stats
         run: |
-          mkdir -p logs/baseline
-          for machine in hera gaeac6 ursa orion hercules derecho wcoss2 acorn; do
-            curl -sSfL -o logs/baseline/RegressionTests_${machine}.log \
-            -H "Accept: application/vnd.github.object" \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/ufs-community/ufs-weather-model/contents/tests/logs/RegressionTests_${machine}.log \
-            || echo "Missing baseline for $machine"
-          done
-
+          python compare_logs.py
+        env: 
+          MACHINE_STATS: ${{ github.workspace }}/stats.json
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with: 
+          name: test_results.json
+          path: ${{ github.workspace }}/test_results.json
+  write-results:  
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+      - name: Download historical data
+        uses: actions/download-artifact@v5
+        with: 
+          name: test_results.json
+          path: ${{ github.workspace }}/test_results.json
       - name: Compare logs and collect warnings
         run: |
           mkdir -p logs/feature
