@@ -49,7 +49,7 @@ jobs:
           path: ${{ github.workspace }}/stats.json
       - name: Fetch baseline logs and check stats
         run: |
-          python compare_logs.py
+          python ${{ github.workspace }}/.github/scripts/compare_logs.py
         env: 
           MACHINE_STATS: ${{ github.workspace }}/stats.json
       - name: Upload results
