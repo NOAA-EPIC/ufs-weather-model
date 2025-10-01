@@ -5,11 +5,8 @@ from mdutils.mdutils import MdUtils
 
 def load_json():
    """Convert JSON file to python dictionary."""
-   print(os.environ.get('RESULTS'))
    with open(os.environ.get('RESULTS'), 'r', encoding='utf-8') as file:
       data = json.load(file)
-
-   print(data)
 
    return data
 
@@ -39,12 +36,9 @@ def build_content(contents, mdFile, machine):
       table_content.append(contents[test][1])
     
    # Create the table
-   #print(table_content)
-   print(len(contents))
    mdFile.new_table(columns=len(columns), rows=len(contents)+1, text_align='center', text=table_content)
    mdFile.new_paragraph('\n'),
-   
-   return mdFile.get_md_text()
+
 
 if __name__ == "__main__":
 
@@ -52,10 +46,6 @@ if __name__ == "__main__":
    machines = os.environ.get('MACHINES').split()
    results = os.environ.get('RESULTS')
    contents = load_json()
-   test_data = {}
    file = create_mdFile()
    for machine in machines:
-      print(machine.upper())
       build_content(contents[machine], file, machine)
-      
-   print(file.get_md_text())
