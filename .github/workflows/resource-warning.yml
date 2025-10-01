@@ -30,11 +30,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install requests numpy
-      - name: Cache machine stats
-        uses: actions/cache@v4
-        with:
-          path: ${{ github.workspace }}/stats.json
-          key: hist-stats-${{ hashFiles(stats.json) }}
       - name: Get develop branch commits
         run: python .github/scripts/parse_historical_data.py
       - name: Upload json
@@ -42,6 +37,11 @@ jobs:
         with: 
           name: stats.json
           path: ${{ github.workspace }}/stats.json
+      - name: Cache machine stats
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/stats.json
+          key: hist-stats-${{ hashFiles(**/stats.json) }}
   compare-resources:
     runs-on: ubuntu-latest
     needs: get-historical-data
