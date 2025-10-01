@@ -1,7 +1,6 @@
 import os
 import json
 import re
-import pandas as pd
 from mdutils.mdutils import MdUtils
 
 def load_json(json_file):

@@ -67,6 +67,9 @@ jobs:
     steps:
       - name: Checkout feature branch
         uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          pip install mdutils
       - name: Download test results
         uses: actions/download-artifact@v5
         with: 
