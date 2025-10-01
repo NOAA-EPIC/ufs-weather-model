@@ -47,4 +47,4 @@ if __name__ == "__main__":
    for machine in machines[0:3]:
       build_content(contents[machine], file, machine)
 
-   #print(file.get_md_text())
+   print(file.get_md_text())
