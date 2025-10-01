@@ -3,30 +3,15 @@ import json
 import re
 from mdutils.mdutils import MdUtils
 
-def load_json(json_file):
-   """Convert json file to python dictionary"""
+def load_json():
+   """Convert JSON file to python dictionary."""
+   print(os.environ.get('RESULTS'))
+   with open(os.environ.get('RESULTS'), 'r', encoding='utf-8') as file:
+      data = json.load(file)
 
-   try:
-      with open(json_file, 'r') as file:
-         data = json.load(file)
-      return data
-   except FileNotFoundError:
-      return "🚫 **Error:** Test results JSON file not found."
-   except json.JSONDecodeError:
-      return "🚫 **Error:** Could not parse JSON file."
+   print(data)
 
-"""def create_test_summary_df(contents):
-   df = pd.DataFrame.from_dict(contents, columns=["Runtime", "Memory"], orient='index')
-   df.reset_index(inplace=True, names='Test')
-   print(df.head())
-   print(df['Runtime'].head())
-   return df"""
-       
-def create_test_summary(contents):
-   pass
-   
-   
-   return tests, runtime, memory
+   return data
 
 def create_mdFile():
    pr_num = os.environ.get('PR_NUM')
@@ -61,19 +46,12 @@ def build_content(contents, mdFile, machine):
    
    return mdFile.get_md_text()
 
-def create_file(contents):
-   """Create a json file with statistic for each test on each machine"""
-
-   with open(f"summary.md", 'a') as fh:
-      fh.write(contents)
-
 if __name__ == "__main__":
 
    token = os.environ.get('GITHUB_TOKEN')
    machines = os.environ.get('MACHINES').split()
-   #results = load_json(os.environ.get('RESULTS'))
    results = os.environ.get('RESULTS')
-   contents = load_json(results)
+   contents = load_json()
    test_data = {}
    file = create_mdFile()
    for machine in machines:
