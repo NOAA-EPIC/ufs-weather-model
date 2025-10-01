@@ -1,9 +1,7 @@
-import requests
 import os
 import json
 from datetime import datetime
 import re
-import numpy as np
 
 def get_file_info(machine, headers): 
    """Extract the file text."""
@@ -16,7 +14,7 @@ def get_file_info(machine, headers):
 
    return file_contents
 
-def parse_file(file_contents):
+def parse_file(file_contents): #Refactor to remove date parsing
    """Parse file to determine the memory usage and runtime for each test."""
    
    test_data = {}
@@ -74,11 +72,11 @@ def compare_memory(log, hist_stats, machine):
       low_mem = hist_stats[machine][test][2] - hist_stats[machine][test][3]
       hi_mem = hist_stats[machine][test][2] + hist_stats[machine][test][3]
       if log[test]["memory"][0] > low_mem and log[test]["memory"][0] < hi_mem:
-         results[test] = 'PASS'
+         results[test] = '✅ PASS'
       elif log[test]["memory"][0] > hi_mem:
-         results[test] = f"FAIL: The memory usage for {test} is {log[test]["memory"][0]} MB, which is more than two standard deviations above the historical mean of {hist_stats[machine][test][2]}MB."
+         results[test] = f"❌ FAIL: The memory usage for {test} is {log[test]["memory"][0]} MB, which is more than two standard deviations above the historical mean of {hist_stats[machine][test][2]}MB."
       else:
-         results[test] = f"FAIL: The memory usage for {test} is {log[test]["memory"][0]} MB, which is more than two standard deviations below the historical mean of {hist_stats[machine][test][2]}MB."
+         results[test] = f"❌ FAIL: The memory usage for {test} is {log[test]["memory"][0]} MB, which is more than two standard deviations below the historical mean of {hist_stats[machine][test][2]}MB."
 
    return results
 
@@ -93,6 +91,7 @@ def compare_results(log, hist_stats, machine):
    return results
 
 def load_json(json_file):
+   """Convert JSON file to python dictionary."""
    with open(json_file, 'r') as file:
       stats = json.load(file)
    return stats
