@@ -18,6 +18,8 @@ def create_mdFile():
 
 def build_content(contents, mdFile, machine):
    
+   mdFile.write('<details><summary>Data Set A</summary>')
+   
    mdFile.new_header(level=1, title=f'{machine.upper()} - Tests Completed')
 
    columns = ["Tests", "Runtime", "Memory"]
@@ -33,12 +35,12 @@ def build_content(contents, mdFile, machine):
     
    # Create the table
    mdFile.new_table(columns=len(columns), rows=len(contents)+1, text_align='center', text=table_content)
-   mdFile.new_paragraph('\n'),
+   mdFile.new_paragraph('\n')
+   mdFile.write('</details>')
 
 
 if __name__ == "__main__":
 
-   token = os.environ.get('GITHUB_TOKEN')
    machines = os.environ.get('MACHINES').split()
    results = os.environ.get('RESULTS')
    contents = load_json()
