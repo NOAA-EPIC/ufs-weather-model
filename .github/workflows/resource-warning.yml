@@ -30,6 +30,11 @@ jobs:
       - name: Install dependencies
         run: |
           pip install requests numpy
+      - name: Cache machine stats
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/stats.json
+          key: hist-stats-${{ hashFiles(stats.json) }}
       - name: Get develop branch commits
         run: python .github/scripts/parse_historical_data.py
       - name: Upload json
