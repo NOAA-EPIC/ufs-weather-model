@@ -74,7 +74,6 @@ jobs:
           path: ${{ github.workspace }}
         env: 
           RESULTS: ${{ github.workspace }}/test_results.json
-      - name: 
       - name: Write results summary
         run: |
           python ${{ github.workspace }}/.github/scripts/write_test_summary.py >> $GITHUB_STEP_SUMMARY
