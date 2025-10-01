@@ -18,7 +18,7 @@ def create_mdFile():
 
 def build_content(contents, mdFile, machine):
    
-   mdFile.new_header(level=1, title=f'{machine} - Tests Completed')
+   mdFile.new_header(level=1, title=f'{machine.upper()} - Tests Completed')
 
    columns = ["Tests", "Runtime", "Memory"]
 
