@@ -18,9 +18,9 @@ def create_mdFile():
 
 def build_content(contents, mdFile, machine):
    
-   mdFile.write('<details><summary>Data Set A</summary>')
+   mdFile.write(f"<details><summary>{machine.upper()} - Tests Completed</summary>")
    
-   mdFile.new_header(level=1, title=f'{machine.upper()} - Tests Completed')
+   #mdFile.new_header(level=1, title=f'{machine.upper()} - Tests Completed')
 
    columns = ["Tests", "Runtime", "Memory"]
 
