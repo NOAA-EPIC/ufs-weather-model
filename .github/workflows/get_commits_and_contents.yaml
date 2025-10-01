@@ -1,0 +1,76 @@
+name: Regression Resource Check
+
+on:
+  pull_request_target:
+    branches: [develop]
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash -leo pipefail {0}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env: 
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  MACHINES: "acorn derecho gaeac6 hera hercules orion ursa wcoss2"
+  BASE_URL: https://api.github.com/repos/ufs-community/ufs-weather-model
+
+jobs:
+  get-historical-data:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          pip install requests numpy
+      - name: Get develop branch commits
+        run: python .github/scripts/parse_historical_data.py
+      - name: Upload json
+        uses: actions/upload-artifact@v4
+        with: 
+          name: commits.json
+          path: artifacts
+  check-resources:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+
+      - name: Fetch baseline logs
+        run: |
+          mkdir -p logs/baseline
+          for machine in hera gaeac6 ursa orion hercules derecho wcoss2 acorn; do
+            curl -sSfL -o logs/baseline/RegressionTests_${machine}.log \
+            -H "Accept: application/vnd.github.object" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/ufs-community/ufs-weather-model/contents/tests/logs/RegressionTests_${machine}.log \
+            || echo "Missing baseline for $machine"
+          done
+
+      - name: Compare logs and collect warnings
+        run: |
+          mkdir -p logs/feature
+          python tests/ci/collect_updated_warnings.py logs/feature/ logs/baseline/ summary.md
+
+      - name: Post summary to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('summary.md', 'utf8');
+            if (summary.trim().length > 0) {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: summary
+              });
+            }

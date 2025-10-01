@@ -58,12 +58,12 @@ def compare_runtime(log, hist_stats, machine):
       low_rt = hist_stats[machine][test][0] - hist_stats[machine][test][1]
       hi_rt = hist_stats[machine][test][0] + hist_stats[machine][test][1]
       if log[test]["runtime"][0] > low_rt and log[test]["runtime"][0] < hi_rt:
-         results[test] = 'PASS'
+         results[test] = '✅ PASS'
       elif log[test]["runtime"][0] > hi_rt:
-         results[test] = f"FAIL: The runtime of {test} is {log[test]["runtime"][0]} seconds, which is more than two standard deviations above the historical mean of {hist_stats[machine][test][0]}s."
+         results[test] = f"❌ FAIL: The runtime of {test} is {log[test]["runtime"][0]} seconds, which is more than two standard deviations above the historical mean of {hist_stats[machine][test][0]}s."
       # Do we care if runtime is faster than usual...?
       else:
-         results[test] = f"FAIL: The runtime of {test} is {log[test]["runtime"][0]} seconds, which is more than two standard deviations below the historical mean of {hist_stats[machine][test][0]}s."
+         results[test] = f"❌ FAIL: The runtime of {test} is {log[test]["runtime"][0]} seconds, which is more than two standard deviations below the historical mean of {hist_stats[machine][test][0]}s."
 
    return results
 

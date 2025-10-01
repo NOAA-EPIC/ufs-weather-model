@@ -19,6 +19,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   MACHINES: "acorn derecho gaeac6 hera hercules orion ursa wcoss2"
   BASE_URL: https://api.github.com/repos/ufs-community/ufs-weather-model
+  PR_NUM: ${{ github.event.number }}
 
 jobs:
   get-historical-data: #Add: If already exists, don't run again! 
@@ -66,28 +67,14 @@ jobs:
     steps:
       - name: Checkout feature branch
         uses: actions/checkout@v4
-      - name: Download historical data
+      - name: Download test results
         uses: actions/download-artifact@v5
         with: 
           name: test_results.json
-          path: ${{ github.workspace }}/test_results.json
-      - name: Compare logs and collect warnings
+          path: ${{ github.workspace }}
+        env: 
+          RESULTS: ${{ github.workspace }}/test_results.json
+      - name: 
+      - name: Write results summary
         run: |
-          mkdir -p logs/feature
-          python tests/ci/collect_updated_warnings.py logs/feature/ logs/baseline/ summary.md
-
-      - name: Post summary to PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            const summary = fs.readFileSync('summary.md', 'utf8');
-            if (summary.trim().length > 0) {
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: summary
-              });
-            }
+          python ${{ github.workspace }}/.github/scripts/write_test_summary.py >> $GITHUB_STEP_SUMMARY
