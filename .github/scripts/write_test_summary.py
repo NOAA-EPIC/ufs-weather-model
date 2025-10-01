@@ -22,10 +22,6 @@ def build_content(contents, mdFile, machine):
 
    columns = ["Tests", "Runtime", "Memory"]
 
-   tests = []
-   runtime = []
-   memory = []
-   # Create a table for results
    table_content = [
       "Tests", "Runtime", "Memory"
    ]
@@ -49,3 +45,5 @@ if __name__ == "__main__":
    file = create_mdFile()
    for machine in machines:
       build_content(contents[machine], file, machine)
+
+   print(file.get_md_text())
