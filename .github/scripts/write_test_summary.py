@@ -29,9 +29,8 @@ def build_content(contents, mdFile, machine):
       table_content.append(contents[test][0])
       table_content.append(contents[test][1])
     
-   # Create the table
+   # Create a table
    mdFile.write(f"<details><summary>{machine.upper()} - Tests Completed</summary>")
-   #mdFile.get_md_text())
    mdFile.new_paragraph('\n')
    mdFile.new_table(columns=len(columns), rows=len(contents)+1, text_align='center', text=table_content)
    mdFile.new_paragraph('\n')
@@ -44,7 +43,7 @@ if __name__ == "__main__":
    results = os.environ.get('RESULTS')
    contents = load_json()
    file = create_mdFile()
-   for machine in machines[0:3]:
+   for machine in machines:
       build_content(contents[machine], file, machine)
 
    print(file.get_md_text())
