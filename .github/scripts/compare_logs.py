@@ -52,7 +52,7 @@ def parse_file(file_contents): #Refactor to remove date parsing
    return test_data
 
 def compare_runtime(log, hist_stats, machine):
-   #results = {}
+   results = {}
 
    for test in log:
       hi_rt = hist_stats[machine][test][0] + hist_stats[machine][test][1]
