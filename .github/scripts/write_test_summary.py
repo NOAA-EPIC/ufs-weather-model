@@ -17,25 +17,25 @@ def create_mdFile():
    return mdFile
 
 def build_runtime_content(contents, mdFile):
-   table_content = ["Tests", "Runtime"]
+   table_content = []#"Tests", "Runtime"]
    fails = 0
 
    for test in contents:  
       if contents[test][0].startswith("❌ FAIL"):
          table_content.append(test)
-         table_content.append(contents[test][0])
+         #table_content.append(contents[test][0])
          fails += 1
 
    return table_content, fails
 
 def build_memory_content(contents, mdFile):
-   table_content = ["Tests", "Memory"]
+   table_content = []#"Tests", "Memory"]
    fails = 0
    
    for test in contents:  
       if contents[test][1].startswith("❌ FAIL"):
          table_content.append(test)
-         table_content.append(contents[test][1])
+         #table_content.append(contents[test][1])
          fails += 1
 
    return table_content, fails
@@ -51,12 +51,14 @@ def build_content(contents, mdFile, machine):
    mdFile.new_paragraph(f"RUNTIME: {(len(contents) - rt_fails)} / {len(contents)} had normal runtime.")
    mdFile.new_paragraph(f"Tests with anomolously high runtime: ")
    mdFile.new_paragraph('\n')
-   mdFile.new_table(columns=2, rows=rt_fails+1, text_align='center', text=rt_results)
+   mdFile.new_list(items=rt_results, marked_with='*')
+   #mdFile.new_table(columns=2, rows=rt_fails+1, text_align='center', text=rt_results)
    mdFile.new_paragraph('\n')
    mdFile.new_paragraph(f"MEMORY: {(len(contents) - mem_fails)} / {len(contents)} had normal memory usage.")
    mdFile.new_paragraph(f"Tests with anomolously high memory: ")
    mdFile.new_paragraph('\n')
-   mdFile.new_table(columns=2, rows=mem_fails+1, text_align='center', text=mem_results)
+   mdFile.new_list(items=mem_results, marked_with='*')
+   #mdFile.new_table(columns=2, rows=mem_fails+1, text_align='center', text=mem_results)
    mdFile.write('</details>')
 
 
