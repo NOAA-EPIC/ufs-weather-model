@@ -18,21 +18,24 @@ def create_mdFile():
 
 def build_content(contents, mdFile, machine):
    
-   columns = ["Tests", "Runtime", "Memory"]
+   table_content = ["Tests", "Runtime", "Memory"]
+   fails = 0
 
-   table_content = [
-      "Tests", "Runtime", "Memory"
-   ]
-
-   for test in contents:
-      table_content.append(test)
-      table_content.append(contents[test][0])
-      table_content.append(contents[test][1])
-    
+   for test in contents:  
+      if contents[test][0].startswith("❌ FAIL") or contents[test][1].startswith("❌ FAIL"):
+         table_content.append(test)
+         table_content.append(contents[test][0])
+         table_content.append(contents[test][1])
+         fails += 1
+   
    # Create a table
    mdFile.write(f"<details><summary>{machine.upper()} - Tests Completed</summary>")
    mdFile.new_paragraph('\n')
-   mdFile.new_table(columns=len(columns), rows=len(contents)+1, text_align='center', text=table_content)
+   mdFile.new_paragraph(f"RESULTS: {(len(contents) - fails)} / {len(contents)} had normal runtime and memory usage.")
+   mdFile.new_paragraph('\n')
+   mdFile.new_paragraph(f"Tests with anomolously high runtime or memory usage: ")
+   mdFile.new_paragraph('\n')
+   mdFile.new_table(columns=3, rows=fails+1, text_align='center', text=table_content)
    mdFile.new_paragraph('\n')
    mdFile.write('</details>')
 

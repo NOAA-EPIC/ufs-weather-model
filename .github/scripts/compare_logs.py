@@ -52,14 +52,14 @@ def parse_file(file_contents): #Refactor to remove date parsing
    return test_data
 
 def compare_runtime(log, hist_stats, machine):
-   results = {}
+   #results = {}
 
    for test in log:
       hi_rt = hist_stats[machine][test][0] + hist_stats[machine][test][1]
-      if log[test]["runtime"][0] < hi_rt:
-         results[test] = '✅ PASS'
-      else:
+      if log[test]["runtime"][0] > hi_rt:
          results[test] = f"❌ FAIL" #: The runtime of {test} is {log[test]["runtime"][0]} seconds, which is more than two standard deviations above the historical mean of {hist_stats[machine][test][0]}s."
+      else:
+         results[test] = '✅ PASS'
 
    return results
 
@@ -67,11 +67,11 @@ def compare_memory(log, hist_stats, machine):
 
    for test in log:
       hi_mem = hist_stats[machine][test][2] + hist_stats[machine][test][3]
-      if log[test]["memory"][0] < hi_mem:
-         results[test] = '✅ PASS'
-      else:
+      if log[test]["memory"][0] > hi_mem:
          results[test] = f"❌ FAIL" #: The memory usage for {test} is {log[test]["memory"][0]} MB, which is more than two standard deviations above the historical mean of {hist_stats[machine][test][2]}MB."
-   
+      else:
+         results[test] = '✅ PASS'
+
    return results
 
 def compare_results(log, hist_stats, machine): 
