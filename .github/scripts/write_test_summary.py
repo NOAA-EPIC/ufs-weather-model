@@ -49,17 +49,18 @@ def build_content(contents, mdFile, machine):
    mdFile.write(f"<details><summary><h2>{machine.upper()} - Runtime/Memory Summary</h2></summary>")
    mdFile.new_paragraph('\n')
    mdFile.new_paragraph('\n')
-   mdFile.new_header(level=3, title=f"RUNTIME: {(len(contents) - rt_fails)} / {len(contents)} had normal runtime.")
+   mdFile.write(f"<h3>RUNTIME: {(len(contents) - rt_fails)} / {len(contents)} had normal runtime.</h3>")
    mdFile.new_paragraph(f"Tests with anomolously high runtime: ")
    mdFile.new_list(items=rt_results, marked_with='*')
    #mdFile.new_table(columns=2, rows=rt_fails+1, text_align='center', text=rt_results)
    mdFile.new_paragraph('\n')
    mdFile.new_paragraph('\n')
-   mdFile.new_header(level=3, title=f"MEMORY: {(len(contents) - mem_fails)} / {len(contents)} had normal memory usage.")
+   mdFile.write(f"<h3>MEMORY: {(len(contents) - mem_fails)} / {len(contents)} had normal memory usage.</h3>")
    mdFile.new_paragraph(f"Tests with anomolously high memory usage: ")
    mdFile.new_list(items=mem_results, marked_with='*')
    #mdFile.new_table(columns=2, rows=mem_fails+1, text_align='center', text=mem_results)
    mdFile.write('</details>')
+   mdFile.new_paragraph('\n')
 
 
 if __name__ == "__main__":
