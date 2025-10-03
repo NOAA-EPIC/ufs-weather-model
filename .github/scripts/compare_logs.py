@@ -22,19 +22,6 @@ def parse_file(file_contents): #Refactor to remove date parsing
    test_pattern = r"TEST \'(.*)\' \[\d+:\d+, (\d+):(\d+)\]\((\d+) MB\)"
    
    for item in file_contents: # Refactor into get_date() and get_test_data()
-      date_pattern = r"Starting Date/Time: .*\n"
-      date_match = re.search(date_pattern, item)
-      if date_match:
-         date_string = date_match.group(0)[19:].strip()
-         # Strip microseconds
-         date_string = re.sub(r"\.\d+", "", date_string)
-         try:
-            date = datetime.strptime(date_string, "%Y%m%d %H:%M:%S")
-         except(ValueError):
-            date = datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
-         except: 
-            print("Skipping log for ", date_string)
-            continue
       item = item.splitlines()
       for line in item:
          test_match = re.search(test_pattern, line)
@@ -42,12 +29,11 @@ def parse_file(file_contents): #Refactor to remove date parsing
             test_name, hh, mm, mem = test_match.groups()
             try:
                total_minutes = int(hh) * 60 + int(mm)
-               test_data[test_name]["date"].append(date)
                test_data[test_name]["runtime"].append(total_minutes)
                test_data[test_name]["memory"].append(int(mem))
             except(KeyError): 
                total_minutes = int(hh) * 60 + int(mm)
-               test_data[test_name] = {"date": [date], "runtime": [total_minutes], "memory": [int(mem)]}
+               test_data[test_name] = {"runtime": [total_minutes], "memory": [int(mem)]}
 
    return test_data
 
@@ -57,7 +43,7 @@ def compare_runtime(log, hist_stats, machine):
    for test in log:
       hi_rt = hist_stats[machine][test][0] + hist_stats[machine][test][1]
       if log[test]["runtime"][0] > hi_rt:
-         results[test] = f"❌ FAIL" #: The runtime of {test} is {log[test]["runtime"][0]} seconds, which is more than two standard deviations above the historical mean of {hist_stats[machine][test][0]}s."
+         results[test] = f"❌ FAIL"
       else:
          results[test] = '✅ PASS'
 
@@ -68,7 +54,7 @@ def compare_memory(log, hist_stats, machine):
    for test in log:
       hi_mem = hist_stats[machine][test][2] + hist_stats[machine][test][3]
       if log[test]["memory"][0] > hi_mem:
-         results[test] = f"❌ FAIL" #: The memory usage for {test} is {log[test]["memory"][0]} MB, which is more than two standard deviations above the historical mean of {hist_stats[machine][test][2]}MB."
+         results[test] = f"❌ FAIL" 
       else:
          results[test] = '✅ PASS'
 
