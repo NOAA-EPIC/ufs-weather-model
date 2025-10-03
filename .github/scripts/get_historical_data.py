@@ -14,12 +14,25 @@ class Log():
 
    # Update number of commits to 50 before merging
    def get_commits(self, num_commits=10):
-      """Get a list of commits for the log, with a maximum (and default) of 100."""
-      
+      """Get a list of commits for the log, with a maximum (and default) of 100.
+      Structure of response: 
+      response = [
+      {"sha":"#######...",
+      "node_id":"C_...",
+      "commit":{
+         "author":{
+            "name":"First Last",
+            "email":"########+username@users.noreply.github.com",
+            "date":"YYYY-MM-DDTHH:mm:SSZ"
+         },
+      ...
+      ]
+   """
       endpoint = f"commits?path=tests/logs/RegressionTests_{self.machine}.log&per_page={num_commits}"
       api_call = APICall(endpoint)
       response = requests.get(api_call.url, headers=api_call.header)
       response = json.loads(response.text)
+      print(response)
       self.commits = []
       for num in range(len(response)): 
          if response[num]['sha']:
@@ -29,6 +42,7 @@ class Log():
 
    def get_log_text(self): 
       """For each commit of a log, extract the log text."""
+
       if not self.commits:
          return "ERROR: This log has no commit list. Log text cannot be extracted. "
       
@@ -41,27 +55,6 @@ class Log():
          r = requests.get(url, headers=api_call.header)
          self.log_text.append(r.text)
 
-   # Do we need this one?
-   def get_date(self, text): # Change this to get/save date based on 
-      """Get the date for a specific commit of a log.
-         Ags:
-            text: text of log file at specific commit
-      """
-      date_pattern = r"Starting Date/Time: .*\n"
-      date_match = re.search(date_pattern, text)
-      if date_match:
-         date_string = date_match.group(0)[19:].strip()
-         # Strip microseconds
-         date_string = re.sub(r"\.\d+", "", date_string)
-         try:
-            date = datetime.strptime(date_string, "%Y%m%d %H:%M:%S")
-         except(ValueError):
-            date = datetime.strptime(date_string, "%Y-%m-%d %H:%M:%S")
-         except: 
-            print("Skipping log for ", date_string)
-            return
-      return date
-
    def get_instance_test_data(self, log_instance):
       """For each instance of a log at a given commit, extract runtime and memory data from the log text
          Args:
@@ -72,18 +65,15 @@ class Log():
 
       tests_for_log_instance = {}
 
-      date = self.get_date(log_instance)
       pattern = r"TEST \'(.*)\' \[\d+:\d+, (\d+):(\d+)\]\((\d+) MB\)"
       log_instance = log_instance.splitlines()
 
       for line in log_instance:
-         if date == None:
-            continue #skip
          test_match = re.search(pattern, line)
          if test_match:
             test_name, hh, mm, mem = test_match.groups()
             total_minutes = int(hh) * 60 + int(mm)
-            tests_for_log_instance[test_name] = [date, total_minutes, int(mem)]
+            tests_for_log_instance[test_name] = [total_minutes, int(mem)]
       
       return tests_for_log_instance     
       
