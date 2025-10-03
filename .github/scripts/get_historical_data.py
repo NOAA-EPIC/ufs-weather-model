@@ -32,7 +32,6 @@ class Log():
       api_call = APICall(endpoint)
       response = requests.get(api_call.url, headers=api_call.header)
       response = json.loads(response.text)
-      print(response)
       self.commits = []
       for num in range(len(response)): 
          if response[num]['sha']:
@@ -94,11 +93,11 @@ class Log():
          data = self.get_instance_test_data(log_instance)
          for test in data:
             try: 
-               self.historical_rt_mem_data[test]["runtime"].append(data[test][1])
-               self.historical_rt_mem_data[test]["memory"].append(data[test][2])
+               self.historical_rt_mem_data[test]["runtime"].append(data[test][0])
+               self.historical_rt_mem_data[test]["memory"].append(data[test][1])
             except KeyError: 
                # Create key if it doesn't exist yet
-               self.historical_rt_mem_data[test] = {"runtime": [data[test][1]], "memory": [data[test][2]]}
+               self.historical_rt_mem_data[test] = {"runtime": [data[test][0]], "memory": [data[test][1]]}
                
    def calculate_stats(self):
       """For each test, calculate the mean and standard deviation of memory and runtime."""
@@ -109,6 +108,41 @@ class Log():
          memory_mean = round(np.mean(self.historical_rt_mem_data[test]["memory"]), 5)
          memory_stdev = round(np.std(self.historical_rt_mem_data[test]["memory"]), 5)
          self.test_stats[test] = [runtime_mean, runtime_stdev, memory_mean, memory_stdev]
+
+   def gather_historical_data(self):
+      self.get_commits()
+      self.get_log_text()
+      self.get_historical_log_data()
+      self.calculate_stats()
+
+   def compare_runtime(self, current_log):
+      
+      self.runtime_results = {}
+
+      for test in current_log:
+         hi_rt = self.test_stats[test][0] + self.test_stats[test][1]
+         if current_log[test][0] > hi_rt:
+            self.runtime_results[test] = f"❌ FAIL"
+         else:
+            self.runtime_results[test] = '✅ PASS'
+
+   def compare_memory(self, current_log):
+
+      self.memory_results = {}
+
+      for test in current_log:
+         hi_mem = self.test_stats[test][2] + self.test_stats[test][3]
+         if current_log[test][0] > hi_mem:
+            self.memory_results[test] = f"❌ FAIL" 
+         else:
+            self.memory_results[test] = '✅ PASS'
+
+   def compare_results(self): 
+   
+      current_log = self.get_instance_test_data(self.log_text[0])
+      
+      self.compare_runtime(current_log)
+      self.compare_memory(current_log)
 
 class APICall():
    """An API call"""
@@ -132,25 +166,31 @@ def create_machine_stats(stats_dict):
    with open(f"stats.json", 'a') as fh:
       json.dump(stats_dict, fh, indent=4)
 
+def create_machine_results(stats_dict, file_name):
+   """Create a json file with statistic for each test on each machine"""
+
+   with open(f"{file_name}.json", 'a') as fh:
+      json.dump(stats_dict, fh, indent=4)
+
 def main():
    machines = os.environ.get('MACHINES').split()
    stats_by_machine = {}
+   runtime_results_by_machine = {}
+   mem_results_by_machine = {}
    for machine in machines:
       print(machine.upper())
       log = Log(machine)
-      log.get_commits()
-      log.get_log_text()
-      log.get_historical_log_data()
-      log.calculate_stats()
+      log.gather_historical_data()
+      log.compare_results()
       stats_by_machine[machine] = log.test_stats
+      runtime_results_by_machine[machine] = log.runtime_results
+      mem_results_by_machine[machine] = log.memory_results
    create_machine_stats(stats_by_machine)
+   create_machine_results(runtime_results_by_machine, "runtime_results")
+   create_machine_results(mem_results_by_machine, "mem_results")
 
 if __name__ == "__main__":
 
    main()
-   
-
-   
-
 
 
