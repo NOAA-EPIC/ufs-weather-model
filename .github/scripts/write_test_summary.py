@@ -13,7 +13,7 @@ def load_json(file_path):
 
 def create_mdFile():
    pr_num = os.environ.get('PR_NUM')
-   mdFile = MdUtils(file_name='summary.md', title=f'PR Test Summary for PR #{pr_num}')
+   mdFile = MdUtils(file_name='summary.md', title=f'Test Summary for PR #{pr_num}')
 
    return mdFile
 
@@ -39,7 +39,6 @@ def write_content(data, mdFile):
    contents = ["Test"] + machines
 
    # Create table
-   mdFile.new_paragraph('\n')
 
    for index, row in data.iterrows():
 
@@ -61,9 +60,11 @@ def create_summary():
 
    for category in categories: 
       data = build_content(category)
-      mdFile = write_content(data, mdFile)
       mdFile.write(f"<details><summary>{category.upper()} Summary</summary>")
-   
+      mdFile.new_paragraph('\n')
+      mdFile.write(f"<h3>{category.upper()} Results")
+      mdFile.new_paragraph('\n')
+      mdFile = write_content(data, mdFile)
    
    return mdFile
    
