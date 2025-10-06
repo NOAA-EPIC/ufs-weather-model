@@ -44,7 +44,7 @@ jobs:
           key: hist-stats-${{ hashFiles('**/stats.json') }}
   write-results:  
     runs-on: ubuntu-latest
-    needs: compare-resources
+    needs: get-data
     steps:
       - name: Checkout feature branch
         uses: actions/checkout@v4
