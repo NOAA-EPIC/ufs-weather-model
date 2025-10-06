@@ -33,7 +33,7 @@ jobs:
       - name: Get historical data and compare w/HEAD of develop
         run: |
           mkdir data
-          python .github/scripts/get_historical_data.py
+          python .github/scripts/get_data.py
       - name: Upload json
         uses: actions/upload-artifact@v4
         with: 
@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          pip install mdutils
+          pip install pandas mdutils
       - name: Download test results
         uses: actions/download-artifact@v5
         with: 
