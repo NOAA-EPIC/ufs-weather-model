@@ -20,7 +20,6 @@ def create_mdFile():
 def build_content(category):
 
    machines = os.environ.get('MACHINES').split()
-   print(f"{category.upper()}_RESULTS")
    contents = load_json(os.environ.get(f"{category.upper()}_RESULTS"))
    results = pd.DataFrame()
    
@@ -62,7 +61,7 @@ def create_summary():
       data = build_content(category)
       mdFile.write(f"<details><summary>{category.upper()} Summary</summary>")
       mdFile.new_paragraph('\n')
-      mdFile.write(f"<h3>{category.upper()} Results")
+      mdFile.write(f"<h3>{category.upper()} Results Summary</h3>")
       mdFile.new_paragraph('\n')
       mdFile = write_content(data, mdFile)
    
