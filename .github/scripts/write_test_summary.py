@@ -53,15 +53,18 @@ def write_content(data, mdFile):
 
 def create_summary():
    
-   categories = ['RUNTIME', 'MEMORY']
+   categories = ['runtime', 'memory']
 
    mdFile = create_mdFile()
 
    for category in categories: 
       data = build_content(category)
-      mdFile.write(f"<details><summary>{category.upper()} Summary</summary>")
+      mdFile.write(f"<details><summary><h3>{category.upper()} Results Summary</h3></summary>")
       mdFile.new_paragraph('\n')
-      mdFile.write(f"<h3>{category.upper()} Results Summary</h3>")
+      mdFile.new_paragraph("Key:")
+      mdFile.new_paragraph(f"✅ = NORMAL {category}. {category.title()} falls within two standard deviations of the mean.")
+      mdFile.new_paragraph(f"⚠️ = {category.title()} WARNING: {category.title()} is greater than two standard deviations above the mean.")
+      mdFile.new_paragraph(f"❌ = {category.title()} FAIL: For the past 2+ PRs, {category} has been greater than two standard deviations above the mean.")
       mdFile.new_paragraph('\n')
       mdFile = write_content(data, mdFile)
    
