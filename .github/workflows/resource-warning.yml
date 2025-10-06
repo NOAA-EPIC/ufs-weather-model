@@ -22,7 +22,7 @@ env:
   PR_NUM: ${{ github.event.number }}
 
 jobs:
-  get-historical-data: #Add: If already exists, don't run again! 
+  get-data:  
     runs-on: ubuntu-latest
     steps: 
       - name: Checkout feature branch
@@ -30,42 +30,18 @@ jobs:
       - name: Install dependencies
         run: |
           pip install requests numpy
-      - name: Get develop branch commits
+      - name: Get historical data and compare w/HEAD of develop
         run: python .github/scripts/get_historical_data.py
       - name: Upload json
         uses: actions/upload-artifact@v4
         with: 
-          name: stats.json
-          path: ${{ github.workspace }}/stats.json
+          name: data
+          path: ${{ github.workspace }}/data
       - name: Cache machine stats
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/stats.json
+          path: ${{ github.workspace }}/data/stats.json
           key: hist-stats-${{ hashFiles('**/stats.json') }}
-  compare-resources:
-    runs-on: ubuntu-latest
-    needs: get-historical-data
-    steps:
-      - name: Checkout feature branch
-        uses: actions/checkout@v4
-      - name: Install dependencies
-        run: |
-          pip install requests numpy
-      - name: Download historical data
-        uses: actions/download-artifact@v5
-        with: 
-          name: stats.json
-          path: ${{ github.workspace }}
-      - name: Fetch baseline logs and check stats
-        run: |
-          python ${{ github.workspace }}/.github/scripts/compare_logs.py
-        env: 
-          MACHINE_STATS: ${{ github.workspace }}/stats.json
-      - name: Upload results
-        uses: actions/upload-artifact@v4
-        with: 
-          name: test_results.json
-          path: ${{ github.workspace }}/test_results.json
   write-results:  
     runs-on: ubuntu-latest
     needs: compare-resources
@@ -78,10 +54,11 @@ jobs:
       - name: Download test results
         uses: actions/download-artifact@v5
         with: 
-          name: test_results.json
-          path: ${{ github.workspace }}
+          name: data
+          path: ${{ github.workspace }}/data
       - name: Write results summary
         run: |
           python ${{ github.workspace }}/.github/scripts/write_test_summary.py >> $GITHUB_STEP_SUMMARY
         env: 
-          RESULTS: ${{ github.workspace }}/test_results.json
+          RUNTIME_RESULTS: ${{ github.workspace }}/data/runtime_results.json
+          MEM_RESULTS: ${{ github.workspace }}/data/mem_results.json

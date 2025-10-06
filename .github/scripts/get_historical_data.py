@@ -122,9 +122,9 @@ class Log():
       for test in current_log:
          hi_rt = self.test_stats[test][0] + self.test_stats[test][1]
          if current_log[test][0] > hi_rt:
-            self.runtime_results[test] = f"❌ FAIL"
+            self.runtime_results[test] = f"❌"
          else:
-            self.runtime_results[test] = '✅ PASS'
+            self.runtime_results[test] = '✅'
 
    def compare_memory(self, current_log):
 
@@ -133,9 +133,9 @@ class Log():
       for test in current_log:
          hi_mem = self.test_stats[test][2] + self.test_stats[test][3]
          if current_log[test][0] > hi_mem:
-            self.memory_results[test] = f"❌ FAIL" 
+            self.memory_results[test] = f"❌" 
          else:
-            self.memory_results[test] = '✅ PASS'
+            self.memory_results[test] = '✅'
 
    def compare_results(self): 
    
@@ -169,7 +169,7 @@ def create_machine_stats(stats_dict):
 def create_machine_results(stats_dict, file_name):
    """Create a json file with statistic for each test on each machine"""
 
-   with open(f"{file_name}.json", 'a') as fh:
+   with open(f"data/{file_name}.json", 'a') as fh:
       json.dump(stats_dict, fh, indent=4)
 
 def main():
