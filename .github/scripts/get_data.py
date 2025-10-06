@@ -5,6 +5,22 @@ from datetime import datetime
 import re
 import numpy as np
 
+class APICall():
+   """An API call"""
+
+   def __init__(self, endpoint='', num_commits=1):
+      self.token = os.environ.get('GITHUB_TOKEN')
+      self.base_url = os.environ.get('BASE_URL')
+      self.endpoint = endpoint
+      self.url = f"{self.base_url}/{self.endpoint}" #Could use a path join?
+      self.num_commits = num_commits
+      self.header = {
+         "Accept": "application/vnd.github.v3+json",
+         "Authorization": f"Bearer {self.token}",
+         "X-GitHub-Api-Version": "2022-11-28",
+         "Accept": "application/vnd.github.raw"
+      }
+
 class Log():
    """A Regression Test log file."""
    
@@ -14,7 +30,7 @@ class Log():
 
    # Update number of commits to 50 before merging
    def get_commits(self, num_commits=10):
-      """Get a list of commits for the log, with a maximum (and default) of 100.
+      """Get a list of commits for the log, with a maximum of 100.
       Structure of response: 
       response = [
       {"sha":"#######...",
@@ -59,7 +75,7 @@ class Log():
          Args:
             log_instance: Log text for a given commit
          Returns: 
-            tests_for_log_instance: A dictionary of tests (keys) with an array of date, total runtime, and memory use as the value for each test
+            tests_for_log_instance: A dictionary of tests (keys) with an array of total runtime and memory use as the value for each test
       """
 
       tests_for_log_instance = {}
@@ -115,50 +131,43 @@ class Log():
       self.get_historical_log_data()
       self.calculate_stats()
 
-   def compare_runtime(self, current_log):
+   def compare_runtime(self, current_log, previous_logs):
       
       self.runtime_results = {}
 
       for test in current_log:
          hi_rt = self.test_stats[test][0] + self.test_stats[test][1]
-         if current_log[test][0] > hi_rt:
+         if current_log[test][0] > hi_rt and previous_logs['last'][test][0] != '✅' and previous_logs['second_to_last'][test][0] != '✅':
             self.runtime_results[test] = f"❌"
+         elif current_log[test][0] > hi_rt:
+            self.runtime_results[test] = f"⚠️"
          else:
             self.runtime_results[test] = '✅'
 
-   def compare_memory(self, current_log):
+   def compare_memory(self, current_log, previous_logs):
 
       self.memory_results = {}
 
       for test in current_log:
          hi_mem = self.test_stats[test][2] + self.test_stats[test][3]
-         if current_log[test][0] > hi_mem:
-            self.memory_results[test] = f"❌" 
+         if current_log[test][0] > hi_mem and previous_logs['last'][test][0] != '✅' and previous_logs['second_to_last'][test][0] != '✅':
+            self.memory_results[test] = f"❌"
+         elif current_log[test][0] > hi_mem:
+            self.memory_results[test] = f"⚠️"
          else:
             self.memory_results[test] = '✅'
 
    def compare_results(self): 
    
       current_log = self.get_instance_test_data(self.log_text[0])
+      previous_logs = {"last" : {}, "second_to_last" : {}}
+
+
+      for index, item in enumerate(previous_logs):
+         previous_logs[item] = self.get_instance_test_data(self.log_text[index + 1])
       
-      self.compare_runtime(current_log)
-      self.compare_memory(current_log)
-
-class APICall():
-   """An API call"""
-
-   def __init__(self, endpoint='', num_commits=1):
-      self.token = os.environ.get('GITHUB_TOKEN')
-      self.base_url = os.environ.get('BASE_URL')
-      self.endpoint = endpoint
-      self.url = f"{self.base_url}/{self.endpoint}" #Could use a path join?
-      self.num_commits = num_commits
-      self.header = {
-         "Accept": "application/vnd.github.v3+json",
-         "Authorization": f"Bearer {self.token}",
-         "X-GitHub-Api-Version": "2022-11-28",
-         "Accept": "application/vnd.github.raw"
-      }
+      self.compare_runtime(current_log, previous_logs)
+      self.compare_memory(current_log, previous_logs)
 
 def create_machine_stats(stats_dict):
    """Create a json file with statistic for each test on each machine"""
