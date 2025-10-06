@@ -39,7 +39,6 @@ def write_content(data, mdFile):
    contents = ["Test"] + machines
 
    # Create table
-   mdFile.write(f"<details><summary>Runtime Summary</summary>")
    mdFile.new_paragraph('\n')
 
    for index, row in data.iterrows():
@@ -56,13 +55,15 @@ def write_content(data, mdFile):
 
 def create_summary():
    
-   categories = ['RUNTIME', 'MEM']
+   categories = ['RUNTIME', 'MEMORY']
 
    mdFile = create_mdFile()
 
    for category in categories: 
       data = build_content(category)
       mdFile = write_content(data, mdFile)
+      mdFile.write(f"<details><summary>{category.upper()} Summary</summary>")
+   
    
    return mdFile
    

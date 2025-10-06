@@ -63,4 +63,4 @@ jobs:
           python ${{ github.workspace }}/.github/scripts/write_test_summary.py >> $GITHUB_STEP_SUMMARY
         env: 
           RUNTIME_RESULTS: ${{ github.workspace }}/data/runtime_results.json
-          MEM_RESULTS: ${{ github.workspace }}/data/mem_results.json
+          MEMORY_RESULTS: ${{ github.workspace }}/data/memory_results.json

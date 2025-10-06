@@ -187,7 +187,7 @@ def main():
       mem_results_by_machine[machine] = log.memory_results
    create_machine_stats(stats_by_machine)
    create_machine_results(runtime_results_by_machine, "runtime_results")
-   create_machine_results(mem_results_by_machine, "mem_results")
+   create_machine_results(mem_results_by_machine, "memory_results")
 
 if __name__ == "__main__":
 
