@@ -137,7 +137,7 @@ class Log():
 
       for test in current_log:
          hi_rt = self.test_stats[test][0] + self.test_stats[test][1]
-         if current_log[test][0] > hi_rt and previous_logs['last'][test][0] != '✅' and previous_logs['second_to_last'][test][0] != '✅':
+         if current_log[test][0] > hi_rt and previous_logs['last'][test][0] > hi_rt and previous_logs['second_to_last'][test][0] > hi_rt:
             self.runtime_results[test] = f"❌"
          elif current_log[test][0] > hi_rt:
             self.runtime_results[test] = f"⚠️"
@@ -150,7 +150,7 @@ class Log():
 
       for test in current_log:
          hi_mem = self.test_stats[test][2] + self.test_stats[test][3]
-         if current_log[test][0] > hi_mem and previous_logs['last'][test][0] != '✅' and previous_logs['second_to_last'][test][0] != '✅':
+         if current_log[test][0] > hi_mem and previous_logs['last'][test][0] > hi_mem and previous_logs['second_to_last'][test][0] > hi_mem:
             self.memory_results[test] = f"❌"
          elif current_log[test][0] > hi_mem:
             self.memory_results[test] = f"⚠️"
