@@ -31,7 +31,9 @@ jobs:
         run: |
           pip install requests numpy
       - name: Get historical data and compare w/HEAD of develop
-        run: python .github/scripts/get_historical_data.py
+        run: |
+          mkdir data
+          python .github/scripts/get_historical_data.py
       - name: Upload json
         uses: actions/upload-artifact@v4
         with: 
