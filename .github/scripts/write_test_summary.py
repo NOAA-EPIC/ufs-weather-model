@@ -62,9 +62,9 @@ def create_summary():
       mdFile.write(f"<details><summary><h3>{category.upper()} Results Summary</h3></summary>")
       mdFile.new_paragraph('\n')
       mdFile.new_paragraph("<h4>Key:</h4>")
-      mdFile.new_paragraph(f"\t✅ = NORMAL {category}. {category.title()} falls within two standard deviations of the mean.")
-      mdFile.new_paragraph(f"\t⚠️ = {category.title()} WARNING: {category.title()} is greater than two standard deviations above the mean.")
-      mdFile.new_paragraph(f"\t❌ = {category.title()} FAIL: For the past 2+ PRs, {category} has been greater than two standard deviations above the mean.")
+      mdFile.new_paragraph(f"\t✅ = <span style='color: green;'>NORMAL</span> {category}. {category.title()} falls within two standard deviations of the mean.")
+      mdFile.new_paragraph(f"\t⚠️ = {category.title()} <span style='color: yellow;'>WARNING</span>: {category.title()} is greater than two standard deviations above the mean.")
+      mdFile.new_paragraph(f"\t❌ = {category.title()} <span style='color: red;'>FAIL</span>: For the past 2+ PRs, {category} has been greater than two standard deviations above the mean.")
       mdFile.new_paragraph('\n')
       mdFile = write_content(data, mdFile)
    
