@@ -8,9 +8,9 @@ import numpy as np
 class APICall():
    """An API call"""
 
-   def __init__(self, endpoint='', num_commits=1):
+   def __init__(self, base_url=os.environ.get('GITHUB_TOKEN'), endpoint='', num_commits=1):
       self.token = os.environ.get('GITHUB_TOKEN')
-      self.base_url = os.environ.get('BASE_URL')
+      self.base_url = base_url
       self.endpoint = endpoint
       self.url = f"{self.base_url}/{self.endpoint}" #Could use a path join?
       self.num_commits = num_commits
@@ -130,6 +130,10 @@ class Log():
       self.get_log_text()
       self.get_historical_log_data()
       self.calculate_stats()
+
+   def get_current_pr_data(self):
+      self.get_commits()
+      pass
 
    def compare_runtime(self, current_log, previous_logs):
       
