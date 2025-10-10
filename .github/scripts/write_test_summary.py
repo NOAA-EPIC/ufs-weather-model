@@ -31,7 +31,7 @@ def build_content(category):
    results = pd.DataFrame()
    
    for machine in machines:
-
+      
       machine_results = pd.DataFrame.from_dict(contents[machine], orient='index',columns=[machine])
       results = pd.merge(results, machine_results, left_index=True, right_index=True, how='outer').fillna("N/A")
 
@@ -44,18 +44,22 @@ def write_content(data, mdFile):
    # Build contents list starting with header row
    contents = ["Test"] + machines
 
-   # Create table
-
+   # Create table starting with one row (header)
+   rows = 1
    for index, row in data.iterrows():
       warn = '⚠️'
       fail = '❌'
       # If there is a warn or fail in the row, add the row to contents to be printed
       if (data.loc[index] == warn).any() or (data.loc[index] == fail).any():
+         rows += 1
          contents.append(str(index))
          for item in row:
             contents.append(item)
    
-   mdFile.new_table(columns=(len(machines) + 1), rows=(len(data) + 1), text_align='center', text=contents)
+   #print(f"Length: {len(contents)}")
+   #print(f"Columns: {len(machines) + 1} \t Rows: {rows}")
+
+   mdFile.new_table(columns=(len(machines) + 1), rows=rows, text_align='center', text=contents)
    mdFile.new_paragraph('\n')
    mdFile.write('</details>')
 
