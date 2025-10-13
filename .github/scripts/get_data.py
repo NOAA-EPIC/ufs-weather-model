@@ -40,17 +40,9 @@ class Log():
 
    # Update number of commits to 50 before merging
    def fetch_repo_commits(self, num_commits=1):
-      """Get a list of commits for the log file, with a maximum of 100 and a default of 1. Structure of response: 
-      response = [{
-      "sha":"#######...",
-      "node_id":"C_...",
-      "commit":{
-         "author":{
-            "name":"First Last",
-            "email":"########+username@users.noreply.github.com",
-            "date":"YYYY-MM-DDTHH:mm:SSZ",
-         ...
-         }, ... ]
+      """Get a list of commits for the log file, with a maximum of 100 and a default of 1. 
+      Structure of response: response = [{'sha': '3jl26ka...'}, {'sha': '6ag43sb...'}, ...]
+      See GitHub documentation for https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-commits
       """
       response = self.call_API(f"commits?path=tests/logs/RegressionTests_{self.machine}.log&per_page={num_commits}")
       
@@ -64,14 +56,8 @@ class Log():
 
    def get_pr_head(self):
       """Get SHA for the HEAD of the PR. Structure of response: 
-         response = [{
-            "head": {
-               "label": "user:feature-branch",
-               "ref": "feature-branch",
-               "sha": "a1b2c3d..."
-            // ...
-            }, ...
-         }]
+         response = [{"head": {"sha": "a1b2c3d..."}}]
+         See GitHub documentation for https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-commits
       """
       response = self.call_API(f"pulls/{os.environ.get('PR_NUM')}")
       self.pr_head_commit = [response['head']['sha']]
