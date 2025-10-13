@@ -6,7 +6,7 @@ import re
 import numpy as np
 
 class APICall():
-   """An API call"""
+   """A GitHub API call"""
 
    def __init__(self, endpoint='', num_commits=1):
       self.token = os.environ.get('GITHUB_TOKEN')
@@ -25,11 +25,12 @@ class Log():
    """A Regression Test log file."""
    
    def __init__(self, machine):
-      """Initialize the log file with a corresponding machine."""
+      """Create the log file object for a specific machine."""
       self.machine = machine
       self.text_per_log = []
 
    def call_API(self, endpoint):
+      """Call the GitHub API to get information about the log file."""
 
       api_call = APICall(endpoint)
       response = requests.get(api_call.url, headers=api_call.header)
@@ -38,20 +39,12 @@ class Log():
       return response
 
    # Update number of commits to 50 before merging
-   def get_repo_commits(self, num_commits=1):
-      """Get a list of commits for the log, with a maximum of 100 and a default of 1. Structure of response: 
-      response = [{
-      "sha":"#######...",
-      "node_id":"C_...",
-      "commit":{
-         "author":{
-            "name":"First Last",
-            "email":"########+username@users.noreply.github.com",
-            "date":"YYYY-MM-DDTHH:mm:SSZ"
-         }, ... ]
+   def fetch_repo_commits(self, num_commits=1):
+      """Get a list of commits for the log file, with a maximum of 100 and a default of 1. 
+      Structure of response: response = [{'sha': '3jl26ka...'}, {'sha': '6ag43sb...'}, ...]
+      See GitHub documentation for https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-commits
       """
-      endpoint = f"commits?path=tests/logs/RegressionTests_{self.machine}.log&per_page={num_commits}"
-      response = self.call_API(endpoint)
+      response = self.call_API(f"commits?path=tests/logs/RegressionTests_{self.machine}.log&per_page={num_commits}")
       
       self.repo_commits = []
       for num in range(len(response)): 
@@ -63,22 +56,15 @@ class Log():
 
    def get_pr_head(self):
       """Get SHA for the HEAD of the PR. Structure of response: 
-         response = [{
-            "head": {
-               "label": "user:feature-branch",
-               "ref": "feature-branch",
-               "sha": "a1b2c3d..."
-            // ...
-            }, ...
-         }]
+         response = [{"head": {"sha": "a1b2c3d..."}}]
+         See GitHub documentation for https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-commits
       """
-      endpoint = f"pulls/{os.environ.get('PR_NUM')}"
-      response = self.call_API(endpoint)
+      response = self.call_API(f"pulls/{os.environ.get('PR_NUM')}")
       self.pr_head_commit = [response['head']['sha']]
       print(self.pr_head_commit)
 
 
-   def get_log_text(self, commits): 
+   def fetch_log_text(self, commits): 
       """For each commit of a log, extract the log text."""
 
       if not commits:
@@ -117,11 +103,11 @@ class Log():
 
       return tests_for_log_instance     
       
-   def get_historical_log_data(self): # Could split for runtime, mem to make more maintainable
+   def compile_historical_log_data(self): # Could split for runtime, mem to make more maintainable
       """Create a dictionary of data with runtime and memory usage for each test over time. Structure:  
          historical_test_data = {
             test: {
-               runtime: []
+               runtime: [],
                memory: []
             }
          }
@@ -150,20 +136,6 @@ class Log():
          memory_mean = round(np.mean(self.historical_rt_mem_data[test]["memory"]), 5)
          memory_stdev = round(np.std(self.historical_rt_mem_data[test]["memory"]), 5)
          self.test_stats[test] = [runtime_mean, runtime_stdev, memory_mean, memory_stdev]
-
-   def get_current_pr_data(self):
-
-      self.get_pr_head()
-      self.get_log_text(self.pr_head_commit)
-      pr_log_data = self.get_instance_test_data(self.text_per_log[0])
-      
-      return pr_log_data
-
-   def gather_historical_data(self):
-      self.get_repo_commits(num_commits=10) #increase for statistical significance
-      self.get_log_text(self.repo_commits)
-      self.get_historical_log_data()
-      self.calculate_stats()
 
    def compare_runtime(self, current_log, previous_logs):
       
@@ -211,6 +183,21 @@ class Log():
       
       self.compare_runtime(current_log, previous_logs)
       self.compare_memory(current_log, previous_logs)
+
+   def get_current_pr_data(self):
+
+      self.get_pr_head()
+      self.fetch_log_text(self.pr_head_commit)
+      pr_log_data = self.get_instance_test_data(self.text_per_log[0])
+      
+      return pr_log_data
+
+   def gather_historical_data(self):
+      self.fetch_repo_commits(num_commits=10) #increase for statistical significance
+      self.fetch_log_text(self.repo_commits)
+      self.compile_historical_log_data()
+      self.calculate_stats()
+
 
 def create_machine_stats(stats_dict):
    """Create a json file with statistic for each test on each machine"""
