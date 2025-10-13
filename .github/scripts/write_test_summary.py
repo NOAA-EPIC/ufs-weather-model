@@ -66,11 +66,20 @@ def write_content(data, mdFile):
    return mdFile
 
 def count_passes_per_machine(data):
-   """Counts passing tests for each machine."""
+   """Counts passing tests for each machine.
+   Args:
+      data(DataFrame): Table of tests and pass/warn/fail status by machine
+   Returns:
+      machine_total(DataFrame): Number of tests passing per machine
+   """
 
    # Counts for passing tests
-   passing_tests_by_machine = data.eq('✅').sum(axis=0).astype(str) + '/' + data.ne('N/A').sum(axis=0).astype(str)
+   passing_tests_by_machine = data.eq('✅').sum(axis=0).astype(str) + '/' + data.ne('N/A').sum(axis=0).astype(str) + " on " 
+   for machine in passing_tests_by_machine.index:
+      passing_tests_by_machine[machine] = passing_tests_by_machine[machine] + f"{machine}"
    passing_tests_by_machine.name = 'Platform Total (Passing):'
+   # Set bottom right corner to empty string
+   passing_tests_by_machine.loc['Passing'] = ''
    machine_total = pd.DataFrame(passing_tests_by_machine).T
    
    return machine_total
