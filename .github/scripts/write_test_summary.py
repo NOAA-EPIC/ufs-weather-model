@@ -66,7 +66,7 @@ def write_content(data, mdFile):
    return mdFile
 
 def count_passes_per_machine(data):
-   """Counts passing tests for each machine.
+   """Counts number of passing tests on each machine and procudes a row with the totals.
    Args:
       data(DataFrame): Table of tests and pass/warn/fail status by machine
    Returns:
@@ -76,7 +76,7 @@ def count_passes_per_machine(data):
    # Counts for passing tests
    passing_tests_by_machine = data.eq('✅').sum(axis=0).astype(str) + '/' + data.ne('N/A').sum(axis=0).astype(str)
    for machine in passing_tests_by_machine.index:
-      passing_tests_by_machine[machine] = f"**{machine.title()}:** " + passing_tests_by_machine[machine]
+      passing_tests_by_machine[machine] = f"**{machine.upper()}:** " + passing_tests_by_machine[machine]
    passing_tests_by_machine.name = 'Platform Total (Passing):'
    # Set bottom right corner to empty string
    passing_tests_by_machine.loc['Passing'] = ''
@@ -89,7 +89,7 @@ def count_passes_per_test(data):
    Args:
       data (DataFrame): DataFrame containing pass/warn/fail status for each test on each machine
    Returns:
-      data - with an extra column listing pass rates for each test 
+      data: with an extra column listing pass rates for each test 
    """
 
    passing_tests = data.eq('✅').sum(axis=1).astype(str) + "/" + data.ne('N/A').sum(axis=1).astype(str)
@@ -99,7 +99,7 @@ def count_passes_per_test(data):
    return data
 
 def create_summary():
-   """Append a results or memory header and key and call write_contents() to write the runtime/memory table to the file.
+   """Append a runtime or memory header and key and call write_contents() to write the runtime/memory table to the file.
    Returns:
       mdFile: A markdown file
    """
