@@ -232,7 +232,7 @@ def main():
    # Contains information on whether test memory was more than 2 standard deviations above the mean. 
    mem_results_by_machine = {}
 
-   for machine in machines[:1]:
+   for machine in machines:
       print(machine.upper())
       log = Log(machine.lower())
       log.get_current_pr_data()
