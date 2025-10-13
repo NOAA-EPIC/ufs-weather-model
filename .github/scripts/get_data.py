@@ -221,7 +221,7 @@ def load_json(file_path):
 def main():
    """For each machine, create a log object, get current PR data, gather historical runtime/memory data, 
    and compare results to determine which test/machine combinations fall more than 2 standard deviations 
-   above the historical mean for each test."""
+   above the historical mean for each test.""" 
 
    machines = os.environ.get('MACHINES').split()
 
