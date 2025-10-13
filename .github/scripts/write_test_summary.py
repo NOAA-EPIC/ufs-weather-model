@@ -35,6 +35,8 @@ def build_content(category):
       machine_results = pd.DataFrame.from_dict(contents[machine], orient='index',columns=[machine])
       results = pd.merge(results, machine_results, left_index=True, right_index=True, how='outer').fillna("N/A")
 
+   results = count_passes_per_test(results)
+   
    return results
 
 def write_content(data, mdFile):
@@ -42,7 +44,7 @@ def write_content(data, mdFile):
    machines = os.environ.get('MACHINES').split()
    
    # Build contents list starting with header row
-   contents = ["Test"] + machines
+   contents = ["Test"] + machines + ["Passing"]
 
    # Create table starting with one row (header)
    rows = 1
@@ -55,15 +57,39 @@ def write_content(data, mdFile):
          contents.append(str(index))
          for item in row:
             contents.append(item)
-   
+   #contents.append(count_passes_per_machine(data))
    #print(f"Length: {len(contents)}")
    #print(f"Columns: {len(machines) + 1} \t Rows: {rows}")
 
-   mdFile.new_table(columns=(len(machines) + 1), rows=rows, text_align='center', text=contents)
+   mdFile.new_table(columns=(len(machines) + 2), rows=rows, text_align='center', text=contents)
    mdFile.new_paragraph('\n')
    mdFile.write('</details>')
 
    return mdFile
+
+def count_passes_per_machine(data):
+   """Counts passing tests for each machine."""
+
+   # Counts for passing tests
+   passing_tests_by_machine = data.eq('✅').sum(axis=0).astype(str) + "/" + data.ne('N/A').sum(axis=0).astype(str)
+   passing_tests_by_machine.name = 'Platform Total (Passing):'
+   machine_total = pd.DataFrame(passing_tests_by_machine).T
+   
+   return machine_total
+
+def count_passes_per_test(data):
+   """Counts number of platforms on which a given test passes and adds a column to the table.
+   Args:
+      data (DataFrame): DataFrame containing pass/warn/fail status for each test on each machine
+   Returns:
+      data - with an extra column listing pass rates for each test 
+   """
+
+   passing_tests = data.eq('✅').sum(axis=1).astype(str) + "/" + data.ne('N/A').sum(axis=1).astype(str)
+   passing_tests.name = 'Passing'
+   data = pd.merge(data, pd.DataFrame(passing_tests), left_index=True, right_index=True, how='inner')
+
+   return data
 
 def create_summary():
    """Append a results or memory header and key and call write_contents() to write the runtime/memory table to the file.
