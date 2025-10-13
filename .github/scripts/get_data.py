@@ -202,13 +202,13 @@ class Log():
 def create_machine_stats(stats_dict):
    """Create a json file with statistic for each test on each machine"""
 
-   with open(f"data/stats.json", 'a') as fh:
+   with open(f"data/stats.json", 'w') as fh:
       json.dump(stats_dict, fh, indent=4)
 
 def create_machine_results(results_dict, file_name):
    """Create a json file with statistic for each test on each machine"""
 
-   with open(f"data/{file_name}.json", 'a') as fh:
+   with open(f"data/{file_name}.json", 'w') as fh:
       json.dump(results_dict, fh, indent=4)
 
 def load_json(file_path):
