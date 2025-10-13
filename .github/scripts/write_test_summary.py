@@ -36,6 +36,7 @@ def build_content(category):
       results = pd.merge(results, machine_results, left_index=True, right_index=True, how='outer').fillna("N/A")
 
    results = count_passes_per_test(results)
+   results = pd.concat([results, count_passes_per_machine(results)])
    
    return results
 
@@ -51,15 +52,12 @@ def write_content(data, mdFile):
    for index, row in data.iterrows():
       warn = '⚠️'
       fail = '❌'
-      # If there is a warn or fail in the row, add the row to contents to be printed
-      if (data.loc[index] == warn).any() or (data.loc[index] == fail).any():
+      # If there is a warn or fail in the row, add the row to contents to be printed; also add summary row
+      if (data.loc[index] == warn).any() or (data.loc[index] == fail).any() or (index == 'Platform Total (Passing):'):
          rows += 1
          contents.append(str(index))
          for item in row:
             contents.append(item)
-   #contents.append(count_passes_per_machine(data))
-   #print(f"Length: {len(contents)}")
-   #print(f"Columns: {len(machines) + 1} \t Rows: {rows}")
 
    mdFile.new_table(columns=(len(machines) + 2), rows=rows, text_align='center', text=contents)
    mdFile.new_paragraph('\n')
@@ -71,7 +69,7 @@ def count_passes_per_machine(data):
    """Counts passing tests for each machine."""
 
    # Counts for passing tests
-   passing_tests_by_machine = data.eq('✅').sum(axis=0).astype(str) + "/" + data.ne('N/A').sum(axis=0).astype(str)
+   passing_tests_by_machine = data.eq('✅').sum(axis=0).astype(str) + '/' + data.ne('N/A').sum(axis=0).astype(str)
    passing_tests_by_machine.name = 'Platform Total (Passing):'
    machine_total = pd.DataFrame(passing_tests_by_machine).T
    
