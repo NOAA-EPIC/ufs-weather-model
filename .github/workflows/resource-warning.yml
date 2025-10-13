@@ -36,7 +36,7 @@ jobs:
         with:
           path: ${{ github.workspace }}/data/stats.json
           key: hist-stats-${{ hashFiles('**/stats.json') }}
-      - name: Set stats.json environment variable (if cache hit)
+      - name: Set stats.json env var (if cache hit) and compare w/HEAD of develop 
         if: steps.cache-stats.outputs.cache-hit == 'true'
         run: |
           echo "TEST_STATS=${{ github.workspace }}/data/stats.json" >> $GITHUB_ENV
@@ -46,7 +46,6 @@ jobs:
       - name: Get historical data and compare w/HEAD of develop
         if: steps.cache-stats.outputs.cache-hit != 'true'
         run: |
-          mkdir data
           python .github/scripts/get_data.py
       - name: Upload json
         uses: actions/upload-artifact@v4

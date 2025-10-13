@@ -246,12 +246,13 @@ def main():
          log.gather_historical_data(10) # past 10 commits
          log.calculate_stats()
          stats_by_machine[machine] = log.test_stats
+
       # Compare and save results
       log.compare_results()
       runtime_results_by_machine[machine] = log.runtime_results
       mem_results_by_machine[machine] = log.memory_results
    
-   # If the statistics on mean/standard deviation have not already been cached, create file to cache
+   # If the statistics on mean/standard deviation have NOT already been cached, create file to cache.
    if not os.environ.get('TEST_STATS'):
       create_machine_stats(stats_by_machine)
 
