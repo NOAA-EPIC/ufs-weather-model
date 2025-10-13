@@ -74,9 +74,9 @@ def count_passes_per_machine(data):
    """
 
    # Counts for passing tests
-   passing_tests_by_machine = data.eq('✅').sum(axis=0).astype(str) + '/' + data.ne('N/A').sum(axis=0).astype(str) + " on " 
+   passing_tests_by_machine = data.eq('✅').sum(axis=0).astype(str) + '/' + data.ne('N/A').sum(axis=0).astype(str)
    for machine in passing_tests_by_machine.index:
-      passing_tests_by_machine[machine] = passing_tests_by_machine[machine] + f"{machine}"
+      passing_tests_by_machine[machine] = f"**{machine.title()}:** " + passing_tests_by_machine[machine]
    passing_tests_by_machine.name = 'Platform Total (Passing):'
    # Set bottom right corner to empty string
    passing_tests_by_machine.loc['Passing'] = ''
