@@ -177,6 +177,7 @@ class Log():
    
       current_log = self.get_instance_test_data(self.text_per_log[0])
       previous_logs = {"last" : {}, "second_to_last" : {}}
+      print(previous_logs)
 
       for index, item in enumerate(previous_logs):
          previous_logs[item] = self.get_instance_test_data(self.text_per_log[index + 1])
