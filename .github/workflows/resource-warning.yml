@@ -39,7 +39,6 @@ jobs:
       - name: Set stats.json environment variable (if cache hit)
         if: steps.cache-stats.outputs.cache-hit == 'true'
         run: |
-          mkdir data
           echo "TEST_STATS=${{ github.workspace }}/data/stats.json" >> $GITHUB_ENV
           python .github/scripts/get_data.py 
         env: 
