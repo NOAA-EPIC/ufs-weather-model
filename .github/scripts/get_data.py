@@ -61,7 +61,6 @@ class Log():
       """
       response = self.call_API(f"pulls/{os.environ.get('PR_NUM')}")
       self.pr_head_commit = [response['head']['sha']]
-      print(self.pr_head_commit)
 
 
    def fetch_log_text(self, commits): 
@@ -107,7 +106,7 @@ class Log():
       """Create a dictionary of data with runtime and memory usage for each test over time. Structure:  
          historical_test_data = {
             test: {
-               runtime: []
+               runtime: [],
                memory: []
             }
          }
@@ -119,7 +118,6 @@ class Log():
       for log_instance in self.text_per_log[1:]:
          
          data = self.get_instance_test_data(log_instance)
-         #print(data)
          for test in data:
             try: 
                self.historical_rt_mem_data[test]["runtime"].append(data[test][0])
@@ -127,7 +125,7 @@ class Log():
             except KeyError: 
                # Create key if it doesn't exist yet
                self.historical_rt_mem_data[test] = {"runtime": [data[test][0]], "memory": [data[test][1]]}
-      print(self.historical_rt_mem_data)
+      #print(self.historical_rt_mem_data)
                
    def calculate_stats(self):
       """For each test, calculate the mean and standard deviation of memory and runtime."""
