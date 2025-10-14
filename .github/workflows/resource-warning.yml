@@ -40,6 +40,7 @@ jobs:
       - name: Set stats.json env var (if cache hit) and compare w/HEAD of develop 
         if: steps.cache-stats.outputs.cache-hit == 'true'
         run: |
+          ls -R ${{ github.workspace }}/data
           echo "TEST_STATS=${{ github.workspace }}/data/stats.json" >> $GITHUB_ENV
           python .github/scripts/get_data.py 
         env: 
@@ -49,6 +50,7 @@ jobs:
         run: |
           mkdir -p data
           python .github/scripts/get_data.py
+          ls -R ${{ github.workspace }}/data
       - name: Upload json
         uses: actions/upload-artifact@v4
         with: 
