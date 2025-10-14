@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/data/stats.json
-          key: hist-stats-${{ hashFiles('${{ github.workspace }}/data/stats.json') }}
+          key: hist-stats-${{ hashFiles('**/data/stats.json') }}
       - name: Set stats.json env var (if cache hit) and compare w/HEAD of develop 
         if: steps.cache-stats.outputs.cache-hit == 'true'
         run: |
