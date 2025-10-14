@@ -30,23 +30,24 @@ jobs:
       - name: Install dependencies
         run: |
           pip install requests numpy
+          mkdir -p data
       - name: Cache machine stats
         id: cache-stats
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/stats.json
+          path: ${{ github.workspace }}/data/stats.json
           key: hist-stats-${{ hashFiles('**/stats.json') }}
       - name: Set stats.json env var (if cache hit) and compare w/HEAD of develop 
         if: steps.cache-stats.outputs.cache-hit == 'true'
         run: |
-          echo "TEST_STATS=${{ github.workspace }}/stats.json" >> $GITHUB_ENV
+          echo "TEST_STATS=${{ github.workspace }}/data/stats.json" >> $GITHUB_ENV
           python .github/scripts/get_data.py 
         env: 
-          TEST_STATS: ${{ github.workspace }}/stats.json
+          TEST_STATS: ${{ github.workspace }}/data/stats.json
       - name: Get historical data and compare w/HEAD of develop
         if: steps.cache-stats.outputs.cache-hit != 'true'
         run: |
-          mkdir data
+          mkdir -p data
           python .github/scripts/get_data.py
       - name: Upload json
         uses: actions/upload-artifact@v4
