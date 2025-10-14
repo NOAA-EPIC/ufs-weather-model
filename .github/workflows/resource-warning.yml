@@ -25,11 +25,6 @@ jobs:
   get-data:  
     runs-on: ubuntu-latest
     steps: 
-      - name: Checkout feature branch
-        uses: actions/checkout@v4
-      - name: Install dependencies
-        run: |
-          pip install requests numpy
       - name: Check files
         run: ls -R
       - name: Cache machine stats
@@ -45,6 +40,11 @@ jobs:
           python .github/scripts/get_data.py 
         env: 
           TEST_STATS: ${{ github.workspace }}/data/stats.json
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          pip install requests numpy
       - name: Get historical data and compare w/HEAD of develop
         if: steps.cache-stats.outputs.cache-hit != 'true'
         run: |
