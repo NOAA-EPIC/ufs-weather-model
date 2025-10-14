@@ -140,7 +140,6 @@ class Log():
       self.runtime_results = {}
 
       for test in current_log:
-
          try:
             hi_rt = self.test_stats[test][0] + self.test_stats[test][1]
             if current_log[test][0] > hi_rt and previous_logs['last'][test][0] > hi_rt and previous_logs['second_to_last'][test][0] > hi_rt:
@@ -173,7 +172,7 @@ class Log():
 
    def compare_results(self): 
       """Check results from previous two commits to determine whether the test runtime/memory usage is within normal bounds."""
-   
+
       current_log = self.get_instance_test_data(self.text_per_log[0])
       previous_logs = {"last" : {}, "second_to_last" : {}}
 
@@ -197,7 +196,6 @@ class Log():
       self.fetch_repo_commits(num_commits) #increase for statistical significance
       self.fetch_log_text(self.repo_commits)
       self.compile_historical_log_data()
-
 
 def create_machine_stats(stats_dict):
    """Create a json file with statistic for each test on each machine"""
@@ -239,7 +237,7 @@ def main():
       # Case where test stats have been calculated and cached:
       if os.environ.get('TEST_STATS'):
          log.gather_historical_data(2) # past two commits only
-         log.test_stats = load_json(os.environ.get('TEST_STATS'))
+         log.test_stats = load_json(os.environ.get('TEST_STATS'))[machine]
 
       # Case where test stats have NOT been calculated and cached:
       else:
