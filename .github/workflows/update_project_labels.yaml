@@ -47,12 +47,8 @@ jobs:
             contains(github.event.pull_request.labels.*.name, 'New Baselines') )
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
-<<<<<<< HEAD
           #project-url: https://github.com/orgs/ufs-community/projects/70
           project-url: https://github.com/orgs/NOAA-EPIC/projects/18
-=======
-          project-url: https://github.com/orgs/ufs-community/projects/70
->>>>>>> b1308c13977752024670d7b6847c8c38aa4a5b5b
           github-token: ${{ secrets.PR_PROJECT_TOKEN }}
           field-name: 'Baseline Changes'
           field-value: 'Yes'
@@ -63,12 +59,8 @@ jobs:
             !contains(github.event.pull_request.labels.*.name, 'New Baselines')
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
-<<<<<<< HEAD
           #project-url: https://github.com/orgs/ufs-community/projects/70
           project-url: https://github.com/orgs/NOAA-EPIC/projects/18
-=======
-          project-url: https://github.com/orgs/ufs-community/projects/70
->>>>>>> b1308c13977752024670d7b6847c8c38aa4a5b5b
           github-token: ${{ secrets.PR_PROJECT_TOKEN }}
           field-name: 'Baseline Changes'
           field-value: 'No'
@@ -84,12 +76,8 @@ jobs:
         if: contains(github.event.pull_request.labels.*.name, 'Input Data Changes')
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
-<<<<<<< HEAD
           #project-url: https://github.com/orgs/ufs-community/projects/70
           project-url: https://github.com/orgs/NOAA-EPIC/projects/18
-=======
-          project-url: https://github.com/orgs/ufs-community/projects/70
->>>>>>> b1308c13977752024670d7b6847c8c38aa4a5b5b
           github-token: ${{ secrets.PR_PROJECT_TOKEN }}
           field-name: "Input Data Req'd"
           field-value: 'Yes'
@@ -97,7 +85,6 @@ jobs:
         if: (!contains(github.event.pull_request.labels.*.name, 'Input Data Changes'))
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
-<<<<<<< HEAD
           #project-url: https://github.com/orgs/ufs-community/projects/70
           project-url: https://github.com/orgs/NOAA-EPIC/projects/18
           github-token: ${{ secrets.PR_PROJECT_TOKEN }}
@@ -170,9 +157,3 @@ jobs:
           github-token: ${{ secrets.PR_PROJECT_TOKEN }}
           field-name: 'Priority'
           field-value: 'Unknown'
-=======
-          project-url: https://github.com/orgs/ufs-community/projects/70
-          github-token: ${{ secrets.PR_PROJECT_TOKEN }}
-          field-name: "Input Data Req'd"
-          field-value: 'No'
->>>>>>> b1308c13977752024670d7b6847c8c38aa4a5b5b
