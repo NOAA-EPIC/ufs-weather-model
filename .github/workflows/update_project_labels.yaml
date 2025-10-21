@@ -97,8 +97,6 @@ jobs:
       contents: read
       pull-requests: write
       issues: write
-    env:
-      PRIORITY: ''
     steps:
       - name: Read Priority field
         uses: EndBug/project-fields@v2.1.0
@@ -111,15 +109,16 @@ jobs:
           project_url: https://github.com/orgs/NOAA-EPIC/projects/18
           resource_url: ${{ github.event.pull_request.html_url }}
       - name: Assign value to Priority field
+        id: assign_priority
         run: |
           PRIORITY="${{ steps.priority_field.outputs.values }}"
           echo $PRIORITY
-          echo "PRIORITY=$PRIORITY" >> $GITHUB_ENV
+          echo "priority=$PRIORITY" >> $GITHUB_OUTPUT
       - name: Normal Priority
         if: |
             !contains(github.event.pull_request.labels.*.name, 'Priority: Critical') &&
             !contains(github.event.pull_request.labels.*.name, 'Priority: High') &&
-            '${{ env.PRIORITY }}' != 'Combine'
+            steps.assign_priority.outputs.priority != 'Combine'
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -130,7 +129,7 @@ jobs:
       - name: Critical priority
         if: |
           contains(github.event.pull_request.labels.*.name, 'Priority: Critical') &&
-          '${{ env.PRIORITY }}' != 'Combine'
+          steps.assign_priority.outputs.priority != 'Combine'
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
@@ -141,7 +140,7 @@ jobs:
       - name: High Priority
         if: |
             (contains(github.event.pull_request.labels.*.name, 'Priority: High')) &&
-            '${{ env.PRIORITY }}' != 'Combine'
+            steps.assign_priority.outputs.priority != 'Combine'
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
