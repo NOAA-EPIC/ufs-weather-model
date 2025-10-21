@@ -6,6 +6,7 @@ on:
       - reopened
       - labeled
       - unlabeled
+      - push #rm for actual PR
 
 jobs:
   baseline-labels:
