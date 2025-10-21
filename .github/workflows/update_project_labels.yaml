@@ -6,6 +6,7 @@ on:
       - reopened
       - labeled
       - unlabeled
+      - push #rm for actual PR
 
 jobs:
   baseline-labels:
@@ -113,6 +114,7 @@ jobs:
       - name: Assign value to Priority field
         run: |
           priority="${{ steps.priority_field.outputs.values }}"
+          echo $priority
           echo "PRIORITY=$priority" >> $GITHUB_ENV
           echo $PRIORITY
           echo $( [ $PRIORITY != 'Combine' ] )
@@ -120,7 +122,7 @@ jobs:
         if: |
             !contains(github.event.pull_request.labels.*.name, 'Priority: Critical') &&
             !contains(github.event.pull_request.labels.*.name, 'Priority: High') &&
-            ${{ env.PRIORITY }} != 'Combine'
+            ${{ env.PRIORITY != 'Combine' }}
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
