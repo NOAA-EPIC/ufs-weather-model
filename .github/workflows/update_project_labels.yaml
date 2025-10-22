@@ -196,13 +196,19 @@ jobs:
     steps:
       - name: UFSATM
         if: contains(github.event.pull_request.labels.*.name, 'UFSATM')
-        run: echo "SUBCOMPONENTS="${SUBCOMPONENTS} UFSATM" >> $GITHUB_ENV
+        run: |
+          echo "SUBCOMPONENTS=${SUBCOMPONENTS} UFSATM" >> $GITHUB_ENV
+          echo $SUBCOMPONENTS
       - name: CCPP
         if: contains(github.event.pull_request.labels.*.name, 'CCPP')
-        run: echo "SUBCOMPONENTS="${SUBCOMPONENTS} CCPP" >> $GITHUB_ENV
+        run: |
+          echo "SUBCOMPONENTS=${SUBCOMPONENTS} CCPP" >> $GITHUB_ENV
+          echo $SUBCOMPONENTS
       - name: atmos_cubed_sphere
         if: contains(github.event.pull_request.labels.*.name, 'A3S')
-        run: echo "SUBCOMPONENTS="${SUBCOMPONENTS} A3S" >> $GITHUB_ENV
+        run: |
+          echo "SUBCOMPONENTS=${SUBCOMPONENTS} A3S" >> $GITHUB_ENV
+          echo $SUBCOMPONENTS
       - name: UPP
         if: contains(github.event.pull_request.labels.*.name, 'UPP')
         run: echo "SUBCOMPONENTS="${SUBCOMPONENTS} UPP" >> $GITHUB_ENV
