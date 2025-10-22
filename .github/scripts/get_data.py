@@ -6,7 +6,7 @@ import re
 import numpy as np
 
 class APICall():
-   """An GitHub API call"""
+   """A GitHub API call"""
 
    def __init__(self, endpoint='', num_commits=1):
       self.token = os.environ.get('GITHUB_TOKEN')
@@ -30,7 +30,7 @@ class Log():
       self.text_per_log = []
 
    def call_API(self, endpoint):
-      """Call the GitHub API to get information about the log file"""
+      """Call the GitHub API to get information about the log file."""
 
       api_call = APICall(endpoint)
       response = requests.get(api_call.url, headers=api_call.header)
@@ -53,7 +53,6 @@ class Log():
          else: 
             print(response[num]['sha'], "does not exist!")
 
-
    def get_pr_head(self):
       """Get SHA for the HEAD of the PR. Structure of response: 
          response = [{"head": {"sha": "a1b2c3d..."}}]
@@ -61,7 +60,6 @@ class Log():
       """
       response = self.call_API(f"pulls/{os.environ.get('PR_NUM')}")
       self.pr_head_commit = [response['head']['sha']]
-
 
    def fetch_log_text(self, commits): 
       """For each commit of a log, extract the log text."""
@@ -125,7 +123,6 @@ class Log():
             except KeyError: 
                # Create key if it doesn't exist yet
                self.historical_rt_mem_data[test] = {"runtime": [data[test][0]], "memory": [data[test][1]]}
-      #print(self.historical_rt_mem_data)
                
    def calculate_stats(self):
       """For each test, calculate the mean and standard deviation of memory and runtime."""
@@ -138,11 +135,11 @@ class Log():
          self.test_stats[test] = [runtime_mean, runtime_stdev, memory_mean, memory_stdev]
 
    def compare_runtime(self, current_log, previous_logs):
+      """Determine whether the test runtime is within normal bounds."""
       
       self.runtime_results = {}
 
       for test in current_log:
-
          try:
             hi_rt = self.test_stats[test][0] + self.test_stats[test][1]
             if current_log[test][0] > hi_rt and previous_logs['last'][test][0] > hi_rt and previous_logs['second_to_last'][test][0] > hi_rt:
@@ -155,8 +152,8 @@ class Log():
             print(test, "is new. No comparison data.")
             self.runtime_results[test] = 'New'
 
-
    def compare_memory(self, current_log, previous_logs):
+      """Determine whether the test memory usage is within normal bounds."""
 
       self.memory_results = {}
 
@@ -174,10 +171,10 @@ class Log():
             self.runtime_results[test] = 'New'
 
    def compare_results(self): 
-   
+      """Check results from previous two commits to determine whether the test runtime/memory usage is within normal bounds."""
+
       current_log = self.get_instance_test_data(self.text_per_log[0])
       previous_logs = {"last" : {}, "second_to_last" : {}}
-      print(previous_logs)
 
       for index, item in enumerate(previous_logs):
          previous_logs[item] = self.get_instance_test_data(self.text_per_log[index + 1])
@@ -186,6 +183,7 @@ class Log():
       self.compare_memory(current_log, previous_logs)
 
    def get_current_pr_data(self):
+      """Extract runtime/memory data for the PR's most recent commit."""
 
       self.get_pr_head()
       self.fetch_log_text(self.pr_head_commit)
@@ -193,23 +191,22 @@ class Log():
       
       return pr_log_data
 
-   def gather_historical_data(self):
-      self.fetch_repo_commits(num_commits=10) #increase for statistical significance
+   def gather_historical_data(self, num_commits=2):
+      """Extract runtime/memory data for the authoritative repository's last two commits."""
+      self.fetch_repo_commits(num_commits) #increase for statistical significance
       self.fetch_log_text(self.repo_commits)
       self.compile_historical_log_data()
-      self.calculate_stats()
-
 
 def create_machine_stats(stats_dict):
    """Create a json file with statistic for each test on each machine"""
 
-   with open(f"data/stats.json", 'a') as fh:
+   with open(f"data/stats.json", 'w') as fh:
       json.dump(stats_dict, fh, indent=4)
 
 def create_machine_results(results_dict, file_name):
    """Create a json file with statistic for each test on each machine"""
 
-   with open(f"data/{file_name}.json", 'a') as fh:
+   with open(f"data/{file_name}.json", 'w') as fh:
       json.dump(results_dict, fh, indent=4)
 
 def load_json(file_path):
@@ -222,10 +219,10 @@ def load_json(file_path):
 def main():
    """For each machine, create a log object, get current PR data, gather historical runtime/memory data, 
    and compare results to determine which test/machine combinations fall more than 2 standard deviations 
-   above the historical mean for each test."""
+   above the historical mean for each test.""" 
 
    machines = os.environ.get('MACHINES').split()
-   
+
    # Contains mean and standard deviation for each test on each machine
    stats_by_machine = {}
    # Contains information on whether test runtime was more than 2 standard deviations above the mean. 
@@ -237,20 +234,30 @@ def main():
       print(machine.upper())
       log = Log(machine.lower())
       log.get_current_pr_data()
+      # Case where test stats have been calculated and cached:
       if os.environ.get('TEST_STATS'):
-         log.test_stats = load_json(os.environ.get('TEST_STATS'))
+         log.gather_historical_data(2) # past two commits only
+         log.test_stats = load_json(os.environ.get('TEST_STATS'))[machine]
+
+      # Case where test stats have NOT been calculated and cached:
       else:
-         log.gather_historical_data()
+         log.gather_historical_data(10) # past 10 commits
+         log.calculate_stats()
+         stats_by_machine[machine] = log.test_stats
+
+      # Compare and save results
       log.compare_results()
-      stats_by_machine[machine] = log.test_stats
       runtime_results_by_machine[machine] = log.runtime_results
       mem_results_by_machine[machine] = log.memory_results
-   create_machine_stats(stats_by_machine)
+   
+   # If the statistics on mean/standard deviation have NOT already been cached, create file to cache.
+   if not os.environ.get('TEST_STATS'):
+      create_machine_stats(stats_by_machine)
+
+   # Create resource summaries to use in write_test_summary.py 
    create_machine_results(runtime_results_by_machine, "runtime_results")
    create_machine_results(mem_results_by_machine, "memory_results")
 
 if __name__ == "__main__":
 
    main()
-
-
