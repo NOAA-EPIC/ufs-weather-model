@@ -72,24 +72,50 @@ jobs:
       pull-requests: write
       issues: write
     steps:
-      - name: Input data required
-        if: contains(github.event.pull_request.labels.*.name, 'Input Data Changes')
+      - name: New input data required
+        if: |
+          contains(github.event.pull_request.labels.*.name, 'New Input Data') &&
+          !contains(github.event.pull_request.labels.*.name, 'Updated Input Data')
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
           project-url: https://github.com/orgs/NOAA-EPIC/projects/18
           github-token: ${{ secrets.PR_PROJECT_TOKEN }}
           field-name: "Input Data Req'd"
-          field-value: 'Yes'
+          field-value: 'New'
+      - name: Updated input data required
+        if: |
+          contains(github.event.pull_request.labels.*.name, 'Updated Input Data') &&
+          !contains(github.event.pull_request.labels.*.name, 'New Input Data')
+        uses: nipe0324/update-project-v2-item-field@v2.0.2
+        with:
+          #project-url: https://github.com/orgs/ufs-community/projects/70
+          project-url: https://github.com/orgs/NOAA-EPIC/projects/18
+          github-token: ${{ secrets.PR_PROJECT_TOKEN }}
+          field-name: "Input Data Req'd"
+          field-value: 'Updated'
       - name: No input data changes
-        if: (!contains(github.event.pull_request.labels.*.name, 'Input Data Changes'))
+        if: |
+            (!contains(github.event.pull_request.labels.*.name, 'Updated Input Data')) && 
+            (!contains(github.event.pull_request.labels.*.name, 'New Input Data'))
         uses: nipe0324/update-project-v2-item-field@v2.0.2
         with:
           #project-url: https://github.com/orgs/ufs-community/projects/70
           project-url: https://github.com/orgs/NOAA-EPIC/projects/18
           github-token: ${{ secrets.PR_PROJECT_TOKEN }}
           field-name: "Input Data Req'd"
-          field-value: 'No'
+          field-value: 'None'
+      - name: Contradictory labels
+        if: | 
+            contains(github.event.pull_request.labels.*.name, 'Updated Input Data') &&
+            contains(github.event.pull_request.labels.*.name, 'New Input Data')
+        uses: nipe0324/update-project-v2-item-field@v2.0.2
+        with:
+          #project-url: https://github.com/orgs/ufs-community/projects/70
+          project-url: https://github.com/orgs/NOAA-EPIC/projects/18
+          github-token: ${{ secrets.PR_PROJECT_TOKEN }}
+          field-name: "Input Data Req'd"
+          field-value: 'Unknown'
   priority-labels:
     name: Priority
     runs-on: ubuntu-latest
@@ -112,7 +138,6 @@ jobs:
         id: assign_priority
         run: |
           PRIORITY="${{ steps.priority_field.outputs.values }}"
-          echo $PRIORITY
           echo "priority=$PRIORITY" >> $GITHUB_OUTPUT
       - name: Normal Priority
         if: |
