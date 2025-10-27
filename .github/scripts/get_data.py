@@ -26,7 +26,7 @@ class Log():
    
    def __init__(self, machine):
       """Create the log file object for a specific machine."""
-      self.machine = machine
+      self.machine = machine.lower()
       self.text_per_log = []
 
    def call_API(self, endpoint):
@@ -77,6 +77,8 @@ class Log():
             self.text_per_log.insert(0,r.text)
          else:
             self.text_per_log.append(r.text)
+
+      print(self.text_per_log)
 
    def get_instance_test_data(self, log_instance):
       """For each instance of a log at a given commit, extract runtime and memory data from the log text
@@ -232,7 +234,7 @@ def main():
 
    for machine in machines:
       print(machine.upper())
-      log = Log(machine.lower())
+      log = Log(machine)
       log.get_current_pr_data()
       # Case where test stats have been calculated and cached:
       if os.environ.get('TEST_STATS'):
