@@ -69,17 +69,20 @@ def test_fetch_log_text_w_commits(herc_log, hercules_most_recent_commits, hercul
    #assert herc_log.text_per_log == hercules_log_texts_2882[1:]
 
 def test_get_instance_test_data(herc_log, hercules_log_texts_2882, log_instance_results_2882_0):
-   """From the log for PR 2882, extract test data. Compare it with the expected test data to be sure it's the same.
+   """From the log for PR 2882, extract test data. Compare it with the expected data to be sure it's the same.
    """
-
    tests_for_log_instance = herc_log.get_instance_test_data(hercules_log_texts_2882[0])
-   print(f"Tests dict: {tests_for_log_instance}")
-
    assert tests_for_log_instance == log_instance_results_2882_0
 
       
-def test_compile_historical_log_data(herc_log): # Could split for runtime, mem to make more maintainable
-   pass
+def test_compile_historical_log_data(herc_log, hercules_log_texts_2882, hercules_sample_historical_log_data): 
+   
+   herc_log.text_per_log = hercules_log_texts_2882
+   herc_log.compile_historical_log_data()
+   
+   # Are all items in the hercules_sample_historical_log_data in herc_log.historical_rt_mem_data? 
+   for test in hercules_sample_historical_log_data:
+      assert herc_log.historical_rt_mem_data[test] == hercules_sample_historical_log_data[test]
                
 def test_calculate_stats(herc_log):
    pass
