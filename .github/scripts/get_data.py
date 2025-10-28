@@ -67,6 +67,9 @@ class Log():
       if not commits:
          return "ERROR: This log has no commit list. Log text cannot be extracted. "
       
+      if not self.pr_head_commit:
+         return "ERROR: Must call get_pr_head() before this function! "
+
       api_call = APICall(f"contents/tests/logs/RegressionTests_{self.machine}.log")
       
       for num in range(len(commits)): 
@@ -77,8 +80,6 @@ class Log():
             self.text_per_log.insert(0,r.text)
          else:
             self.text_per_log.append(r.text)
-
-      print(self.text_per_log)
 
    def get_instance_test_data(self, log_instance):
       """For each instance of a log at a given commit, extract runtime and memory data from the log text
