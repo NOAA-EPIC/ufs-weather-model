@@ -322,4 +322,28 @@ def hercules_sample_historical_log_data():
       'datm_cdeps_control_cfsr_intel': {'runtime': [146, 146, 144, 148, 145], 'memory': [1869, 1870, 1852, 1865, 1869]},
       'datm_cdeps_control_cfsr_gnu': {'runtime': [162, 163, 166, 220, 211], 'memory': [1605, 1603, 1605, 1605, 1606]}
    }
+
    return sample_data
+
+@pytest.fixture
+def hercules_mean_std():
+   stats = {
+      'cpld_control_p8_mixedmode_intel': [525.8, 19.29249, 2161.2, 3.96232], 
+      'cpld_control_gefs_intel': [1073.8, 101.34693, 3131.4, 6.91375], 
+      'cpld_control_noaero_p8_agrid_intel': [261.6, 20.71956, 2128.8, 4.08656], 
+      'control_c48_intel': [395.2, 3.11448, 1714.0, 2.12132], 
+      'control_p8_intel': [183.8, 26.71516, 1905.0, 4.47214], 
+      'control_restart_p8_intel': [107.2, 17.64086, 1210.6, 24.1723], 
+      'control_c48_gnu': [471.0, 1.0, 1583.2, 0.83666], 
+      'control_p8_gnu': [233.4, 27.12563, 1546.4, 3.84708], 
+      'control_debug_p8_gnu': [103.8, 35.99583, 1540.6, 13.40895], 
+      'hrrr_control_intel': [209.2, 4.60435, 1084.6, 8.96103], 
+      'hrrr_control_gnu': [243.0, 2.73861, 938.8, 1.09545], 
+      'atmaero_control_p8_intel': [269.6, 56.48274, 2016.0, 5.87367], 
+      'regional_atmaq_intel': [836.2, 22.17431, 2944.0, 4.1833], 
+      'hafs_regional_docn_intel': [353.4, 76.76783, 1090.4, 11.08152], 
+      'datm_cdeps_control_cfsr_intel': [145.8, 1.48324, 1865.0, 7.51665], 
+      'datm_cdeps_control_cfsr_gnu': [184.4, 28.60594, 1604.8, 1.09545]
+   }
+
+   return stats
