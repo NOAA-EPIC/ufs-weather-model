@@ -4,6 +4,7 @@ import json
 from datetime import datetime
 import re
 import numpy as np
+import logging
 
 class APICall():
    """A GitHub API call"""
@@ -51,7 +52,7 @@ class Log():
          if response[num]['sha']:
             self.repo_commits.append(response[num]['sha'])
          else: 
-            print(response[num]['sha'], "does not exist!")
+            logging.error(f"{response[num]['sha']} does not exist!")
 
    def get_pr_head(self):
       """Get SHA for the HEAD of the PR. Structure of response: 
@@ -124,20 +125,22 @@ class Log():
                self.historical_rt_mem_data[test]["runtime"].append(data[test][0])
                self.historical_rt_mem_data[test]["memory"].append(data[test][1])
             except KeyError: 
-               # Create key if it doesn't exist yet
+               logging.info("Test key doesn't exist yet. Creating test key.")
                self.historical_rt_mem_data[test] = {"runtime": [data[test][0]], "memory": [data[test][1]]}
                
    def calculate_stats(self):
-      """For each test, calculate the mean and standard deviation of memory and runtime."""
+      """For each test, calculate the mean and standard deviation of memory and runtime.
+      Note: ddof=1 sets degrees for freedom to one to get sample stdev instead of pupulation stdev
+      """
       self.test_stats = {}
       for test in self.historical_rt_mem_data:
          runtime_mean = round(np.mean(self.historical_rt_mem_data[test]["runtime"]), 5)
-         runtime_stdev = round(np.std(self.historical_rt_mem_data[test]["runtime"]), 5)
+         runtime_stdev = round(np.std(self.historical_rt_mem_data[test]["runtime"], ddof=1), 5)
          memory_mean = round(np.mean(self.historical_rt_mem_data[test]["memory"]), 5)
-         memory_stdev = round(np.std(self.historical_rt_mem_data[test]["memory"]), 5)
+         memory_stdev = round(np.std(self.historical_rt_mem_data[test]["memory"], ddof=1), 5)
          self.test_stats[test] = [runtime_mean, runtime_stdev, memory_mean, memory_stdev]
 
-   def compare_runtime(self, current_log, previous_logs):
+   def _compare_runtime(self, current_log, previous_logs):
       """Determine whether the test runtime is within normal bounds."""
       
       self.runtime_results = {}
@@ -152,10 +155,12 @@ class Log():
             else:
                self.runtime_results[test] = '✅'
          except KeyError:
-            print(test, "is new. No comparison data.")
+            logging.info(f"{test} is new. No comparison data.")
             self.runtime_results[test] = 'New'
 
-   def compare_memory(self, current_log, previous_logs):
+      print(self.runtime_results)
+
+   def _compare_memory(self, current_log, previous_logs):
       """Determine whether the test memory usage is within normal bounds."""
 
       self.memory_results = {}
@@ -163,15 +168,15 @@ class Log():
       for test in current_log:
          try:
             hi_mem = self.test_stats[test][2] + self.test_stats[test][3]
-            if current_log[test][0] > hi_mem and previous_logs['last'][test][0] > hi_mem and previous_logs['second_to_last'][test][0] > hi_mem:
+            if current_log[test][1] > hi_mem and previous_logs['last'][test][1] > hi_mem and previous_logs['second_to_last'][test][1] > hi_mem:
                self.memory_results[test] = '❌'
-            elif current_log[test][0] > hi_mem:
+            elif current_log[test][1] > hi_mem:
                self.memory_results[test] = '⚠️'
             else:
                self.memory_results[test] = '✅'
          except KeyError:
-            print(test, "is new. No comparison data.")
-            self.runtime_results[test] = 'New'
+            logging.info(f"{test} is new. No comparison data.")
+            self.memory_results[test] = 'New'
 
    def compare_results(self): 
       """Check results from previous two commits to determine whether the test runtime/memory usage is within normal bounds."""
@@ -182,8 +187,8 @@ class Log():
       for index, item in enumerate(previous_logs):
          previous_logs[item] = self.get_instance_test_data(self.text_per_log[index + 1])
       
-      self.compare_runtime(current_log, previous_logs)
-      self.compare_memory(current_log, previous_logs)
+      self._compare_runtime(current_log, previous_logs)
+      self._compare_memory(current_log, previous_logs)
 
    def get_current_pr_data(self):
       """Extract runtime/memory data for the PR's most recent commit."""
