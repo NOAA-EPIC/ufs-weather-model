@@ -7,17 +7,8 @@ import numpy as np
 import pytest
 import requests_mock
 from unittest.mock import patch, Mock
-from scripts.get_data import APICall, Log
-
-# Fixtures: 
-@pytest.fixture
-def set_env_vars():
-   os.environ["GITHUB_TOKEN"] = "fake_github_pat_12BWCMCFZkhj35klj3h34kjh4kkjm3whe4nr"
-   os.environ["BASE_URL"] = "https://api.github.com/repos/ufs-community/ufs-weather-model"
-
-@pytest.fixture
-def herc_log():
-   return Log("Hercules")
+from pathlib import Path
+from scripts.get_data import APICall, Log, load_json, create_json
 
 @pytest.mark.parametrize("endpoint", [
    f"commits?path=tests/logs/RegressionTests_ursa.log&per_page=1", #fetch_repo_commits_endpoint
@@ -56,58 +47,74 @@ def test_get_pr_head(herc_log):
    pass
 
 def test_fetch_log_text_w_no_commits(herc_log): 
-   herc_log.fetch_log_text('')
    pass
+   """herc_log._fetch_log_text('')
+   assert herc_log."""
 
 def test_fetch_log_text_w_commits(herc_log, hercules_most_recent_commits, hercules_log_texts_2882): 
    """Check that the log texts extracted by the API are the same as the hercules log texts that we expect."""
    herc_log.pr_head_commit = hercules_most_recent_commits[0]
    herc_log.repo_commits = hercules_most_recent_commits[1:]
    # Need to mock API call
-   herc_log.fetch_log_text(herc_log.repo_commits)
+   herc_log._fetch_log_text(herc_log.repo_commits)
 
    #assert herc_log.text_per_log == hercules_log_texts_2882[1:]
 
 def test_get_instance_test_data(herc_log, hercules_log_texts_2882, log_instance_results_2882_0):
    """From the log for PR 2882, extract test data. Compare it with the expected data to be sure it's the same.
    """
-   tests_for_log_instance = herc_log.get_instance_test_data(hercules_log_texts_2882[0])
+   tests_for_log_instance = herc_log._get_instance_test_data(hercules_log_texts_2882[0])
    assert tests_for_log_instance == log_instance_results_2882_0
 
       
 def test_compile_historical_log_data(herc_log, hercules_log_texts_2882, hercules_sample_historical_log_data): 
    
    herc_log.text_per_log = hercules_log_texts_2882
-   herc_log.compile_historical_log_data()
+   herc_log._compile_historical_log_data()
    
    # Are all items in the hercules_sample_historical_log_data in herc_log.historical_rt_mem_data? 
    for test in hercules_sample_historical_log_data:
       assert herc_log.historical_rt_mem_data[test] == hercules_sample_historical_log_data[test]
                
-def test_calculate_stats(herc_log):
-   pass
+def test_calculate_stats(herc_log, hercules_sample_historical_log_data, hercules_mean_std):
+   
+   herc_log.historical_rt_mem_data = hercules_sample_historical_log_data
+   herc_log.calculate_stats()
 
-def test_compare_runtime(herc_log):
-   pass
+   for test in hercules_mean_std: 
+      assert hercules_mean_std[test] == herc_log.test_stats[test]
 
-def test_compare_memory(herc_log):
-   pass
+def test_compare_results(herc_log, hercules_log_texts_2882, log_instance_results_2882_0, hercules_mean_std): 
 
-def test_compare_results(herc_log): 
-   pass
+   current_log = log_instance_results_2882_0
+   herc_log.text_per_log = hercules_log_texts_2882
+   herc_log.test_stats = hercules_mean_std
+   herc_log.compare_results()
 
-def test_get_current_pr_instance_data(herc_log, hercules_log_texts_2882):
-   pass
+   for test in herc_log.test_stats: 
+      hi_runtime = herc_log.test_stats[test][0] + herc_log.test_stats[test][1]
+      hi_memory = herc_log.test_stats[test][2] + herc_log.test_stats[test][3]
 
-def test_gather_historical_data(herc_log, num_commits=5):
-   pass
+      # Could improve test to check for correct warn vs. fail status
+      if current_log[test][0] > hi_runtime:
+         assert herc_log.runtime_results[test] != '✅'
+      if current_log[test][1] > hi_memory:
+         assert herc_log.memory_results[test] != '✅'
 
-def test_create_machine_stats():
-   pass
+def test_create_json(stats_dict_snippet):
+   
+   path = Path('data')
+   path.mkdir(exist_ok = True)
+   create_json(stats_dict_snippet, 'stats')
 
-def test_create_machine_results():
-   pass
+   with open('test_file_stats.json', 'r') as test_stats_file, open ('data/stats.json', 'r') as new_json:
+      test_file_content = test_stats_file.read()
+      new_json_content = new_json.read()
+   
+   assert test_file_content == new_json_content
 
-def test_load_json():
-   pass
 
+def test_load_json(stats_dict_snippet):
+   machine = "orion"
+   orion_snippet = load_json('test_file_stats.json')[machine]
+   assert orion_snippet == stats_dict_snippet['orion']
