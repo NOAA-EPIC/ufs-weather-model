@@ -16,9 +16,18 @@ def test_create_mdFile():
    assert mdFile.get_md_text() == "\nTest Summary for PR #2882\n=========================\n"
    assert mdFile.file_name == 'summary.md'
 
-def test_build_content():
+def test_build_content(sample_runtime_results, actual_passes_per_test, actual_passes_per_machine):
 
-   pass
+   os.environ["RUNTIME_RESULTS"] = "runtime_results.json"
+   content = build_content("runtime").sort_index()
+
+   # Create comparison DataFrame from fixtures
+   sample_runtime_results["Passing"] = actual_passes_per_test
+   actual_results = pd.DataFrame.from_dict(sample_runtime_results).fillna("N/A")
+   actual_passes_per_machine = pd.DataFrame.from_dict(actual_passes_per_machine, orient='index', columns=["hercules","orion","ursa","Passing"])
+   actual_results = pd.concat([actual_results,actual_passes_per_machine]).sort_index()
+
+   assert content.equals(actual_results)
 
 def test_write_content():
    
@@ -40,7 +49,6 @@ def test_count_passes_per_machine(sample_runtime_results, actual_passes_per_mach
 
    # Calculate passing tests per machine
    results = count_passes_per_machine(results)
-
    actual_values = pd.DataFrame.from_dict(actual_passes_per_machine, orient='index', columns=["hercules","orion","ursa","Passing"])
    
    assert results.equals(actual_values)
@@ -60,4 +68,3 @@ def test_count_passes_per_test(sample_runtime_results, actual_passes_per_test):
 
    # Sort by index before comparing calculated and actual values for equality
    assert results.sort_index().equals(pd.Series(actual_passes_per_test, name='Passing').sort_index())
-

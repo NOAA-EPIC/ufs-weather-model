@@ -7,7 +7,7 @@ from scripts.get_data import APICall, Log
 def set_env_vars():
    os.environ["GITHUB_TOKEN"] = "fake_github_pat_12BWCMCFZkhj35klj3h34kjh4kkjm3whe4nr"
    os.environ["BASE_URL"] = "https://api.github.com/repos/ufs-community/ufs-weather-model"
-   os.environ["PR_NUM"] = 2882
+   os.environ["PR_NUM"] = "2882"
    os.environ["MACHINES"] = "acorn derecho gaeac6 hera hercules orion ursa wcoss2"
 
 @pytest.fixture

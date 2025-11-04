@@ -26,13 +26,12 @@ def build_content(category):
       results: DataFrame containing the runtime/memory testing results. Rows are tests and columns are machines.
    """
 
-   machines = os.environ.get('MACHINES').split()
    contents = load_json(os.environ.get(f"{category.upper()}_RESULTS"))
    results = pd.DataFrame()
    
-   for machine in machines:
+   for machine in contents:
       
-      machine_results = pd.DataFrame.from_dict(contents[machine], orient='index',columns=[machine])
+      machine_results = pd.DataFrame.from_dict(contents[machine], orient='index', columns=[machine])
       results = pd.merge(results, machine_results, left_index=True, right_index=True, how='outer').fillna("N/A")
 
    results = count_passes_per_test(results)
