@@ -587,3 +587,123 @@ def actual_passes_per_machine():
    }
 
    return actual_values
+
+@pytest.fixture
+def sample_runtime_results_complete(): 
+
+   runtime_results = {
+      "hercules": {
+         "cpld_control_p8_mixedmode_intel": "\u2705",
+         "cpld_control_gefs_intel": "\u2705",
+         "cpld_restart_gefs_intel": "\u2705",
+         "cpld_dcp_gefs_intel": "\u2705",
+         "cpld_control_gfsv17_intel": "\u2705",
+         "cpld_control_gfsv17_iau_intel": "\u26a0\ufe0f",
+         "cpld_restart_gfsv17_intel": "\u2705",
+         "cpld_restart_gfsv17_iau_intel": "\u2705",
+         "cpld_mpi_gfsv17_intel": "\u2705",
+         "cpld_control_sfs_intel": "\u2705",
+         "cpld_debug_gfsv17_intel": "\u2705",
+         "cpld_control_p8_intel": "\u2705",
+         "cpld_control_p8.v2.sfc_intel": "\u2705",
+         "cpld_restart_p8_intel": "\u2705",
+         "cpld_control_qr_p8_intel": "\u26a0\ufe0f",
+         "cpld_restart_qr_p8_intel": "\u2705",
+         "cpld_2threads_p8_intel": "\u2705",
+         "cpld_decomp_p8_intel": "\u26a0\ufe0f",
+         "cpld_mpi_p8_intel": "\u2705",
+      },
+      "orion": {
+         "cpld_control_p8_mixedmode_intel": "\u2705",
+         "cpld_control_gefs_intel": "\u2705",
+         "cpld_restart_gefs_intel": "\u2705",
+         "cpld_dcp_gefs_intel": "\u2705",
+         "cpld_control_gfsv17_intel": "\u2705",
+         "cpld_control_gfsv17_iau_intel": "\u2705",
+         "cpld_restart_gfsv17_intel": "\u2705",
+         "cpld_restart_gfsv17_iau_intel": "\u2705",
+         "cpld_mpi_gfsv17_intel": "\u2705",
+         "cpld_control_sfs_intel": "\u2705",
+         "cpld_debug_gfsv17_intel": "\u2705",
+         "cpld_control_p8_intel": "\u2705",
+         "cpld_control_p8.v2.sfc_intel": "\u2705",
+         "cpld_restart_p8_intel": "\u2705",
+         "cpld_control_qr_p8_intel": "\u2705",
+         "cpld_restart_qr_p8_intel": "\u2705",
+         "cpld_2threads_p8_intel": "\u2705",
+         "cpld_decomp_p8_intel": "\u2705",
+         "cpld_mpi_p8_intel": "\u2705",
+      },
+      "ursa": {
+         "cpld_control_p8_mixedmode_intel": "\u26a0\ufe0f",
+         "cpld_control_gefs_intel": "\u2705",
+         "cpld_restart_gefs_intel": "\u2705",
+         "cpld_dcp_gefs_intel": "\u2705",
+         "cpld_control_gfsv17_intel": "\u2705",
+         "cpld_control_gfsv17_iau_intel": "\u2705",
+         "cpld_restart_gfsv17_intel": "\u2705",
+         "cpld_restart_gfsv17_iau_intel": "\u26a0\ufe0f",
+         "cpld_mpi_gfsv17_intel": "\u2705",
+         "cpld_control_sfs_intel": "\u26a0\ufe0f",
+         "cpld_debug_gfsv17_intel": "\u2705",
+         "cpld_control_p8_intel": "\u274c",
+         "cpld_control_p8.v2.sfc_intel": "\u26a0\ufe0f",
+         "cpld_restart_p8_intel": "\u2705",
+         "cpld_control_qr_p8_intel": "\u26a0\ufe0f",
+         "cpld_restart_qr_p8_intel": "\u2705",
+         "cpld_2threads_p8_intel": "\u26a0\ufe0f",
+         "cpld_decomp_p8_intel": "\u26a0\ufe0f",
+         "cpld_mpi_p8_intel": "\u2705",
+         "cpld_control_gfsv17_intelllvm": "\u2705",
+      },
+      "Passing": {
+      "cpld_control_p8_mixedmode_intel": "2/3",
+      "cpld_control_gefs_intel": "3/3",
+      "cpld_restart_gefs_intel": "3/3",
+      "cpld_dcp_gefs_intel": "3/3",
+      "cpld_control_gfsv17_intel": "3/3",
+      "cpld_control_gfsv17_iau_intel": "2/3",
+      "cpld_restart_gfsv17_intel": "3/3",
+      "cpld_restart_gfsv17_iau_intel": "2/3",
+      "cpld_mpi_gfsv17_intel": "3/3",
+      "cpld_control_sfs_intel": "2/3",
+      "cpld_debug_gfsv17_intel": "3/3",
+      "cpld_control_p8_intel": "2/3",
+      "cpld_control_p8.v2.sfc_intel": "2/3",
+      "cpld_restart_p8_intel": "3/3",
+      "cpld_control_qr_p8_intel": "1/3",
+      "cpld_restart_qr_p8_intel": "3/3",
+      "cpld_2threads_p8_intel": "2/3",
+      "cpld_decomp_p8_intel": "1/3",
+      "cpld_mpi_p8_intel": "3/3",
+      "cpld_control_gfsv17_intelllvm": "1/1",
+      }
+   }
+   return runtime_results
+
+@pytest.fixture
+def failing_results_table(): 
+
+   failing_results = {
+      "cpld_2threads_p8_intel": ["\u2705","\u2705","\u26a0\ufe0f","2/3"],
+      "cpld_control_gfsv17_iau_intel": ["\u26a0\ufe0f","\u2705","\u2705","2/3"],
+      "cpld_control_p8.v2.sfc_intel": ["\u2705","\u2705","\u26a0\ufe0f","2/3"],
+      "cpld_control_p8_intel": ["\u2705","\u2705","\u274c","2/3"],
+      "cpld_control_p8_mixedmode_intel": ["\u2705", "\u2705", "\u26a0\ufe0f","2/3"],
+      "cpld_control_qr_p8_intel": ["\u26a0\ufe0f","\u2705","\u26a0\ufe0f","1/3"],
+      "cpld_control_sfs_intel": ["\u2705","\u2705","\u26a0\ufe0f","2/3"],
+      "cpld_decomp_p8_intel": ["\u26a0\ufe0f","\u2705","\u26a0\ufe0f","1/3"],
+      "cpld_restart_gfsv17_iau_intel": ["\u2705","\u2705","\u26a0\ufe0f","2/3"],
+   }
+
+   table_contents = []
+   for test in failing_results:
+      table_contents.append(test)
+      table_contents.append(failing_results[test][0])
+      table_contents.append(failing_results[test][1])
+      table_contents.append(failing_results[test][2])
+      table_contents.append(failing_results[test][3] + "|\n")
+
+   table_contents = "|".join(table_contents) + "|Platform Total (Passing):|**HERCULES:** 16/19 passing|**ORION:** 19/19 passing|**URSA:** 12/20 passing||\n"
+
+   return table_contents
