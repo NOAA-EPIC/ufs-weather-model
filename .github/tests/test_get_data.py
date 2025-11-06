@@ -1,12 +1,5 @@
-import requests
-import os
-import json
-from datetime import datetime
-import re
 import numpy as np
 import pytest
-import requests_mock
-from unittest.mock import patch, Mock
 from pathlib import Path
 from scripts.get_data import *
 
