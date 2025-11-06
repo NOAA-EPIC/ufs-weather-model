@@ -36,7 +36,7 @@ class Log():
       api_call = APICall(endpoint)
       response = requests.get(api_call.url, headers=api_call.header)
       response = json.loads(response.text)
-
+      
       return response
 
    def _get_pr_head(self):
@@ -57,10 +57,10 @@ class Log():
       
       self.repo_commits = []
       for num in range(len(response)): 
-         if response[num]['sha']:
+         try: 
             self.repo_commits.append(response[num]['sha'])
-         else: 
-            logging.error(f"{response[num]['sha']} does not exist!")
+         except: 
+            logging.error(f"API Call failed. The sha does not exist!")
 
    def _fetch_log_text(self, commits): 
       """For each commit of a log, extract the log text."""
@@ -76,7 +76,7 @@ class Log():
                self.text_per_log.insert(0,r.text)
             else:
                self.text_per_log.append(r.text)
-      except AttributeError():
+      except:
          logging.error("An appropriate commit(s) was not provided. Call _get_pr_head() or _fetch_repo_commits() first.")
 
    def _get_instance_test_data(self, log_instance):
@@ -257,6 +257,8 @@ def main():
    create_json(runtime_results_by_machine, "runtime_results")
    create_json(mem_results_by_machine, "memory_results")
 
-if __name__ == "__main__":
+   return 0
+
+if __name__ == "__main__": # pragma: no coverage
 
    main()

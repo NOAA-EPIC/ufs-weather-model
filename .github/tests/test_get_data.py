@@ -8,7 +8,7 @@ import pytest
 import requests_mock
 from unittest.mock import patch, Mock
 from pathlib import Path
-from scripts.get_data import APICall, Log, load_json, create_json
+from scripts.get_data import *
 
 @pytest.mark.parametrize("endpoint", [
    f"commits?path=tests/logs/RegressionTests_ursa.log&per_page=1", #fetch_repo_commits_endpoint
@@ -16,9 +16,11 @@ from scripts.get_data import APICall, Log, load_json, create_json
    f"contents/tests/logs/RegressionTests_ursa.log", #fetch_log_text_endpoint
    ])
 @pytest.mark.parametrize("num_commits", [1, 5, 7])
-def test_init_APICall(set_env_vars, endpoint, num_commits):
+def test_init_APICall(set_env_vars, monkeypatch, endpoint, num_commits):
    
    set_env_vars
+   # Set token env var for duration of test only
+   monkeypatch.setenv("GITHUB_TOKEN", "fake_github_pat_12BWCMCFZkhj35klj3h34kjh4kkjm3whe4nr")
    api_call = APICall(endpoint, num_commits)
 
    assert api_call.token == "fake_github_pat_12BWCMCFZkhj35klj3h34kjh4kkjm3whe4nr"
@@ -37,28 +39,67 @@ def test_init_hercules_Log(herc_log):
    assert herc_log.machine == "hercules"
    assert herc_log.text_per_log == []
 
-def test_call_API(herc_log, set_env_vars):
-   pass
+def test_fetch_repo_commits(herc_log, set_env_vars, hercules_most_recent_commits):
+   """Test the API call and it's ability to get the 10 most recent commits.
+   Because the actual commits will change, only the length is checked. 
+   Ability to extract the proper commit(s) is tested in test_get_pr_head().
+   When running tests locally, create a GitHub token and set it as an environment variable. 
+   Then, try one of the following methods to set the token:
+   1. In the command line: 
+      export GITHUB_TOKEN=fake_github_pat_12BWCMCFZkhj35klj3h34kjh4kkjm3whe4nr
+   OR
+   2. In this script, add the monkeypatch fixture to the arguments, uncomment the following line, 
+      and add the actual token value:
+         monkeypatch.setenv("GITHUB_TOKEN", "fake_github_pat_12BWCMCFZkhj35klj3h34kjh4kkjm3whe4nr")
+      Remove this line of code before committing anything. 
+   """
+   set_env_vars
+   herc_log._fetch_repo_commits(10)
 
-def test_fetch_repo_commits(herc_log, set_env_vars):
-   pass
+   assert len(herc_log.repo_commits) == len(hercules_most_recent_commits)
 
-def test_get_pr_head(herc_log):
-   pass
+def test_fetch_repo_commits_w_no_commits(herc_log, set_env_vars, monkeypatch, caplog):
+   """Test the ability to handle errors when no commits are returned
+   """
+   # Need to mock case where no commits or fewer commits than expected are returned.
+   set_env_vars
+   monkeypatch.setenv("GITHUB_TOKEN", "fake_github_pat_12BWCMCFZkhj35klj3h34kjh4kkjm3whe4nr")
+   herc_log._fetch_repo_commits()
 
-def test_fetch_log_text_w_no_commits(herc_log): 
-   pass
-   """herc_log._fetch_log_text('')
-   assert herc_log."""
+   assert caplog.records[0].message == "API Call failed. The sha does not exist!"
 
-def test_fetch_log_text_w_commits(herc_log, hercules_most_recent_commits, hercules_log_texts_2882): 
+def test_get_pr_head(herc_log, set_env_vars):
+   """Test the API call and it's ability to get the PR 2882's head commit. 
+   When running tests locally, create a GitHub token and set it as an environment variable 
+   using one of the methods listed in test_fetch_repo_commits() above.
+   """
+   set_env_vars
+   herc_log._get_pr_head()
+
+   assert herc_log.pr_head_commit == ["369cead91c98eb5c72da81ff78925250dad08903"]
+
+def test_fetch_log_text_w_no_commits(herc_log, caplog): 
+   herc_log.pr_head_commit = None
+   herc_log._fetch_log_text(herc_log.pr_head_commit)
+   assert caplog.records[0].message == "An appropriate commit(s) was not provided. Call _get_pr_head() or _fetch_repo_commits() first."
+
+def test_fetch_log_text_for_pr_head(herc_log, hercules_most_recent_commits, hercules_log_texts_2882): 
    """Check that the log texts extracted by the API are the same as the hercules log texts that we expect."""
    herc_log.pr_head_commit = hercules_most_recent_commits[0]
-   herc_log.repo_commits = hercules_most_recent_commits[1:]
+   #herc_log.repo_commits = hercules_most_recent_commits[1:]
    # Need to mock API call
-   herc_log._fetch_log_text(herc_log.repo_commits)
+   #herc_log._fetch_log_text(herc_log.repo_commits)
+   herc_log._fetch_log_text(herc_log.pr_head_commit)
 
    #assert herc_log.text_per_log == hercules_log_texts_2882[1:]
+   assert herc_log.text_per_log[0] == hercules_log_texts_2882[0]
+
+def test_fetch_log_text_for_develop(herc_log, hercules_most_recent_commits, hercules_log_texts_2882): 
+   """Check that the log texts extracted by the API are the same as the hercules log texts that we expect."""
+   herc_log.repo_commits = hercules_most_recent_commits[1:]
+   herc_log._fetch_log_text(herc_log.repo_commits)
+   
+   assert herc_log.text_per_log[1:] == hercules_log_texts_2882[1:]
 
 def test_get_instance_test_data(herc_log, hercules_log_texts_2882, log_instance_results_2882_0):
    """From the log for PR 2882, extract test data. Compare it with the expected data to be sure it's the same.
@@ -118,3 +159,20 @@ def test_load_json(stats_dict_snippet):
    machine = "orion"
    orion_snippet = load_json('test_file_stats.json')[machine]
    assert orion_snippet == stats_dict_snippet['orion']
+
+def test_main_e2e_cached_stats(monkeypatch):
+   """Test that main function runs to completion."""
+
+   monkeypatch.setenv("MACHINES", "hercules")
+   monkeypatch.setenv("TEST_STATS", "test_file_stats.json")
+   exit_code = main()
+
+   assert exit_code == 0
+
+def test_main_e2e_no_cached_stats(monkeypatch):
+   """Test that main function runs to completion."""
+
+   monkeypatch.setenv("MACHINES", "hercules")
+   exit_code = main()
+
+   assert exit_code == 0
