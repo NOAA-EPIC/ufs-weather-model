@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          pip install requests numpy pandas mdutils
+          pip install pytest requests numpy pandas mdutils
           mkdir -p data
       - name: Run tests
         run: |
