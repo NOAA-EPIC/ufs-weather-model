@@ -24,6 +24,11 @@ jobs:
           pip install pytest requests numpy pandas mdutils
           mkdir -p data
       - name: Run tests
+        id: tests
         run: |
           cd .github/tests
-          pytest >> $GITHUB_STEP_SUMMARY
+          pytest 
+      - name: Publish outputs?
+        run: |
+          OUTPUT="${{ steps.tests.outputs.values }}"
+          echo $OUTPUT >> $GITHUB_STEP_SUMMARY
