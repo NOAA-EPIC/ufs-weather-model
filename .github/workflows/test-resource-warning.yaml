@@ -1,7 +1,6 @@
 name: Tests for the Regression Resource Check
 
-on:
-  - workflow_dispatch
+on: workflow_dispatch
 
 defaults:
   run:
