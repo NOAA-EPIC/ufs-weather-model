@@ -103,10 +103,7 @@ class Log():
    def _compile_historical_log_data(self): # Could split for runtime, mem to make more maintainable
       """Create a dictionary of data with runtime and memory usage for each test over time. Structure:  
          historical_test_data = {
-            test: {
-               runtime: [],
-               memory: []
-            }
+            test: {runtime: [], memory: []}
          }
       """
    
@@ -126,14 +123,13 @@ class Log():
                
    def calculate_stats(self):
       """For each test, calculate the mean and standard deviation of memory and runtime.
-      Note: ddof=1 sets degrees for freedom to one to get sample stdev instead of pupulation stdev
       """
       self.test_stats = {}
       for test in self.historical_rt_mem_data:
          runtime_mean = round(np.mean(self.historical_rt_mem_data[test]["runtime"]), 5)
-         runtime_stdev = round(np.std(self.historical_rt_mem_data[test]["runtime"], ddof=1), 5)
+         runtime_stdev = round(np.std(self.historical_rt_mem_data[test]["runtime"]), 5)
          memory_mean = round(np.mean(self.historical_rt_mem_data[test]["memory"]), 5)
-         memory_stdev = round(np.std(self.historical_rt_mem_data[test]["memory"], ddof=1), 5)
+         memory_stdev = round(np.std(self.historical_rt_mem_data[test]["memory"]), 5)
          self.test_stats[test] = [runtime_mean, runtime_stdev, memory_mean, memory_stdev]
 
    def _compare_runtime(self, current_log, previous_logs):

@@ -340,22 +340,22 @@ def hercules_sample_historical_log_data():
 @pytest.fixture
 def hercules_mean_std():
    stats = {
-      'cpld_control_p8_mixedmode_intel': [525.8, 19.29249, 2161.2, 3.96232], 
-      'cpld_control_gefs_intel': [1073.8, 101.34693, 3131.4, 6.91375], 
-      'cpld_control_noaero_p8_agrid_intel': [261.6, 20.71956, 2128.8, 4.08656], 
-      'control_c48_intel': [395.2, 3.11448, 1714.0, 2.12132], 
-      'control_p8_intel': [183.8, 26.71516, 1905.0, 4.47214], 
-      'control_restart_p8_intel': [107.2, 17.64086, 1210.6, 24.1723], 
-      'control_c48_gnu': [471.0, 1.0, 1583.2, 0.83666], 
-      'control_p8_gnu': [233.4, 27.12563, 1546.4, 3.84708], 
-      'control_debug_p8_gnu': [103.8, 35.99583, 1540.6, 13.40895], 
-      'hrrr_control_intel': [209.2, 4.60435, 1084.6, 8.96103], 
-      'hrrr_control_gnu': [243.0, 2.73861, 938.8, 1.09545], 
-      'atmaero_control_p8_intel': [269.6, 56.48274, 2016.0, 5.87367], 
-      'regional_atmaq_intel': [836.2, 22.17431, 2944.0, 4.1833], 
-      'hafs_regional_docn_intel': [353.4, 76.76783, 1090.4, 11.08152], 
-      'datm_cdeps_control_cfsr_intel': [145.8, 1.48324, 1865.0, 7.51665], 
-      'datm_cdeps_control_cfsr_gnu': [184.4, 28.60594, 1604.8, 1.09545]
+      'cpld_control_p8_mixedmode_intel': [525.8, 17.25572, 2161.2, 3.54401], 
+      'cpld_control_gefs_intel': [1073.8, 90.64745, 3131.4, 6.18385], 
+      'cpld_control_noaero_p8_agrid_intel': [261.6, 18.53213, 2128.8, 3.65513], 
+      'control_c48_intel': [395.2, 2.78568, 1714.0, 1.89737], 
+      'control_p8_intel': [183.8, 23.89477, 1905.0, 4.00000], 
+      'control_restart_p8_intel': [107.2, 15.77847, 1210.6, 21.62036], 
+      'control_c48_gnu': [471.0, 0.89443, 1583.2, 0.74833], 
+      'control_p8_gnu': [233.4, 24.26190, 1546.4, 3.44093], 
+      'control_debug_p8_gnu': [103.8, 32.19565, 1540.6, 11.99333], 
+      'hrrr_control_intel': [209.2, 4.11825, 1084.6, 8.01499], 
+      'hrrr_control_gnu': [243.0, 2.44949, 938.8, 0.97980], 
+      'atmaero_control_p8_intel': [269.6, 50.51970, 2016.0, 5.25357], 
+      'regional_atmaq_intel': [836.2, 19.83331, 2944.0, 3.74166], 
+      'hafs_regional_docn_intel': [353.4, 68.66324, 1090.4, 9.91161], 
+      'datm_cdeps_control_cfsr_intel': [145.8, 1.32665, 1865.0, 6.72309], 
+      'datm_cdeps_control_cfsr_gnu': [184.4, 25.58593, 1604.8, 0.97980]
    }
 
    return stats
