@@ -1,3 +1,8 @@
-regional_atmaq intel
-regional_atmaq_canopy intel
-regional_atmaq_debug intel
+cpld_control_gfsv17 intel
+cpld_control_gfsv17_iau intel
+cpld_restart_gfsv17 intel
+cpld_restart_gfsv17_iau intel
+cpld_mpi_gfsv17 intel
+control_p8_rrtmgp intel
+control_p8_rrtmgp_rad32 intel
+cpld_control_gfsv17 intelllvm

@@ -26,13 +26,12 @@ def build_content(category):
       results: DataFrame containing the runtime/memory testing results. Rows are tests and columns are machines.
    """
 
-   machines = os.environ.get('MACHINES').split()
    contents = load_json(os.environ.get(f"{category.upper()}_RESULTS"))
    results = pd.DataFrame()
    
-   for machine in machines:
+   for machine in contents:
       
-      machine_results = pd.DataFrame.from_dict(contents[machine], orient='index',columns=[machine])
+      machine_results = pd.DataFrame.from_dict(contents[machine], orient='index', columns=[machine])
       results = pd.merge(results, machine_results, left_index=True, right_index=True, how='outer').fillna("N/A")
 
    results = count_passes_per_test(results)
@@ -98,13 +97,13 @@ def count_passes_per_test(data):
 
    return data
 
-def create_summary():
+def create_summary(categories):
    """Append a runtime or memory header and key and call write_contents() to write the runtime/memory table to the file.
+   Args:
+      categories (list): Test categories. Currently 'runtime' and 'memory'.
    Returns:
       mdFile: A markdown file
    """
-
-   categories = ['runtime', 'memory']
 
    mdFile = create_mdFile()
 
@@ -114,23 +113,24 @@ def create_summary():
       mdFile.new_paragraph('\n')
       # Add key to section
       mdFile.new_paragraph("<h4>Key:</h4>")
-      mdFile.new_paragraph(f"&nbsp;&nbsp;&nbsp;&nbsp;✅ = NORMAL: {category}. {category.title()} falls within two standard deviations of the mean.")
+      mdFile.new_paragraph(f"&nbsp;&nbsp;&nbsp;&nbsp;✅ = NORMAL {category}. {category.title()} falls within two standard deviations of the mean.")
       mdFile.new_paragraph(f"&nbsp;&nbsp;&nbsp;&nbsp;⚠️ = {category.title()} WARNING: {category.title()} is greater than two standard deviations above the mean.")
       mdFile.new_paragraph(f"&nbsp;&nbsp;&nbsp;&nbsp;❌ = {category.title()} FAIL: For the past 2+ PRs, {category} has been greater than two standard deviations above the mean.")
       mdFile.new_paragraph(f"&nbsp;&nbsp;&nbsp;&nbsp;N/A = Test does not run on this machine.")
       mdFile.new_paragraph('\n')
       # Create a DataFrame w/the runtime/memory results content
       data = build_content(category)
+
       # Write the content to a file
       mdFile = write_content(data, mdFile)
    
    return mdFile
    
-def main():
+def main(): # pragma: no cover
 
-   summary = create_summary()
+   summary = create_summary(['runtime', 'memory'])
    print(summary.get_md_text())
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
    
    main()
