@@ -53,7 +53,7 @@ def test_create_summary(failing_results_table):
    # Create comparison markdown table with only failing results
    table_header = "\nTest Summary for PR #2882\n=========================\n" + \
                   "<details><summary><h3>RUNTIME Results Summary</h3></summary>\n" + \
-                  "\n\n\n\n<h4>Key:</h4>\n\n" + "&nbsp;&nbsp;&nbsp;&nbsp;✅ = NORMAL runtime. Runtime falls within two standard deviations of the mean.\n\n" + \
+                  "\n\n\n\n<h4>Key:</h4>\n\n" + "&nbsp;&nbsp;&nbsp;&nbsp;✅ = NORMAL runtime: Runtime falls within two standard deviations of the mean.\n\n" + \
                   "&nbsp;&nbsp;&nbsp;&nbsp;⚠️ = Runtime WARNING: Runtime is greater than two standard deviations above the mean.\n\n" + \
                   "&nbsp;&nbsp;&nbsp;&nbsp;❌ = Runtime FAIL: For the past 2+ PRs, runtime has been greater than two standard deviations above the mean.\n\n" + \
                   "&nbsp;&nbsp;&nbsp;&nbsp;N/A = Test does not run on this machine.\n\n\n\n" + \
