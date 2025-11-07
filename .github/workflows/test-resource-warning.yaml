@@ -21,14 +21,13 @@ jobs:
         uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          pip install pytest requests numpy pandas mdutils
+          pip install pytest coverage requests numpy pandas mdutils
           mkdir -p data
-      - name: Run tests
+      - name: Run tests & publish output
         id: tests
         run: |
           cd .github/tests
-          pytest 
-      - name: Publish outputs?
-        run: |
-          OUTPUT="${{ steps.tests.outputs.values }}"
+          OUTPUT=$(coverage run -m pytest)
+          REPORT=$(coverage report -m)
           echo $OUTPUT >> $GITHUB_STEP_SUMMARY
+          echo $REPORT >> $GITHUB_STEP_SUMMARY
