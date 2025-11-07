@@ -24,7 +24,7 @@ def test_build_content(sample_runtime_results, actual_passes_per_test, actual_pa
    actual_passes_per_machine = pd.DataFrame.from_dict(actual_passes_per_machine, orient='index', columns=["hercules","orion","ursa","Passing"])
    actual_results = pd.concat([actual_results,actual_passes_per_machine]).sort_index()
 
-   #assert content.equals(actual_results)
+   assert content.equals(actual_results)
 
 def test_write_content(sample_runtime_results_complete, failing_results_table, actual_passes_per_machine):
    """Compare the results of write_content() with a markdown table containing the expected results.
