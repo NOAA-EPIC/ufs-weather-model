@@ -27,7 +27,5 @@ jobs:
         id: tests
         run: |
           cd .github/tests
-          OUTPUT=$(coverage run -m pytest)
-          REPORT=$(coverage report -m)
+          OUTPUT=$(pytest)
           echo $OUTPUT >> $GITHUB_STEP_SUMMARY
-          echo $REPORT >> $GITHUB_STEP_SUMMARY

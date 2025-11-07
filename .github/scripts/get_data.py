@@ -47,7 +47,6 @@ class Log():
       response = self.call_API(f"pulls/{os.environ.get('PR_NUM')}")
       self.pr_head_commit = [response['head']['sha']]
 
-   # Update number of commits to 50 before merging
    def _fetch_repo_commits(self, num_commits=1):
       """Get a list of commits for the log file from the authoritative repository, with a maximum of 100 and a default of 1. 
       Structure of response: response = [{'sha': '3jl26ka...'}, {'sha': '6ag43sb...'}, ...]
@@ -240,7 +239,7 @@ def main():
 
       # Case where test stats have NOT been calculated and cached:
       else:
-         log.gather_historical_data(10) # past 10 commits
+         log.gather_historical_data(50) # past 50 commits
          log.calculate_stats()
          stats_by_machine[machine] = log.test_stats # Add stats to save/cache later
 
