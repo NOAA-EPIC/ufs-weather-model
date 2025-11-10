@@ -34,5 +34,5 @@ jobs:
           cd .github/tests
           OUTPUT=$(pytest)
           echo $OUTPUT > ./output.txt
-          python print_test_summary.py >> $GITHUB_STEP_SUMMARY
+          python ${{ github.workspace }}/.github/tests/print_test_summary.py >> $GITHUB_STEP_SUMMARY
 
