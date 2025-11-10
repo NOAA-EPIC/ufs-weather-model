@@ -34,8 +34,8 @@ def build_content(category):
       machine_results = pd.DataFrame.from_dict(contents[machine], orient='index', columns=[machine])
       results = pd.merge(results, machine_results, left_index=True, right_index=True, how='outer').fillna("N/A")
 
-   results = count_passes_per_test(results)
-   results = pd.concat([results, count_passes_per_machine(results)])
+   results = _count_passes_per_test(results)
+   results = pd.concat([results, _count_passes_per_machine(results)])
    
    return results
 
@@ -43,7 +43,7 @@ def write_content(data, mdFile):
    
    machines = os.environ.get('MACHINES').split()
    
-   # Build contents list starting with header row
+   # Create contents list starting with header row
    contents = ["Test"] + machines + ["Passing"]
 
    # Create table starting with one row (header)
@@ -64,7 +64,7 @@ def write_content(data, mdFile):
 
    return mdFile
 
-def count_passes_per_machine(data):
+def _count_passes_per_machine(data):
    """Counts number of passing tests on each machine and procudes a row with the totals.
    Args:
       data(DataFrame): Table of tests and pass/warn/fail status by machine
@@ -83,7 +83,7 @@ def count_passes_per_machine(data):
    
    return machine_total
 
-def count_passes_per_test(data):
+def _count_passes_per_test(data):
    """Counts number of platforms on which a given test passes and adds a column to the table.
    Args:
       data (DataFrame): DataFrame containing pass/warn/fail status for each test on each machine

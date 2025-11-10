@@ -1,6 +1,7 @@
 from mdutils.mdutils import MdUtils
 import pandas as pd
 from scripts.write_test_summary import *
+from scripts.write_test_summary import _count_passes_per_machine, _count_passes_per_test
 
 def test_load_json(stats_dict_snippet):
 
@@ -75,7 +76,7 @@ def test_count_passes_per_machine(sample_runtime_results, actual_passes_per_mach
       results = pd.merge(results, machine_results, left_index=True, right_index=True, how='outer').fillna("N/A")
 
    # Calculate passing tests per machine
-   results = count_passes_per_machine(results)
+   results = _count_passes_per_machine(results)
    actual_values = pd.DataFrame.from_dict(actual_passes_per_machine, orient='index', columns=["hercules","orion","ursa","Passing"])
    
    assert results.equals(actual_values)
@@ -91,7 +92,7 @@ def test_count_passes_per_test(sample_runtime_results, actual_passes_per_test):
       results = pd.merge(results, machine_results, left_index=True, right_index=True, how='outer').fillna("N/A")
 
    # Calculate passing tests
-   results = count_passes_per_test(results)['Passing']
+   results = _count_passes_per_test(results)['Passing']
 
    # Sort by index before comparing calculated and actual values for equality
    assert results.sort_index().equals(pd.Series(actual_passes_per_test, name='Passing').sort_index())
