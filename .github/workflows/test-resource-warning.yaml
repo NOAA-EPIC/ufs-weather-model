@@ -33,4 +33,6 @@ jobs:
         run: |
           cd .github/tests
           OUTPUT=$(pytest)
-          echo $OUTPUT >> $GITHUB_STEP_SUMMARY
+          echo $OUTPUT > ./output.txt
+          python print_test_summary.py >> $GITHUB_STEP_SUMMARY
+
