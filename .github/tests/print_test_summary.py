@@ -12,7 +12,7 @@ def create_mdFile(text):
    mdFile = MdUtils(file_name='test_summary.md', title=f'Test Summary')
    for line in text:
       mdFile.new_paragraph(f"{line}")
-      mdFile.new_paragraph(f"\n")
+      mdFile.new_paragraph(f" ")
 
    return mdFile
 
