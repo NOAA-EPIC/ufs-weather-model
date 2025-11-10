@@ -11,7 +11,7 @@ def create_mdFile(text):
    """Create a markdown file named test_summary.md."""
    mdFile = MdUtils(file_name='test_summary.md', title=f'Test Summary')
    for line in text:
-      mdFile.write(f"\n{line}")
+      mdFile.new_paragraph(f"{line}")
 
    return mdFile
 
