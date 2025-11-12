@@ -26,12 +26,12 @@ Submodule hashes used in testing:
  41c5fcd950fed09b8afe186dede266824eca7fd3 UFSATM/ccpp/physics/physics/Radiation/RRTMGP/rte-rrtmgp (41c5fcd)
  b0a1b0957d3b79d642f3c01e5cd9441936c7c832 UFSATM/fv3/atmos_cubed_sphere (201912_public_release-429-gb0a1b09)
  38d2177aef842a5c6abe26ffe876804b95fd9e0a UFSATM/mpas/MPAS-Model (remotes/origin/develop-226-g38d2177a)
- 4a5d595fdbf6c3d658f4becc045af1b6d0b65a5a UFSATM/upp (upp_v10.2.0-319-g4a5d595f)
+ 1a16f94d20898ff2ffcc3c8b6e036a9a16ed19a4 UFSATM/upp (upp_v10.2.0-327-g1a16f94d)
 -179cae1dd84401cf25d250bd9102e66560a9d328 UFSATM/upp/sorc/libIFI.fd
 -3d35332fe66e3e63a285cc8d96facdf255a33481 UFSATM/upp/sorc/ncep_post.fd/post_gtg.fd
  560cb9c0f9fdc8ec96f746576dcac6503ed14eef WW3 (6.07.1-495-g560cb9c0)
  05cad173feeb598431e3ef5f17c2df6562c8d101 fire_behavior (v0.2.0-1-g05cad17)
- 42429caffef8905bcab2b36692df1e0121e2e7de stochastic_physics (ufs-v2.0.0-290-g42429ca)
+ 508255586ebd7a666946060eb1e20d3a39d4ddb8 stochastic_physics (remotes/origin/feature/printmsgs)
 
 
 NOTES:
