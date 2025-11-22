@@ -3,13 +3,8 @@ import json
 import re
 from mdutils.mdutils import MdUtils
 import pandas as pd
-
-def load_json(file_path):
-   """Convert JSON file to python dictionary."""
-   with open(file_path, 'r', encoding='utf-8') as file:
-      data = json.load(file)
-
-   return data
+import create_images as img
+from get_data import load_json
 
 def create_mdFile():
    """Create a markdown file named summary.md with the PR# in the title."""
@@ -17,6 +12,15 @@ def create_mdFile():
    mdFile = MdUtils(file_name='summary.md', title=f'Test Summary for PR #{pr_num}')
 
    return mdFile
+
+def add_legend(mdFile,category):
+   """Add HTML for a key/legend describing the 4 possible statuses (✅ ⚠️ ❌ N/A)."""
+   mdFile.new_paragraph("<h4>Key:</h4>")
+   mdFile.new_paragraph(f"&nbsp;&nbsp;&nbsp;&nbsp;✅ = NORMAL {category}: {category.title()} falls within two standard deviations of the mean.")
+   mdFile.new_paragraph(f"&nbsp;&nbsp;&nbsp;&nbsp;⚠️ = {category.title()} WARNING: {category.title()} is greater than two standard deviations above the mean.")
+   mdFile.new_paragraph(f"&nbsp;&nbsp;&nbsp;&nbsp;❌ = {category.title()} FAIL: For the past 2+ PRs, {category} has been greater than two standard deviations above the mean.")
+   mdFile.new_paragraph(f"&nbsp;&nbsp;&nbsp;&nbsp;N/A = Test does not run on this machine.")
+   mdFile.new_paragraph('\n')
 
 def build_content(category):
    """Load the runtime or memory results dictionary, convert to dataframe, and return the results
@@ -108,16 +112,11 @@ def create_summary(categories):
    mdFile = create_mdFile()
 
    for category in categories: 
-      # Create <details> section
+      # Create <details> section with legend
       mdFile.write(f"<details><summary><h3>{category.upper()} Results Summary</h3></summary>")
       mdFile.new_paragraph('\n')
-      # Add key to section
-      mdFile.new_paragraph("<h4>Key:</h4>")
-      mdFile.new_paragraph(f"&nbsp;&nbsp;&nbsp;&nbsp;✅ = NORMAL {category}: {category.title()} falls within two standard deviations of the mean.")
-      mdFile.new_paragraph(f"&nbsp;&nbsp;&nbsp;&nbsp;⚠️ = {category.title()} WARNING: {category.title()} is greater than two standard deviations above the mean.")
-      mdFile.new_paragraph(f"&nbsp;&nbsp;&nbsp;&nbsp;❌ = {category.title()} FAIL: For the past 2+ PRs, {category} has been greater than two standard deviations above the mean.")
-      mdFile.new_paragraph(f"&nbsp;&nbsp;&nbsp;&nbsp;N/A = Test does not run on this machine.")
-      mdFile.new_paragraph('\n')
+      add_legend(mdFile,category)
+
       # Create a DataFrame w/the runtime/memory results content
       data = build_content(category)
 
