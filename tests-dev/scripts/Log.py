@@ -25,6 +25,7 @@ class Log():
          response = api_call.call_API()
          self.pr_head_commit = [response['head']['sha']]
       except:
+         print(response.text)
          logging.ERROR(response.text)
 
    def _fetch_repo_commits(self, num_commits=1):
@@ -32,11 +33,8 @@ class Log():
       Structure of response: response = [{'sha': '3jl26ka...'}, {'sha': '6ag43sb...'}, ...]
       See GitHub documentation for https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-commits
       """
-      try:
-         api_call = APICall(f"commits?path=tests/logs/RegressionTests_{self.machine}.log&per_page={num_commits}")
-         response = api_call.call_API()
-      except:
-         logging.ERROR(response.text)
+      api_call = APICall(f"commits?path=tests/logs/RegressionTests_{self.machine}.log&per_page={num_commits}")
+      response = api_call.call_API()
       
       self.repo_commits = []
       for num in range(len(response)): 
