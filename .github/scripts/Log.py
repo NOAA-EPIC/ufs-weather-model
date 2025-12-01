@@ -16,21 +16,13 @@ class Log():
       self.machine = machine.lower()
       self.text_per_log = []
 
-   def call_API(self, endpoint):
-      """Call the GitHub API to get information about the log file."""
-
-      api_call = APICall(endpoint)
-      response = requests.get(api_call.url, headers=api_call.header)
-      response = json.loads(response.text)
-      
-      return response
-
    def _get_pr_head(self):
       """Get SHA for the HEAD of the PR. Structure of response: 
          response = [{"head": {"sha": "a1b2c3d..."}}]
          See GitHub documentation for https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-commits
       """
-      response = self.call_API(f"pulls/{os.environ.get('PR_NUM')}")
+      api_call = APICall(f"pulls/{os.environ.get('PR_NUM')}")
+      response = api_call.call_API()
       self.pr_head_commit = [response['head']['sha']]
 
    def _fetch_repo_commits(self, num_commits=1):
@@ -38,7 +30,8 @@ class Log():
       Structure of response: response = [{'sha': '3jl26ka...'}, {'sha': '6ag43sb...'}, ...]
       See GitHub documentation for https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-commits
       """
-      response = self.call_API(f"commits?path=tests/logs/RegressionTests_{self.machine}.log&per_page={num_commits}")
+      api_call = APICall(f"commits?path=tests/logs/RegressionTests_{self.machine}.log&per_page={num_commits}")
+      response = api_call.call_API()
       
       self.repo_commits = []
       for num in range(len(response)): 

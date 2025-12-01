@@ -1,4 +1,6 @@
 import os
+import requests
+import json
 
 class APICall():
    """A GitHub API call"""
@@ -15,3 +17,14 @@ class APICall():
          "X-GitHub-Api-Version": "2022-11-28",
          "Accept": "application/vnd.github.raw"
       }
+   
+   def set_endpoint(self, endpoint):
+      self.endpoint = endpoint
+
+   def call_API(self):
+      """Call the GitHub API."""
+
+      response = requests.get(self.url, headers=self.header)
+      response = json.loads(response.text)
+      
+      return response
