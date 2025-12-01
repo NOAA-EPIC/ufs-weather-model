@@ -1,6 +1,7 @@
 import os
 import json
-from Log import Log
+from .Log import Log
+from .create_images import *
 
 """This script contains a main() function that gets log information from GitHub using the APICall class 
 and extracts data from the RegressionTest_<machine>.log files for each machine. 
@@ -29,6 +30,8 @@ def main():
 
    machines = os.environ.get('MACHINES').split()
 
+   # Contains commit hashes (most recent PR hash, then most recent develop hashes from most to least recent) for each machine
+   hashes = {}
    # Contains runtime/memory data by machine for the last 50 commits
    historical_runtime_memory = {}
    # Contains mean and standard deviation for each test on each machine
@@ -38,7 +41,7 @@ def main():
    # Contains information on whether test memory was more than 2 standard deviations above the mean. 
    mem_results_by_machine = {}
    
-   for machine in machines:
+   for machine in machines[3:7]:
       print(machine.upper())
       log = Log(machine)
       current_pr_data = log.get_current_pr_data()
@@ -49,7 +52,7 @@ def main():
 
       # Case where test stats have NOT been calculated and cached:
       else:
-         log.gather_historical_data(50) # past 50 commits
+         log.gather_historical_data(10) # past 50 commits
          log.calculate_stats()
          stats_by_machine[machine] = log.test_stats # Add stats to save/cache later
 
@@ -57,7 +60,7 @@ def main():
       historical_runtime_memory[machine] = log.historical_rt_mem_data
       for test in historical_runtime_memory[machine]:
          historical_runtime_memory[machine][test]['runtime'].insert(0, current_pr_data[test][0])
-         historical_runtime_memory[machine][test]['memory'].insert(0, current_pr_data[test][1])
+         #historical_runtime_memory[machine][test]['memory'].insert(0, current_pr_data[test][1])
       
       # Compare current results to historical values and save results (pass/warn/fail)
       log.compare_results()
@@ -71,6 +74,14 @@ def main():
    # Create resource summaries to use in write_test_summary.py 
    create_json(runtime_results_by_machine, "runtime_results")
    create_json(mem_results_by_machine, "memory_results")
+
+   # Plot results
+   #categories = ["runtime", "memory"]
+   categories = ["runtime"]
+   for category in categories:
+      plot_results(historical_runtime_memory, category)
+
+   return 0
 
 if __name__ == "__main__": # pragma: no coverage
 

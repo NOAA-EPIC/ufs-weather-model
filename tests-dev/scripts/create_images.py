@@ -1,10 +1,10 @@
 import os
 from datetime import datetime, timedelta
 import logging
-import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from APICall import APICall
+from collections import defaultdict
+from .APICall import APICall
 
 def get_test_names(data):
    """Create a set containing all test names by extracting the tests (keys) from the data_by_machine
@@ -13,7 +13,7 @@ def get_test_names(data):
    Returns:
       Set of all test names
    """
-
+   print(data)
    all_tests = set()
    for data_by_machine in data.values():
       all_tests.update(data_by_machine.keys())
@@ -30,12 +30,17 @@ def organize_data_by_test(data, category):
 
    tests = get_test_names(data)
 
-   metrics = {}
+   # Create a three-level deep dictionary where any key access at the first or second level that doesn't exist will automatically be created
+   metrics = defaultdict(lambda: dict)
 
    for test in tests:
       for machine, machine_data in data.items():
-         if test in machine_data:
+         if test not in machine_data:
+            continue
+         elif test not in metrics:
             metrics[test] = {machine: machine_data[test][category]}
+         else:
+            metrics[test].update({machine: machine_data[test][category]})
 
    #print(metrics)
 
@@ -54,6 +59,15 @@ def get_hashes():
 
    return hashes
 
+def detect_anomalies(test_data):
+
+   anomalies = [False] * len(test_data)
+   mean = np.mean(test_data)
+   stdev = np.std(test_data)
+   anomalies = [True if value > (mean + (2 * stdev)) else False for i, value in enumerate(test_data)]
+
+   return anomalies
+
 def plot_results(data, category):
    """
    Writes metrics to CSV and generates anomaly-highlighted plots.
@@ -64,11 +78,10 @@ def plot_results(data, category):
       category (str): Runtime or memory
    """
 
-   # Need to get tests to show one line per machine! 
-   # Also need to show anomalies! 
    # Need to see what to do if no data for mash on certain machine
 
    metrics = organize_data_by_test(data, category)
+   #print(metrics)
    hashes = get_hashes()
 
    # Create one plot per test
@@ -87,21 +100,26 @@ def plot_results(data, category):
 
       # Add one line to the plot with data for each machine
       for i, machine in enumerate(metrics[test]):
+         #print(test)
          y = metrics[test][machine]
-         #if any(y):
-         #   anomalies = detect_anomalies(y)
+         anomalies = detect_anomalies(y)
          
          # For new tests, there may be less data available than the number of commits, 
          # so take the most recent hashes for which there is data
          x = hashes[:len(y)]
+         # Plot lines per machine, then add anomalies for each line
          plt.plot(x, y, styles[i % len(styles)], label=f"{machine}", linewidth=2, markersize=6)
-         #for idx in anomalies:
-         #   plt.plot(hashes[idx][0], y[idx], 'ro', markersize=8)
-         plt.legend(fontsize=12)
-         plt.tight_layout()
-
+         [plt.plot(x[idx], y[idx], 'ro', markersize=8) for idx, val in enumerate(anomalies) if val == True]
+         
+         
+         
+      plt.legend(fontsize=12)
+      plt.tight_layout()
+      #plt.show()
 
       png_path = f"plots/{test}_{category}.png"
       os.makedirs("plots", exist_ok=True)
       plt.savefig(png_path)
+   
       plt.close()
+      

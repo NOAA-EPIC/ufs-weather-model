@@ -1,6 +1,8 @@
 import numpy as np
 import pytest
 from pathlib import Path
+from scripts.APICall import APICall
+from scripts.Log import Log
 from scripts.get_data import *
 
 @pytest.mark.parametrize("endpoint", [

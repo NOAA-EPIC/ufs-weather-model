@@ -3,8 +3,8 @@ import json
 import re
 from mdutils.mdutils import MdUtils
 import pandas as pd
-import create_images as img
-from get_data import load_json
+from .create_images import *
+from .get_data import load_json
 
 def create_mdFile():
    """Create a markdown file named summary.md with the PR# in the title."""

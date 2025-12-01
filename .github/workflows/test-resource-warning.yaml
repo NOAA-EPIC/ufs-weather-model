@@ -31,7 +31,7 @@ jobs:
       - name: Run tests & publish output
         id: tests
         run: |
-          cd .github/tests
+          cd tests-dev/scripts/tests
           pytest > ./output.txt
-          python ${{ github.workspace }}/.github/tests/print_test_summary.py >> $GITHUB_STEP_SUMMARY
+          python ${{ github.workspace }}/tests-dev/scripts/tests/print_test_summary.py >> $GITHUB_STEP_SUMMARY
 

@@ -41,14 +41,14 @@ jobs:
         if: steps.cache-stats.outputs.cache-hit == 'true'
         run: |
           echo "TEST_STATS=${{ github.workspace }}/data/stats.json" >> $GITHUB_ENV
-          python .github/scripts/get_data.py 
+          python tests-dev/scripts/get_data.py 
         env: 
           TEST_STATS: ${{ github.workspace }}/data/stats.json
       - name: Get historical data and compare w/HEAD of develop
         if: steps.cache-stats.outputs.cache-hit != 'true'
         run: |
           mkdir -p data
-          python .github/scripts/get_data.py
+          python tests-dev/scripts/get_data.py
           ls -R ${{ github.workspace }}/data
       - name: Upload json
         uses: actions/upload-artifact@v4
@@ -71,7 +71,7 @@ jobs:
           path: ${{ github.workspace }}/data
       - name: Write results summary
         run: |
-          python ${{ github.workspace }}/.github/scripts/write_test_summary.py >> $GITHUB_STEP_SUMMARY
+          python ${{ github.workspace }}/tests-dev/scripts/write_test_summary.py >> $GITHUB_STEP_SUMMARY
         env: 
           RUNTIME_RESULTS: ${{ github.workspace }}/data/runtime_results.json
           MEMORY_RESULTS: ${{ github.workspace }}/data/memory_results.json

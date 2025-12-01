@@ -6,7 +6,7 @@ import numpy as np
 import logging
 import matplotlib.pyplot as plt
 from pathlib import Path
-from APICall import APICall
+from .APICall import APICall
 
 class Log():
    """A Regression Test log file."""
