@@ -4,7 +4,6 @@ import json
 import re
 import numpy as np
 import logging
-import matplotlib.pyplot as plt
 from pathlib import Path
 from .APICall import APICall
 

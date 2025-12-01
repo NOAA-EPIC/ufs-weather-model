@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          pip install requests numpy
+          pip install requests numpy matplotlib
           mkdir -p data
           mkdir -p plots
       - name: Cache machine stats
