@@ -51,6 +51,7 @@ jobs:
         run: |
           mkdir -p data
           mkdir -p plots
+          echo $PR_NUM
           python -m tests-dev.scripts.get_data
           ls -R ${{ github.workspace }}/plots
       - name: Upload json
