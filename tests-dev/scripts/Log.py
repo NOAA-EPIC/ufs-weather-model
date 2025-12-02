@@ -26,7 +26,7 @@ class Log():
          self.pr_head_commit = [response['head']['sha']]
       except:
          #print(response)
-         logging.error(f"{response.status} {response.message}")
+         logging.error(f"{response['status']} {response['message']}")
 
    def _fetch_repo_commits(self, num_commits=1):
       """Get a list of commits for the log file from the authoritative repository, with a maximum of 100 and a default of 1. 
@@ -116,7 +116,7 @@ class Log():
 
          return pr_log_data
       except:
-         logging.error()
+         logging.error("Cannot fetch current PR data.")
 
    def gather_historical_data(self, num_commits=2):
       """Extract runtime/memory data for the authoritative repository's last two commits."""
