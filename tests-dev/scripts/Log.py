@@ -25,8 +25,8 @@ class Log():
          response = api_call.call_API()
          self.pr_head_commit = [response['head']['sha']]
       except:
-         print(response)
-         logging.ERROR(response)
+         #print(response)
+         logging.error(f"{response.status} {response.message}")
 
    def _fetch_repo_commits(self, num_commits=1):
       """Get a list of commits for the log file from the authoritative repository, with a maximum of 100 and a default of 1. 
@@ -108,12 +108,15 @@ class Log():
    def get_current_pr_data(self):
       """Extract runtime/memory data for the PR's most recent commit."""
 
-      self._get_pr_head()
-      self._fetch_log_text(self.pr_head_commit)
-      pr_log_data = self._get_instance_test_data(self.text_per_log[0])
-      #print(pr_log_data)
+      try: 
+         self._get_pr_head()
+         self._fetch_log_text(self.pr_head_commit)
+         pr_log_data = self._get_instance_test_data(self.text_per_log[0])
+         #print(pr_log_data)
 
-      return pr_log_data
+         return pr_log_data
+      except:
+         logging.error()
 
    def gather_historical_data(self, num_commits=2):
       """Extract runtime/memory data for the authoritative repository's last two commits."""
