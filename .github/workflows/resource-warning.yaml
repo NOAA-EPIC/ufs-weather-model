@@ -62,12 +62,13 @@ jobs:
           path: ${{ github.workspace }}/data
       - name: Push images to wiki
         run: |
-          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/gspetro-NOAA/ufs-weather-model.wiki.git wm-wiki
+          git clone https://x-access-token:${{ secrets.PNG_TOKEN }}@github.com/gspetro-NOAA/ufs-weather-model.wiki.git wm-wiki
           cd wm-wiki
           if [[ ! -d "plots" ]]; then
             mkdir -p plots
           cd plots
           cp ${{ github.workspace }}/plots/* .
+          git branch
           git push origin master
   write-results:  
     runs-on: ubuntu-latest
