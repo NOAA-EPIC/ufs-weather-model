@@ -66,6 +66,7 @@ jobs:
           cd wm-wiki
           if [[ ! -d "plots" ]]; then
             mkdir -p plots
+          fi
           cd plots
           cp ${{ github.workspace }}/plots/* .
           git branch
