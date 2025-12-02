@@ -25,8 +25,8 @@ class Log():
          response = api_call.call_API()
          self.pr_head_commit = [response['head']['sha']]
       except:
-         print(response.text)
-         logging.ERROR(response.text)
+         print(response)
+         logging.ERROR(response)
 
    def _fetch_repo_commits(self, num_commits=1):
       """Get a list of commits for the log file from the authoritative repository, with a maximum of 100 and a default of 1. 
