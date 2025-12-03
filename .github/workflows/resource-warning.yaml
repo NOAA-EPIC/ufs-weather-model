@@ -64,18 +64,13 @@ jobs:
         with: 
           name: data
           path: ${{ github.workspace }}/data
-      - name: Clone wiki
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository }}.wiki 
-          path: wm-wiki 
-          token: ${{ secrets.PNG_TOKEN }}
       - name: Push images to wiki
         run: |
+          git clone https://x-access-token:${{ secrets.PNG_TOKEN }}@github.com/gspetro-NOAA/ufs-weather-model.wiki.git wm-wiki
+          
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          # git clone https://x-access-token:${{ secrets.PNG_TOKEN }}@github.com/${{ github.repository }}.wiki.git wm-wiki
           cd wm-wiki
           if [[ ! -d "plots" ]]; then
             mkdir -p plots
