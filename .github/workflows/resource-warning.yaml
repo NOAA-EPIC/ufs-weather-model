@@ -60,9 +60,14 @@ jobs:
         with: 
           name: data
           path: ${{ github.workspace }}/data
+      - name: Clone wiki
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki 
+          path: wm-wiki 
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Push images to wiki
         run: |
-          git clone https://x-access-token:${{ secrets.PNG_TOKEN }}@github.com/gspetro-NOAA/ufs-weather-model.wiki.git wm-wiki
           cd wm-wiki
           if [[ ! -d "plots" ]]; then
             mkdir -p plots
