@@ -79,8 +79,10 @@ jobs:
           cp ${{ github.workspace }}/plots/* .
 
           git add .
-          git commit -m "Auto-add plots to wiki"
-          git push origin master
+          if $(git status --porcelain) | grep . ; then
+            git commit -m "Auto-add plots to wiki"
+            git push origin master
+          fi
   write-results:  
     runs-on: ubuntu-latest
     needs: get-data
