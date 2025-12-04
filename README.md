@@ -8,7 +8,7 @@ This repository contains the UFS Weather Model source code.
 
 The [wiki](https://github.com/ufs-community/ufs-weather-model/wiki) provides quick-start instructions.
 
-The [User's Guide](http://ufs-weather-model.readthedocs.io/) provides more detailed documentation.
+The [User's Guide](http://ufs-weather-model.readthedocs.io/) provides more detailed documentation, including information on how to run the regression tests (RTs).
 
 # What files are what
 
