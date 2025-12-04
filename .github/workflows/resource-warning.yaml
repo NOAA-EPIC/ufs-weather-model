@@ -6,7 +6,6 @@ on:
     branches: ['**']
   push:
     branches: ['**']
-  workflow_dispatch:
 
 permissions:
   contents: write
