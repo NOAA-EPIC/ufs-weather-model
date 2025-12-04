@@ -43,7 +43,7 @@ def build_content(category):
 
 def write_content(data, mdFile):
    
-   machines = os.environ.get('MACHINES').split()
+   machines = os.environ.get('MACHINES').split()[5:7]
    
    # Create contents list starting with header row
    contents = ["Test"] + machines + ["Passing"]
@@ -56,7 +56,8 @@ def write_content(data, mdFile):
       # If there is a warn or fail in the row, add the row to contents to be printed; also add summary row
       if (data.loc[index] == warn).any() or (data.loc[index] == fail).any() or (index == 'Platform Total (Passing):'):
          rows += 1
-         contents.append(str(index))
+         test_img_link = f"[{str(index)}](https://raw.githubusercontent.com/wiki/gspetro-NOAA/ufs-weather-model/plots/{str(index)}.png)"
+         contents.append(test_img_link)
          for item in row:
             contents.append(item)
 

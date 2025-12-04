@@ -41,7 +41,7 @@ def main():
    # Contains information on whether test memory was more than 2 standard deviations above the mean. 
    mem_results_by_machine = {}
    
-   for machine in machines[3:7]:
+   for machine in machines[5:7]:
       print(machine.upper())
       log = Log(machine)
       current_pr_data = log.get_current_pr_data()
@@ -60,7 +60,7 @@ def main():
       historical_runtime_memory[machine] = log.historical_rt_mem_data
       for test in historical_runtime_memory[machine]:
          historical_runtime_memory[machine][test]['runtime'].insert(0, current_pr_data[test][0])
-         #historical_runtime_memory[machine][test]['memory'].insert(0, current_pr_data[test][1])
+         historical_runtime_memory[machine][test]['memory'].insert(0, current_pr_data[test][1])
       
       # Compare current results to historical values and save results (pass/warn/fail)
       log.compare_results()
@@ -76,8 +76,8 @@ def main():
    create_json(mem_results_by_machine, "memory_results")
 
    # Plot results
-   #categories = ["runtime", "memory"]
-   categories = ["runtime"]
+   categories = ["runtime", "memory"]
+   #categories = ["runtime"]
    for category in categories:
       plot_results(historical_runtime_memory, category)
 
