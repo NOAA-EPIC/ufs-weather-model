@@ -181,4 +181,3 @@ class Log():
       
       self._compare_runtime(current_log, previous_logs)
       self._compare_memory(current_log, previous_logs)
-
