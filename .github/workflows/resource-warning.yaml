@@ -81,7 +81,13 @@ jobs:
           echo $PWD
 
           git add .
-          if $(git status --porcelain) | grep . ; then
+          echo "added plots"
+          
+          status=`git status -s`
+
+          if [ -n "${status}" ]; then
+            echo "Nothing to commit."
+          else
             git commit -m "Auto-add plots to wiki"
             git push origin master
           fi
