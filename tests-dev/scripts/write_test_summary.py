@@ -43,7 +43,7 @@ def build_content(category):
 
 def write_content(data, mdFile):
    
-   machines = os.environ.get('MACHINES').split()
+   machines = os.environ.get('MACHINES').split()[5:7]
    
    # Create contents list starting with header row
    contents = ["Test"] + machines + ["Passing"]
