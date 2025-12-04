@@ -91,7 +91,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          pip install pandas mdutils
+          pip install pandas mdutils numpy matplotlib
       - name: Download test results
         uses: actions/download-artifact@v5
         with: 
