@@ -4,7 +4,6 @@ import json
 import re
 import numpy as np
 import logging
-from pathlib import Path
 from .APICall import APICall
 
 class Log():

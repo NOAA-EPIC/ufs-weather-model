@@ -1,6 +1,4 @@
 import os
-import json
-import re
 from mdutils.mdutils import MdUtils
 import pandas as pd
 from .create_images import *
