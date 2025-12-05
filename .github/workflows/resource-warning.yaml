@@ -79,6 +79,7 @@ jobs:
 
           echo $(git --version)
           echo $PWD
+          ls -la
 
           git add .
           echo "added plots"
