@@ -79,6 +79,7 @@ jobs:
 
           echo $(git --version)
           echo $PWD
+          git status
           ls -la
 
           git add .
