@@ -66,9 +66,9 @@ jobs:
       - name: Push images to wiki
         run: |
           
-          git clone "https://${{ secrets.PNG_TOKEN }}@github.com/gspetro-NOAA/ufs-weather-model.wiki.git" wm-wiki
+          git clone "https://${PNG_TOKEN}@github.com/gspetro-NOAA/ufs-weather-model.wiki.git" wm-wiki
 
-          git clone "https://${{ secrets.PNG_TOKEN }}@github.com/NOAA-EPIC/ufs-weather-model.wiki.git" epic-wm-wiki
+          git clone "https://${PNG_TOKEN}@github.com/NOAA-EPIC/ufs-weather-model.wiki.git" epic-wm-wiki
 
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -80,12 +80,12 @@ jobs:
           cd plots
           cp ${{ github.workspace }}/plots/* .
 
+          git remote -v
+
           git add .
           echo "added plots to gsp-wiki"
           
           status=`git status -s`
-
-          # git remote set-url origin https://github.com/gspetro-NOAA/ufs-weather-model.wiki.git
 
           if [ -z "${status}" ]; then
             echo "Nothing to commit."
@@ -115,7 +115,8 @@ jobs:
             git push origin master
           fi
           
-          # git push origin HEAD:${GITHUB_REF#refs/heads/}
+        env:
+          PNG_TOKEN: ${{ secrets.PNG_TOKEN }}
   write-results:  
     runs-on: ubuntu-latest
     needs: get-data
