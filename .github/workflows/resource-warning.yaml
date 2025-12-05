@@ -77,21 +77,15 @@ jobs:
           cd plots
           cp ${{ github.workspace }}/plots/* .
 
-          echo $(git --version)
-          echo $PWD
-          git status
-
           git add .
           echo "added plots"
           
           git status -s
           status=`git status -s`
 
-          if [ -n "${status}" ]; then
-            echo "Status: ${status}"
+          if [ -z "${status}" ]; then
             echo "Nothing to commit."
           else
-            echo "Status: ${status}"
             git commit -m "Auto-add plots to wiki"
             git push origin master
           fi
