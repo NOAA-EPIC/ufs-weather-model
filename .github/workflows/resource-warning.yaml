@@ -80,11 +80,11 @@ jobs:
           echo $(git --version)
           echo $PWD
           git status
-          ls -la
 
           git add .
           echo "added plots"
           
+          git status -s
           status=`git status -s`
 
           if [ -n "${status}" ]; then
