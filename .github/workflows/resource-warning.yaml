@@ -88,8 +88,10 @@ jobs:
           status=`git status -s`
 
           if [ -n "${status}" ]; then
+            echo "Status: ${status}"
             echo "Nothing to commit."
           else
+            echo "Status: ${status}"
             git commit -m "Auto-add plots to wiki"
             git push origin master
           fi
