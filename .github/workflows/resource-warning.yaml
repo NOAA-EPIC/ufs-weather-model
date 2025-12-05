@@ -78,6 +78,10 @@ jobs:
           cd plots
           cp ${{ github.workspace }}/plots/* .
 
+          git remote -v
+
+          git branch
+
           git add .
           echo "added plots"
           
