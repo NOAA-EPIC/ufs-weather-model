@@ -1,0 +1,86 @@
+name: Push Wiki Updates
+
+on:
+  # Manual trigger (maintainers choose when to update wiki)
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number for fetching artifacts"
+        required: true
+
+  # Trigger when a CM applies a label (e.g., 'update-wiki')
+  pull_request_target:
+    types: [labeled]
+
+  # Trigger automatically when PR merges into 'develop'
+  push:
+    branches: [develop]
+
+permissions:
+  contents: write
+
+env:
+  PNG_TOKEN: ${{ secrets.PNG_TOKEN }}
+  PR_NUM: ''
+
+defaults:
+  run:
+    shell: bash -eo pipefail {0}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  wiki-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get PR number
+        id: pr_num
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "PR_NUM=${{ github.event.inputs.pr_number }}" >> $GITHUB_ENV
+          elif [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
+            echo "PR_NUM=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          fi
+        # Download artifacts only when there is a PR to fetch from
+      - name: Download plots
+        if: env.PR_NUM != ''
+        uses: actions/download-artifact@v5
+        with: 
+          name: plots
+          path: plots # ${{ github.workspace }}/plots
+      - name: Clone wiki
+        run: |
+          git clone "https://${PNG_TOKEN}@github.com/gspetro-NOAA/ufs-weather-model.wiki.git" wm-wiki
+
+      - name: Copy plots to wiki
+        if: env.PR_NUM != ''
+        run: |
+          cd wm-wiki
+          if [[ ! -d "plots" ]]; then
+            mkdir -p plots
+          fi
+          cd plots
+          cp ${{ github.workspace }}/plots/* .
+      - name: Push images to wiki
+        run: |
+          
+          ls
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git remote -v
+
+          git add .
+          echo "added plots to wm-wiki"
+          
+          status=`git status -s`
+
+          if [ -z "${status}" ]; then
+            echo "Nothing to commit."
+          else
+            git commit -m "Auto-add plots to wiki"
+            git push origin master
+          fi

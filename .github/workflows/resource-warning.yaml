@@ -2,14 +2,16 @@ name: Regression Resource Check
 
 on:
   pull_request:
-    #branches: [develop]
-    branches: ['**']
+    branches: [develop]
   push:
     branches: ['**']
   workflow_dispatch:
+<<<<<<< HEAD
 
 permissions:
   contents: write
+=======
+>>>>>>> fb2a2d55 (use separate wflow file for png upload)
 
 defaults:
   run:
@@ -25,7 +27,6 @@ env:
   #BASE_URL: https://api.github.com/repos/ufs-community/ufs-weather-model
   BASE_URL: https://api.github.com/repos/NOAA-EPIC/ufs-weather-model
   PR_NUM: ${{ github.event.number }}
-  PNG_TOKEN: ${{ secrets.PNG_TOKEN }}
 
 jobs:
   get-data:  
@@ -64,25 +65,11 @@ jobs:
         with: 
           name: data
           path: ${{ github.workspace }}/data
-      - name: Push images to wiki
-        run: |
-          git clone https://x-access-token:${{ secrets.PNG_TOKEN }}@github.com/gspetro-NOAA/ufs-weather-model.wiki.git wm-wiki
-          
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-          cd wm-wiki
-          if [[ ! -d "plots" ]]; then
-            mkdir -p plots
-          fi
-          cd plots
-          cp ${{ github.workspace }}/plots/* .
-
-          git add .
-          if $(git status --porcelain) | grep . ; then
-            git commit -m "Auto-add plots to wiki"
-            git push origin master
-          fi
+      - name: Upload json
+        uses: actions/upload-artifact@v4
+        with: 
+          name: plots
+          path: ${{ github.workspace }}/plots
   write-results:  
     runs-on: ubuntu-latest
     needs: get-data
