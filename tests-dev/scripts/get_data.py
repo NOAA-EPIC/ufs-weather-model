@@ -76,8 +76,8 @@ def main():
    create_json(mem_results_by_machine, "memory_results")
 
    # Plot results
-   #categories = ["runtime", "memory"]
-   categories = ["runtime"]
+   categories = ["runtime", "memory"]
+   #categories = ["runtime"]
    for category in categories:
       plot_results(historical_runtime_memory, category)
 
