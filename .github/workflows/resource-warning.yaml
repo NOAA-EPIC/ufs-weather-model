@@ -20,12 +20,20 @@ env:
   MACHINES: "acorn derecho gaeac6 hera hercules orion ursa wcoss2"
   #BASE_URL: https://api.github.com/repos/ufs-community/ufs-weather-model
   BASE_URL: https://api.github.com/repos/NOAA-EPIC/ufs-weather-model
-  PR_NUM: ${{ github.event.number }}
+  PR_NUM: ''
 
 jobs:
   get-data:  
     runs-on: ubuntu-latest
     steps: 
+      - name: Get PR number
+        id: pr_num
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "PR_NUM=${{ github.event.inputs.pr_number }}" >> $GITHUB_ENV
+          elif [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
+            echo "PR_NUM=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          fi
       - name: Checkout feature branch
         uses: actions/checkout@v4
       - name: Install dependencies
