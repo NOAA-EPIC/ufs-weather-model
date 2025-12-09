@@ -2,7 +2,8 @@ name: Regression Resource Check
 
 on:
   pull_request:
-    branches: [develop]
+    #branches: [develop]
+    branches: ['**']
   push:
     branches: ['**']
   workflow_dispatch:
@@ -44,6 +45,8 @@ jobs:
           pip install requests numpy matplotlib
           mkdir -p data
           mkdir -p plots
+          echo $PR_NUM
+          echo ${{ env.PR_NUM }}
       - name: Cache machine stats
         id: cache-stats
         uses: actions/cache@v4
