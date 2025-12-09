@@ -6,12 +6,9 @@ on:
   push:
     branches: ['**']
   workflow_dispatch:
-<<<<<<< HEAD
 
 permissions:
   contents: write
-=======
->>>>>>> fb2a2d55 (use separate wflow file for png upload)
 
 defaults:
   run:
