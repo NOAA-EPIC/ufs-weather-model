@@ -3,7 +3,7 @@ name: Push Wiki Updates
 on:
   # Trigger when a CM applies a label (e.g., 'update-wiki')
   pull_request_target:
-    #types: [labeled]
+    types: [labeled]
 
   # Trigger automatically when PR merges into 'develop'
   push:
@@ -40,7 +40,7 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "PR_NUM=${{ github.event.inputs.pr_number }}" >> $GITHUB_ENV
-          elif [[ "${{ github.event_name }}" == "pull_request_target" ]]; then # && "${{ github.event.label.name }}" == "update-wiki"]]; then
+          elif [[ "${{ github.event_name }}" == "pull_request_target" ]] && "${{ github.event.label.name }}" == "update-wiki"]]; then
             echo "PR_NUM=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
           fi
         # Download artifacts only when there is a PR to fetch from
