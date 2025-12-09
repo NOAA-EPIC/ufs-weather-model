@@ -32,7 +32,7 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "PR_NUM=${{ github.event.inputs.pr_number }}" >> $GITHUB_ENV
-          elif [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
+          elif [[ "${{ github.event_name }}" == "pull_request" || "${{ github.event_name }}" == "push" ]]; then
             echo "PR_NUM=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
           fi
       - name: Checkout feature branch
