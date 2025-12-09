@@ -2,7 +2,8 @@ name: Regression Resource Check
 
 on:
   pull_request:
-    branches: [develop]
+    #branches: [develop]
+    branches: ['**']
   push:
     branches: ['**']
   workflow_dispatch:
