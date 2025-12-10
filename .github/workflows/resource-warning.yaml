@@ -2,8 +2,6 @@ name: Regression Resource Check
 
 on:
   pull_request_target:
-    #branches: [develop]
-    branches: ['**']
     types: 
       - opened
       - reopened 
@@ -11,7 +9,6 @@ on:
       - unlabeled
       - synchronize
   push:
-    branches: ['**']
 
 permissions:
   contents: write
@@ -84,7 +81,7 @@ jobs:
         uses: actions/download-artifact@v5
         with: 
           name: plots
-          path: plots # ${{ github.workspace }}/plots
+          path: plots
       - name: Clone wiki
         run: |
           git clone "https://${PNG_TOKEN}@github.com/NOAA-EPIC/ufs-weather-model.wiki.git" wm-wiki
