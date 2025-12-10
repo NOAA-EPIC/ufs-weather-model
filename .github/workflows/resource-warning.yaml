@@ -1,7 +1,7 @@
 name: Regression Resource Check
 
 on:
-  pull_request:
+  pull_request_target:
     #branches: [develop]
     branches: ['**']
     types: 
@@ -75,15 +75,49 @@ jobs:
           path: ${{ github.workspace }}/plots
   wiki-push:
     runs-on: ubuntu-latest
+    needs: get-data
     if: github.event.label.name == 'update-wiki-pngs'
     steps:
-      - name: Trigger wiki push
-        env: 
-          GH_TOKEN: ${GITHUB_TOKEN}
+      - name: Download plots
+        if: env.PR_NUM != ''
+        uses: actions/download-artifact@v5
+        with: 
+          name: plots
+          path: plots # ${{ github.workspace }}/plots
+      - name: Clone wiki
         run: |
-          gh workflow run push-wiki-updates.yaml \
-            --ref "${{ github.event.pull_request.head.sha }}" \
-            -f pr_number=$PR_NUM
+          git clone "https://${PNG_TOKEN}@github.com/gspetro-NOAA/ufs-weather-model.wiki.git" wm-wiki
+      - name: Copy plots to wiki
+        if: env.PR_NUM != ''
+        run: |
+          cd wm-wiki
+          if [[ ! -d "plots" ]]; then
+            mkdir -p plots
+          fi
+          echo $PR_NUM
+          cd plots
+          cp ${{ github.workspace }}/plots/* .
+      - name: Push images to wiki
+        run: |
+          
+          ls
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git remote -v
+
+          git add .
+          echo "added plots to wm-wiki"
+          
+          status=`git status -s`
+
+          if [ -z "${status}" ]; then
+            echo "Nothing to commit."
+          else
+            git commit -m "Auto-add plots to wiki"
+            git push origin master
+          fi
   write-results:  
     runs-on: ubuntu-latest
     needs: get-data
