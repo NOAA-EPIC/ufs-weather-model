@@ -46,10 +46,13 @@ jobs:
         with: 
           name: plots
           path: plots # ${{ github.workspace }}/plots
+      - name: Print PR number
+        run: |
+          echo ${PR_NUM}
+          echo ${{ env.PR_NUM }}
       - name: Clone wiki
         run: |
           git clone "https://${PNG_TOKEN}@github.com/gspetro-NOAA/ufs-weather-model.wiki.git" wm-wiki
-
       - name: Copy plots to wiki
         if: env.PR_NUM != ''
         run: |
