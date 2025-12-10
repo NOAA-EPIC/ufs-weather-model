@@ -86,8 +86,11 @@ jobs:
           name: plots
           path: plots # ${{ github.workspace }}/plots
       - name: Clone wiki
-        run: |
-          git clone "https://${PNG_TOKEN}@github.com/NOAA-EPIC/ufs-weather-model.wiki.git" wm-wiki
+        uses: actions/checkout@v4
+        with:
+          repository: NOAA-EPIC/ufs-weather-model.wiki #${{ github.repository }}.wiki 
+          path: wm-wiki 
+          token: ${{ secrets.PNG_TOKEN }} 
       - name: Copy plots to wiki
         if: env.PR_NUM != ''
         run: |
