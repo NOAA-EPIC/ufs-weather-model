@@ -31,15 +31,6 @@ jobs:
   wiki-push:
     runs-on: ubuntu-latest
     steps:
-      - name: Get PR number
-        id: pr_num
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "PR_NUM=${{ github.event.inputs.pr_number }}" >> $GITHUB_ENV
-          elif [[ "${{ github.event_name }}" == "pull_request_target" && "${{ github.event.label.name }}" == "update-wiki-pngs" ]]; then
-            echo "PR_NUM=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-          fi
-        # Download artifacts only when there is a PR to fetch from
       - name: Download plots
         if: env.PR_NUM != ''
         uses: actions/download-artifact@v5
