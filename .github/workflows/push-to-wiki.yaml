@@ -1,15 +1,9 @@
 name: Push Wiki Updates
 
 on:
-  # Trigger when a CM applies a label (e.g., 'update-wiki')
-  pull_request_target:
-    types: 
-      - labeled
-      - unlabeled
-
   # Trigger automatically when PR merges into 'develop'
   push:
-    #branches: [develop]
+    branches: [develop]
   
   # Manual trigger (maintainers choose when to update wiki)
   workflow_dispatch:
@@ -23,7 +17,7 @@ permissions:
 
 env:
   PNG_TOKEN: ${{ secrets.PNG_TOKEN }}
-  PR_NUM: ''
+  PR_NUM: ${{ github.event.inputs.pr_number }}
 
 defaults:
   run:
