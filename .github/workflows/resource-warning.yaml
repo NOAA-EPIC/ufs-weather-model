@@ -135,7 +135,7 @@ jobs:
           path: ${{ github.workspace }}/data
       - name: Write results summary
         run: |
-          python -m tests-dev.scripts.write_test_summary
+          python -m tests-dev.scripts.write_test_summary >> $GITHUB_STEP_SUMMARY
         env: 
           RUNTIME_RESULTS: ${{ github.workspace }}/data/runtime_results.json
           MEMORY_RESULTS: ${{ github.workspace }}/data/memory_results.json
