@@ -189,9 +189,9 @@ export CPLCHM=.false.
 
 export eps_imesh=1.0e0
 
-export DIAG_TABLE=diag_table_template.IN
 export FIELD_TABLE=field_table_gfsv16
 export UFS_CONFIGURE=ufs.configure.s2sw.IN
 
 export FV3_RUN=cpld_control_run.IN
 export INPUT_NML=cpld_lowres.nml.IN
+export nccmp_exclude="--exclude=so2,so4,dms,msa,bc1,bc2,oc1,oc2,dust1,dust2,dust3,dust4,dust5,seas1,seas2,seas3,seas4,seas5,nh3,nh4a,no3an1,no3an2,no3an3,pm25,pm10,cldfra"
