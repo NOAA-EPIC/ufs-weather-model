@@ -103,4 +103,3 @@ export DO_GSL_DRAG_LS_BL=.true.
 export DO_GWD_OPT_PSL=.true.
 export DO_GSL_DRAG_SS=.false.
 export DO_GSL_DRAG_TOFD=.true.
-export nccmp_exclude="--exclude=so2,so4,dms,msa,bc1,bc2,oc1,oc2,dust1,dust2,dust3,dust4,dust5,seas1,seas2,seas3,seas4,seas5,nh3,nh4a,no3an1,no3an2,no3an3,pm25,pm10,cldfra,pfull,phalf"
