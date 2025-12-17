@@ -2,26 +2,11 @@ import os
 import json
 from .Log import Log
 from .create_images import *
+from .utilities import *
 
 """This script contains a main() function that gets log information from GitHub using the APICall class 
 and extracts data from the RegressionTest_<machine>.log files for each machine. 
-It also contains two utility functions to (1) create a JSON file from log data and (2) load data from a 
-JSON file into a python dictionary. 
 """
-
-# Utilities for file I/O & plotting
-def create_json(dictionary, file_name):
-   """Create a json file with statistics for each test on each machine"""
-
-   with open(f"data/{file_name}.json", 'w') as fh:
-      json.dump(dictionary, fh, indent=4)
-
-def load_json(file_path):
-   """Convert JSON file to python dictionary."""
-   with open(file_path, 'r', encoding='utf-8') as file:
-      data = json.load(file)
-
-   return data
 
 def main():
    """For each machine, create a log object, get current PR data, gather historical runtime/memory data, 
@@ -41,31 +26,27 @@ def main():
    # Contains information on whether test memory was more than 2 standard deviations above the mean. 
    mem_results_by_machine = {}
    
-   #repo_hashes = get_hashes()
-
+   hashes = get_hashes(10) # Change to 50
+   
    for machine in machines[5:7]:
       print(machine.upper())
       log = Log(machine)
+      log.repo_commits = hashes
       current_pr_data = log.get_current_pr_data()
       # Case where test stats have been calculated and cached:
       if os.environ.get('TEST_STATS'):
          log.gather_historical_data(2) # past two commits only --> Load from cache instead
          log.test_stats = load_json(f"{os.environ.get('TEST_STATS')}/stats.json")[machine]
-         print(f"Historical RT MEM data: {log.historical_rt_mem_data} before loading cached results")
          log.historical_rt_mem_data = load_json(f"{os.environ.get('TEST_STATS')}/historical_runtime_memory.json")[machine]
-         print(f"Historical RT MEM data: {log.historical_rt_mem_data} after loading cached results")
          for test in historical_runtime_memory[machine]:
             historical_runtime_memory[machine][test]['runtime'][0] = current_pr_data[test][0]
             historical_runtime_memory[machine][test]['memory'][0] = current_pr_data[test][1]
-         print(f"Historical RT MEM data: {log.historical_rt_mem_data} after adding current PR data")
-         
          
       # Case where test stats have NOT been calculated and cached:
       else:
          log.gather_historical_data(10) # past 50 commits
          log.calculate_stats()
          stats_by_machine[machine] = log.test_stats # Add stats to save/cache later
-         # Save historial runtime/memory data to plot later
          historical_runtime_memory[machine] = log.historical_rt_mem_data
       
          for test in historical_runtime_memory[machine]:

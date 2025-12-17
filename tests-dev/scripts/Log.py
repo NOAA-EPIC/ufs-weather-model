@@ -22,26 +22,11 @@ class Log():
       try:
          api_call = APICall(f"pulls/{os.environ.get('PR_NUM')}")
          response = api_call.call_API()
+         response = api_call.load_json_from_api_call(response)
          self.pr_head_commit = [response['head']['sha']]
       except:
          #print(response)
          logging.error(f"{response['status']} {response['message']}")
-
-   def _fetch_repo_log_commits(self, num_commits=1):
-      """Get a list of commits for the log file from the authoritative repository, with a maximum of 100 and a default of 1. 
-      Structure of response: response = [{'sha': '3jl26ka...'}, {'sha': '6ag43sb...'}, ...]
-      See GitHub documentation for https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-commits
-      """
-      api_call = APICall(f"commits?path=tests/logs/RegressionTests_{self.machine}.log&per_page={num_commits}")
-      response = api_call.call_API()
-      
-      self.repo_commits = []
-      for num in range(len(response)): 
-         try: 
-            self.repo_commits.append(response[num]['sha'])
-            #print(response[num]['commit']['author']['date'])
-         except: 
-            logging.error(f"API Call failed. The sha does not exist!")
 
    def _fetch_log_text(self, commits): 
       """For each commit of a log, extract the log text."""
@@ -52,11 +37,16 @@ class Log():
          for num in range(len(commits)): 
             url = api_call.url + (f"?ref={commits[num]}") #Could use a path join?
             r = requests.get(url, headers=api_call.header)
-            if commits == self.pr_head_commit:
+            if r.status_code != 200:
+               commits[num] = None
+               logging.error(f"Commit {commits[num]} does not exist for this log.")
+            elif commits == self.pr_head_commit:
                # Ensure that the pr log text comes first
                self.text_per_log.insert(0,r.text)
             else:
                self.text_per_log.append(r.text)
+      #except TypeError:
+      #   logging.error(f"Commit {commits[num]} does not exist for this log.")
       except:
          logging.error("An appropriate commit(s) was not provided. Call _get_pr_head() or _fetch_repo_log_commits() first.")
 
@@ -122,7 +112,7 @@ class Log():
 
    def gather_historical_data(self, num_commits=2):
       """Extract runtime/memory data for the authoritative repository's last two commits."""
-      self._fetch_repo_log_commits(num_commits)
+      #self._fetch_repo_log_commits(num_commits)
       self._fetch_log_text(self.repo_commits)
       self._compile_historical_log_data()
 

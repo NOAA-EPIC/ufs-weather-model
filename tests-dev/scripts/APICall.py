@@ -19,12 +19,27 @@ class APICall():
       }
    
    def set_endpoint(self, endpoint):
+      """Set the API call endpoint and update URL accordingly."""
       self.endpoint = endpoint
+      self.url = f"{self.base_url}/{self.endpoint}"
 
    def call_API(self):
-      """Call the GitHub API."""
-
+      """Call the GitHub API.
+      Returns:
+         response: The results of the GET request
+      """
       response = requests.get(self.url, headers=self.header)
-      response = json.loads(response.text)
       
       return response
+   
+   def load_json_from_api_call(self, response):
+      """Parses the results of the GET request text into a dictionary
+      Args:
+         response: The results of a GET request
+      Returns:
+         results: text of the GET request as a dictionary
+      """
+
+      results = json.loads(response.text)
+
+      return results
