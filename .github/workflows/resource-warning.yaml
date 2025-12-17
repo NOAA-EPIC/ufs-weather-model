@@ -39,57 +39,55 @@ jobs:
         run: |
           pip install requests numpy matplotlib
           mkdir -p data
-          mkdir -p plots
       - name: Cache machine stats
         id: cache-stats
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/data/stats.json
-          key: hist-stats-${{ github.event.pull_request.base.sha }} # If develop gets updated, stats.json should, too
-      - name: Set stats.json env var (if cache hit) and compare w/HEAD of develop 
+          path: ${{ github.workspace }}/data
+          key: hist-stats-${{ github.event.pull_request.base.sha }} # If develop gets updated, data from repo should, too
+      - name: Set data env var (if cache hit) and compare w/HEAD of develop 
         if: steps.cache-stats.outputs.cache-hit == 'true'
         run: |
-          echo "TEST_STATS=${{ github.workspace }}/data/stats.json" >> $GITHUB_ENV
+          echo "TEST_STATS=${{ github.workspace }}/data" >> $GITHUB_ENV
           python -m tests-dev.scripts.get_data
         env: 
-          TEST_STATS: ${{ github.workspace }}/data/stats.json
+          TEST_STATS: ${{ github.workspace }}/data
       - name: Get historical data and compare w/HEAD of develop
         if: steps.cache-stats.outputs.cache-hit != 'true'
         run: |
           mkdir -p data
-          mkdir -p plots
-          echo $PR_NUM
           python -m tests-dev.scripts.get_data
-          ls -R ${{ github.workspace }}/plots
-      - name: Upload json
+      - name: Upload json files
         uses: actions/upload-artifact@v4
         with: 
           name: data
           path: ${{ github.workspace }}/data
-      - name: Upload json
-        uses: actions/upload-artifact@v4
-        with: 
-          name: plots
-          path: ${{ github.workspace }}/plots
   wiki-push:
     runs-on: ubuntu-latest
     needs: get-data
-    if: github.event.label.name == 'update-wiki-pngs'
+    #if: github.event.label.name == 'update-wiki-pngs' # For now, run on anything allowed above
     steps:
-      - name: Download plots
-        if: env.PR_NUM != ''
+      - name: Download data
         uses: actions/download-artifact@v5
         with: 
-          name: plots
-          path: plots
+          name: data
+          path: data
+      - name: Create plots
+        run: |
+          echo "PLOT_DATA=${{ github.workspace }}/data" >> $GITHUB_ENV
+          mkdir -p plots
+          python -m tests-dev.scripts.create_images
+          #ls -R ${{ github.workspace }}/plots
+        env: 
+          PLOT_DATA: ${{ github.workspace }}/data
       - name: Clone wiki
         uses: actions/checkout@v4
         with:
-          repository: NOAA-EPIC/ufs-weather-model.wiki #${{ github.repository }}.wiki 
+          repository: ${{ github.repository }}.wiki 
           path: wm-wiki 
           token: ${{ secrets.PNG_TOKEN }} 
       - name: Copy plots to wiki
-        if: env.PR_NUM != ''
+        if: env.PR_NUM != '' # Still needed? 
         run: |
           cd wm-wiki
           if [[ ! -d "plots" ]]; then
