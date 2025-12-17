@@ -27,7 +27,7 @@ class Log():
          #print(response)
          logging.error(f"{response['status']} {response['message']}")
 
-   def _fetch_repo_commits(self, num_commits=1):
+   def _fetch_repo_log_commits(self, num_commits=1):
       """Get a list of commits for the log file from the authoritative repository, with a maximum of 100 and a default of 1. 
       Structure of response: response = [{'sha': '3jl26ka...'}, {'sha': '6ag43sb...'}, ...]
       See GitHub documentation for https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#list-commits
@@ -58,7 +58,7 @@ class Log():
             else:
                self.text_per_log.append(r.text)
       except:
-         logging.error("An appropriate commit(s) was not provided. Call _get_pr_head() or _fetch_repo_commits() first.")
+         logging.error("An appropriate commit(s) was not provided. Call _get_pr_head() or _fetch_repo_log_commits() first.")
 
    def _get_instance_test_data(self, log_instance):
       """For each instance of a log at a given commit, extract runtime and memory data from the log text
@@ -105,7 +105,10 @@ class Log():
       #print(self.historical_rt_mem_data)
 
    def get_current_pr_data(self):
-      """Extract runtime/memory data for the PR's most recent commit."""
+      """Extract runtime/memory data for the PR's most recent commit.
+      Returns:
+         pr_log_data: Dictionary of tests (keys) with an array of total runtime and memory use as the value for each test
+      """
 
       try: 
          self._get_pr_head()
@@ -119,7 +122,7 @@ class Log():
 
    def gather_historical_data(self, num_commits=2):
       """Extract runtime/memory data for the authoritative repository's last two commits."""
-      self._fetch_repo_commits(num_commits) #increase for statistical significance
+      self._fetch_repo_log_commits(num_commits)
       self._fetch_log_text(self.repo_commits)
       self._compile_historical_log_data()
 

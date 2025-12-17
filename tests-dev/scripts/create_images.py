@@ -9,11 +9,10 @@ from .APICall import APICall
 def get_test_names(data):
    """Create a set containing all test names by extracting the tests (keys) from the data_by_machine
    Args:
-      data (dict): Runtime and memory data for each test and machine. Primary key is machine. 
+      data (dict): Runtime and memory data for each test and machine. Primary key is machine. Values are tests for each machine. 
    Returns:
-      Set of all test names
+      all_tests: Set of all test names
    """
-   print(data)
    all_tests = set()
    for data_by_machine in data.values():
       all_tests.update(data_by_machine.keys())
@@ -24,8 +23,9 @@ def organize_data_by_test(data, category):
    """Creates new runtime and memory dictionaries that use test name as key and have data for each machine 
    under each test. 
    Args:
-      data (dict): Runtime and memory data for each test and machine. Primary key is machine. 
-   
+      data (dict): Runtime and memory data for each test and machine. Primary key is machine. Secondary key is test. 
+   Returns:
+      metrics (dict): Runtime and memory data for each test and machine. Primary key is test. Secondary key is machine. 
    """
 
    tests = get_test_names(data)
@@ -42,8 +42,6 @@ def organize_data_by_test(data, category):
          else:
             metrics[test].update({machine: machine_data[test][category]})
 
-   #print(metrics)
-
    return metrics
    
 def get_hashes():
@@ -55,11 +53,14 @@ def get_hashes():
 
    for item in response:
       hashes.append(item['sha'][:8])
-   #print(hashes)
 
    return hashes
 
-def detect_anomalies(test_data):
+def detect_statistical_anomalies(test_data):
+   """Detect statistical anomalies, aka tests w/runtime or memory usage greater than 2 standard deviations above the mean.
+   Args:
+      test_data (list)
+   """
 
    anomalies = [False] * len(test_data)
    mean = np.mean(test_data)
@@ -78,16 +79,15 @@ def plot_results(data, category):
       category (str): Runtime or memory
    """
 
-   # Need to see what to do if no data for mash on certain machine
+   # Need to see what to do if no data for hash on certain machine
 
    metrics = organize_data_by_test(data, category)
-   #print(metrics)
    hashes = get_hashes()
 
    # Create one plot per test
    for test in metrics:
       plt.figure(figsize=(14, 6), dpi=200)
-         
+
       styles = ['o-', 's--', '^-', 'd:', 'x-.', 'v--', '*-', 'p:']
 
       plt.title(f"{category} for {test}", fontsize=16)
@@ -100,9 +100,8 @@ def plot_results(data, category):
 
       # Add one line to the plot with data for each machine
       for i, machine in enumerate(metrics[test]):
-         #print(test)
          y = metrics[test][machine]
-         anomalies = detect_anomalies(y)
+         anomalies = detect_statistical_anomalies(y)
          
          # For new tests, there may be less data available than the number of commits, 
          # so take the most recent hashes for which there is data
@@ -110,8 +109,6 @@ def plot_results(data, category):
          # Plot lines per machine, then add anomalies for each line
          plt.plot(x, y, styles[i % len(styles)], label=f"{machine}", linewidth=2, markersize=6)
          [plt.plot(x[idx], y[idx], 'ro', markersize=8) for idx, val in enumerate(anomalies) if val == True]
-         
-         
          
       plt.legend(fontsize=12)
       plt.tight_layout()
@@ -122,4 +119,17 @@ def plot_results(data, category):
       plt.savefig(png_path)
    
       plt.close()
-      
+
+def main():
+
+   # Don't need to commit/push old plots cuz that has presumably already been done
+   try: 
+      data = load_json(f"{os.environ.get('PLOT_DATA')}/historical_runtime_memory.json")
+      for category in ["runtime", "memory"]:
+         plot_results(data, category)
+   except FileNotFoundError:
+      logging.error("Could not load JSON file.")
+
+if __name__ == "__main__":
+
+   main()

@@ -41,26 +41,36 @@ def main():
    # Contains information on whether test memory was more than 2 standard deviations above the mean. 
    mem_results_by_machine = {}
    
+   #repo_hashes = get_hashes()
+
    for machine in machines[5:7]:
       print(machine.upper())
       log = Log(machine)
       current_pr_data = log.get_current_pr_data()
       # Case where test stats have been calculated and cached:
       if os.environ.get('TEST_STATS'):
-         log.gather_historical_data(2) # past two commits only
-         log.test_stats = load_json(os.environ.get('TEST_STATS'))[machine]
-
+         log.gather_historical_data(2) # past two commits only --> Load from cache instead
+         log.test_stats = load_json(f"{os.environ.get('TEST_STATS')}/stats.json")[machine]
+         print(f"Historical RT MEM data: {log.historical_rt_mem_data} before loading cached results")
+         log.historical_rt_mem_data = load_json(f"{os.environ.get('TEST_STATS')}/historical_runtime_memory.json")[machine]
+         print(f"Historical RT MEM data: {log.historical_rt_mem_data} after loading cached results")
+         for test in historical_runtime_memory[machine]:
+            historical_runtime_memory[machine][test]['runtime'][0] = current_pr_data[test][0]
+            historical_runtime_memory[machine][test]['memory'][0] = current_pr_data[test][1]
+         print(f"Historical RT MEM data: {log.historical_rt_mem_data} after adding current PR data")
+         
+         
       # Case where test stats have NOT been calculated and cached:
       else:
          log.gather_historical_data(10) # past 50 commits
          log.calculate_stats()
          stats_by_machine[machine] = log.test_stats # Add stats to save/cache later
-
-      # Save historial runtime/memory data to plot
-      historical_runtime_memory[machine] = log.historical_rt_mem_data
-      for test in historical_runtime_memory[machine]:
-         historical_runtime_memory[machine][test]['runtime'].insert(0, current_pr_data[test][0])
-         historical_runtime_memory[machine][test]['memory'].insert(0, current_pr_data[test][1])
+         # Save historial runtime/memory data to plot later
+         historical_runtime_memory[machine] = log.historical_rt_mem_data
+      
+         for test in historical_runtime_memory[machine]:
+            historical_runtime_memory[machine][test]['runtime'].insert(0, current_pr_data[test][0])
+            historical_runtime_memory[machine][test]['memory'].insert(0, current_pr_data[test][1])
       
       # Compare current results to historical values and save results (pass/warn/fail)
       log.compare_results()
@@ -70,16 +80,13 @@ def main():
    # If the statistics on mean/standard deviation have NOT already been cached, create file to cache.
    if not os.environ.get('TEST_STATS'):
       create_json(stats_by_machine, "stats")
+   
+   # Create a record of historical runtime & memory values w/current PR data for caching (to use in plotting job and subsequent workflow runs)
+   create_json(historical_runtime_memory, "historical_runtime_memory")
 
    # Create resource summaries to use in write_test_summary.py 
    create_json(runtime_results_by_machine, "runtime_results")
    create_json(mem_results_by_machine, "memory_results")
-
-   # Plot results
-   #categories = ["runtime", "memory"]
-   categories = ["runtime"]
-   for category in categories:
-      plot_results(historical_runtime_memory, category)
 
    return 0
 
