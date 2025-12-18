@@ -2,7 +2,7 @@ import os
 from mdutils.mdutils import MdUtils
 import pandas as pd
 from .create_images import *
-from .get_data import load_json
+from .utilities import load_json_from_file
 
 def create_mdFile():
    """Create a markdown file named summary.md with the PR# in the title."""
@@ -28,7 +28,7 @@ def build_content(category):
       results: DataFrame containing the runtime/memory testing results. Rows are tests and columns are machines.
    """
 
-   contents = load_json(os.environ.get(f"{category.upper()}_RESULTS"))
+   contents = load_json_from_file(os.environ.get(f"{category.upper()}_RESULTS"))
    results = pd.DataFrame()
    
    for machine in contents:
@@ -76,9 +76,9 @@ def _count_passes_per_machine(data):
    """
 
    # Counts for passing tests
-   passing_tests_by_machine = data.eq('✅').sum(axis=0).astype(str) + '/' + data.ne('N/A').sum(axis=0).astype(str)
+   passing_tests_by_machine = round((data.eq('✅').sum(axis=0)/data.ne('N/A').sum(axis=0) * 100),1)
    for machine in passing_tests_by_machine.index:
-      passing_tests_by_machine[machine] = f"**{machine.upper()}:** " + passing_tests_by_machine[machine] + " passing"
+      passing_tests_by_machine[machine] = f"**{machine.upper()}:** " + str(passing_tests_by_machine[machine]) + "% passing"
    passing_tests_by_machine.name = 'Platform Total (Passing):'
    # Set bottom right corner to empty string
    passing_tests_by_machine.loc['Passing'] = ''
@@ -94,7 +94,8 @@ def _count_passes_per_test(data):
       data: with an extra column listing pass rates for each test 
    """
 
-   passing_tests = data.eq('✅').sum(axis=1).astype(str) + "/" + data.ne('N/A').sum(axis=1).astype(str)
+   passing_tests = (round((data.eq('✅').sum(axis=1) / data.ne('N/A').sum(axis=1) * 100),1))
+   passing_tests = passing_tests.astype(str).add('%')
    passing_tests.name = 'Passing'
    data = pd.merge(data, pd.DataFrame(passing_tests), left_index=True, right_index=True, how='inner')
 
