@@ -1,6 +1,7 @@
 import os
 import pytest
 from scripts.Log import Log
+from scripts.utilities import *
 
 @pytest.fixture
 def set_env_vars():
