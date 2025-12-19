@@ -1,14 +1,14 @@
 name: Regression Resource Check
 
 on:
-  pull_request_target:
+  pull_request_target: # Only works when in the default branch (can work on others as long as also in default branch)
     types: 
       - opened
       - reopened 
       - labeled
       - unlabeled
       - synchronize
-  push:
+  push: # Need to adjust push logic to call API properly! Workflow assumes a PR, but there isn't one on push to develop...
 
 permissions:
   contents: write
@@ -49,6 +49,7 @@ jobs:
         if: steps.cache-stats.outputs.cache-hit == 'true'
         run: |
           echo "TEST_STATS=${{ github.workspace }}/data" >> $GITHUB_ENV
+          pwd
           python -m tests-dev.scripts.get_data
         env: 
           TEST_STATS: ${{ github.workspace }}/data
