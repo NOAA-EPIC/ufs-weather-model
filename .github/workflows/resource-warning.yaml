@@ -49,6 +49,7 @@ jobs:
         if: steps.cache-stats.outputs.cache-hit == 'true'
         run: |
           echo "TEST_STATS=${{ github.workspace }}/data" >> $GITHUB_ENV
+          pwd
           python -m tests-dev.scripts.get_data
         env: 
           TEST_STATS: ${{ github.workspace }}/data
@@ -84,6 +85,8 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           mkdir -p plots
+          pwd
+          ls
           python -m tests-dev.scripts.create_images
       - name: Clone wiki
         uses: actions/checkout@v4
