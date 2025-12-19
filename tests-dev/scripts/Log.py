@@ -34,8 +34,11 @@ class Log():
       try:
          api_call = APICall(f"contents/tests/logs/RegressionTests_{self.machine}.log")
          
+         print(f"COMMITS: {commits}")
+
          for num in range(len(commits)): 
             url = api_call.url + (f"?ref={commits[num]}") #Could use a path join?
+            print(f"URL: {api_call.url}")
             r = requests.get(url, headers=api_call.header)
             if r.status_code != 200:
                commits[num] = None
@@ -45,8 +48,6 @@ class Log():
                self.text_per_log.insert(0,r.text)
             else:
                self.text_per_log.append(r.text)
-      #except TypeError:
-      #   logging.error(f"Commit {commits[num]} does not exist for this log.")
       except:
          logging.error("An appropriate commit(s) was not provided. Call _get_pr_head() or _fetch_repo_log_commits() first.")
 
