@@ -66,7 +66,7 @@ jobs:
   wiki-push:
     runs-on: ubuntu-latest
     needs: get-data
-    #if: github.event.label.name == 'update-wiki-pngs' # For now, run on anything allowed above
+    if: github.event.label.name == 'update-wiki-pngs' # For now, run on anything allowed above
     steps:
       - name: Download data
         uses: actions/download-artifact@v5
@@ -78,10 +78,13 @@ jobs:
           echo "PLOT_DATA=${{ github.workspace }}/data" >> $GITHUB_ENV
       - name: Create plots
         run: |
+          pwd
           cd $GITHUB_WORKSPACE
+          pwd
           mkdir -p plots
           pwd
           ls
+          cd ..
           python -m tests-dev.scripts.create_images #${{ github.workspace }}/tests-dev.scripts.create_images
       - name: Clone wiki
         uses: actions/checkout@v4
