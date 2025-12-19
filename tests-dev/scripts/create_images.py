@@ -90,7 +90,7 @@ def plot_results(data, category):
       # Add one line to the plot with data for each machine
       for i, machine in enumerate(metrics[test]):
          y = metrics[test][machine]
-         anomalies = detect_statistical_anomalies(y)
+         anomalies = detect_statistical_anomalies(y[::-1])
          
          # For new tests, there may be less data available than the number of commits, 
          # so take the most recent hashes for which there is data
