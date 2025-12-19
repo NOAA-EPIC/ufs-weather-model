@@ -70,10 +70,10 @@ def plot_results(data, category):
    # Need to see what to do if no data for hash on certain machine
 
    metrics = organize_data_by_test(data, category)
-   hashes = get_hashes(10) # Change to 50
+   hashes = get_hashes(50) # Change to 50
    hashes.insert(0, "PR Head")
    hashes.reverse()
-
+   
    # Create one plot per test
    for test in metrics:
       plt.figure(figsize=(14, 6), dpi=200)
@@ -90,7 +90,7 @@ def plot_results(data, category):
       # Add one line to the plot with data for each machine
       for i, machine in enumerate(metrics[test]):
          y = metrics[test][machine]
-         anomalies = detect_statistical_anomalies(y)
+         anomalies = detect_statistical_anomalies(y[::-1])
          
          # For new tests, there may be less data available than the number of commits, 
          # so take the most recent hashes for which there is data

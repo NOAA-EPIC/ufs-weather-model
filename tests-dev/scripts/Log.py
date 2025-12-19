@@ -33,8 +33,11 @@ class Log():
       try:
          api_call = APICall(f"contents/tests/logs/RegressionTests_{self.machine}.log")
          
+         print(f"COMMITS: {commits}")
+
          for num in range(len(commits)): 
             url = api_call.url + (f"?ref={commits[num]}") #Could use a path join?
+            print(f"URL: {api_call.url}")
             r = requests.get(url, headers=api_call.header)
             if r.status_code != 200:
                commits[num] = None
@@ -98,6 +101,7 @@ class Log():
 
       try: 
          self._get_pr_head()
+         print(f"PR Head Commit: {self.pr_head_commit}")
          self._fetch_log_text(self.pr_head_commit)
          pr_log_data = self._get_instance_test_data(self.text_per_log[0])
          

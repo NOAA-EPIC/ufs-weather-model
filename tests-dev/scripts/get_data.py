@@ -26,9 +26,9 @@ def main():
    # Contains information on whether test memory was more than 2 standard deviations above the mean. 
    mem_results_by_machine = {}
    
-   hashes = get_hashes(10) # Change to 50
+   hashes = get_hashes(50) # Change to 50
    
-   for machine in machines[5:7]:
+   for machine in machines:
       print(machine.upper())
       log = Log(machine)
       log.repo_commits = hashes
