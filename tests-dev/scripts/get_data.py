@@ -38,7 +38,8 @@ def main():
          print("If:")
          log.gather_historical_data(2) # past two commits only --> Load from cache instead and include more commits?
          log.test_stats = load_json_from_file(f"{os.environ.get('TEST_STATS')}/stats.json")[machine]
-         log.historical_rt_mem_data = load_json_from_file(f"{os.environ.get('TEST_STATS')}/historical_runtime_memory.json")[machine]
+         historical_runtime_memory[machine] = load_json_from_file(f"{os.environ.get('TEST_STATS')}/historical_runtime_memory.json")[machine]
+         #historical_runtime_memory[machine] = log.historical_rt_mem_data
          for test in historical_runtime_memory[machine]:
             historical_runtime_memory[machine][test]['runtime'][0] = current_pr_data[test][0]
             historical_runtime_memory[machine][test]['memory'][0] = current_pr_data[test][1]
@@ -50,6 +51,7 @@ def main():
          log.calculate_stats()
          stats_by_machine[machine] = log.test_stats # Add stats to save/cache later
          historical_runtime_memory[machine] = log.historical_rt_mem_data
+         print(historical_runtime_memory[machine])
       
          for test in historical_runtime_memory[machine]:
             historical_runtime_memory[machine][test]['runtime'].insert(0, current_pr_data[test][0])
