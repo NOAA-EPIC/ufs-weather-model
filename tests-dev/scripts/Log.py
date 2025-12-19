@@ -25,7 +25,6 @@ class Log():
          response = api_call.load_json_from_api_call(response)
          self.pr_head_commit = [response['head']['sha']]
       except:
-         #print(response)
          logging.error(f"{response['status']} {response['message']}")
 
    def _fetch_log_text(self, commits): 
@@ -45,8 +44,6 @@ class Log():
                self.text_per_log.insert(0,r.text)
             else:
                self.text_per_log.append(r.text)
-      #except TypeError:
-      #   logging.error(f"Commit {commits[num]} does not exist for this log.")
       except:
          logging.error("An appropriate commit(s) was not provided. Call _get_pr_head() or _fetch_repo_log_commits() first.")
 
@@ -92,8 +89,7 @@ class Log():
             except KeyError: 
                logging.info("Test key doesn't exist yet. Creating test key.")
                self.historical_rt_mem_data[test] = {"runtime": [data[test][0]], "memory": [data[test][1]]}
-      #print(self.historical_rt_mem_data)
-
+      
    def get_current_pr_data(self):
       """Extract runtime/memory data for the PR's most recent commit.
       Returns:
@@ -104,15 +100,13 @@ class Log():
          self._get_pr_head()
          self._fetch_log_text(self.pr_head_commit)
          pr_log_data = self._get_instance_test_data(self.text_per_log[0])
-         #print(pr_log_data)
-
+         
          return pr_log_data
       except:
          logging.error("Cannot fetch current PR data.")
 
    def gather_historical_data(self, num_commits=2):
       """Extract runtime/memory data for the authoritative repository's last two commits."""
-      #self._fetch_repo_log_commits(num_commits)
       self._fetch_log_text(self.repo_commits)
       self._compile_historical_log_data()
 

@@ -71,6 +71,8 @@ def plot_results(data, category):
 
    metrics = organize_data_by_test(data, category)
    hashes = get_hashes(10) # Change to 50
+   hashes.insert(0, "PR Head")
+   hashes.reverse()
 
    # Create one plot per test
    for test in metrics:
@@ -79,12 +81,11 @@ def plot_results(data, category):
       styles = ['o-', 's--', '^-', 'd:', 'x-.', 'v--', '*-', 'p:']
 
       plt.title(f"{category} for {test}", fontsize=16)
-      plt.xlabel("Commit Hash", fontsize=14)
+      plt.xlabel("Commit Hash: oldest --> newest", fontsize=14)
       plt.ylabel(category, fontsize=14)
       plt.xticks(np.arange(len(hashes)), labels=hashes, rotation=45, fontsize=10)
       plt.yticks(fontsize=12)
       plt.grid(True, linestyle='--', alpha=0.5)
-      
 
       # Add one line to the plot with data for each machine
       for i, machine in enumerate(metrics[test]):
@@ -95,7 +96,7 @@ def plot_results(data, category):
          # so take the most recent hashes for which there is data
          x = hashes[:len(y)]
          # Plot lines per machine, then add anomalies for each line
-         plt.plot(x, y, styles[i % len(styles)], label=f"{machine}", linewidth=2, markersize=6)
+         plt.plot(x, y[::-1], styles[i % len(styles)], label=f"{machine}", linewidth=2, markersize=6)
          [plt.plot(x[idx], y[idx], 'ro', markersize=8) for idx, val in enumerate(anomalies) if val == True]
          
       plt.legend(fontsize=12)
