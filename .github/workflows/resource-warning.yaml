@@ -8,7 +8,7 @@ on:
       - labeled
       - unlabeled
       - synchronize
-  push: # Need to adjust push logic to call API properly! Workflow assumes a PR, but there isn't one on push to develop...
+# Need to add push logic to call API properly! Workflow assumes a PR, but there isn't one on push to develop...
 
 permissions:
   contents: write

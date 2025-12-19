@@ -61,6 +61,8 @@ def write_content(data, mdFile, category):
          for item in row:
             contents.append(item)
 
+   print(f"Cols: {len(machines) + 2}\t Rows: {rows}")
+
    mdFile.new_table(columns=(len(machines) + 2), rows=rows, text_align='center', text=contents)
    mdFile.new_paragraph('\n')
    mdFile.write('</details>')

@@ -25,7 +25,6 @@ class Log():
          response = api_call.load_json_from_api_call(response)
          self.pr_head_commit = [response['head']['sha']]
       except:
-         #print(response)
          logging.error(f"{response['status']} {response['message']}")
 
    def _fetch_log_text(self, commits): 
@@ -34,11 +33,8 @@ class Log():
       try:
          api_call = APICall(f"contents/tests/logs/RegressionTests_{self.machine}.log")
          
-         print(f"COMMITS: {commits}")
-
          for num in range(len(commits)): 
             url = api_call.url + (f"?ref={commits[num]}") #Could use a path join?
-            print(f"URL: {api_call.url}")
             r = requests.get(url, headers=api_call.header)
             if r.status_code != 200:
                commits[num] = None
@@ -93,8 +89,7 @@ class Log():
             except KeyError: 
                logging.info("Test key doesn't exist yet. Creating test key.")
                self.historical_rt_mem_data[test] = {"runtime": [data[test][0]], "memory": [data[test][1]]}
-      #print(self.historical_rt_mem_data)
-
+      
    def get_current_pr_data(self):
       """Extract runtime/memory data for the PR's most recent commit.
       Returns:
@@ -103,7 +98,6 @@ class Log():
 
       try: 
          self._get_pr_head()
-         print(f"PR Head Commit: {self.pr_head_commit}")
          self._fetch_log_text(self.pr_head_commit)
          pr_log_data = self._get_instance_test_data(self.text_per_log[0])
          
@@ -113,7 +107,6 @@ class Log():
 
    def gather_historical_data(self, num_commits=2):
       """Extract runtime/memory data for the authoritative repository's last two commits."""
-      print(f"Historical data: {self.repo_commits}")
       self._fetch_log_text(self.repo_commits)
       self._compile_historical_log_data()
 
