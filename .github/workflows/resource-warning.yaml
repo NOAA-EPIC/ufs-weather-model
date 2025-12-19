@@ -49,7 +49,6 @@ jobs:
         if: steps.cache-stats.outputs.cache-hit == 'true'
         run: |
           echo "TEST_STATS=${{ github.workspace }}/data" >> $GITHUB_ENV
-          pwd
           python -m tests-dev.scripts.get_data
         env: 
           TEST_STATS: ${{ github.workspace }}/data
@@ -68,6 +67,11 @@ jobs:
     needs: get-data
     if: github.event.label.name == 'update-wiki-pngs' # For now, run on anything allowed above
     steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          pip install numpy matplotlib
       - name: Download data
         uses: actions/download-artifact@v5
         with: 
@@ -83,9 +87,7 @@ jobs:
           pwd
           mkdir -p plots
           pwd
-          ls
-          cd ..
-          python -m tests-dev.scripts.create_images #${{ github.workspace }}/tests-dev.scripts.create_images
+          python -m tests-dev.scripts.create_images
       - name: Clone wiki
         uses: actions/checkout@v4
         with:

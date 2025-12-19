@@ -34,5 +34,4 @@ def get_hashes(num=1):
 
    for item in response:
       hashes.append(item['sha'][:8])
-   #print(hashes)
    return hashes
