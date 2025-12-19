@@ -73,16 +73,16 @@ jobs:
         with: 
           name: data
           path: data
-      - name: Sotre data location
+      - name: Store data location
         run: |
           echo "PLOT_DATA=${{ github.workspace }}/data" >> $GITHUB_ENV
       - name: Create plots
         run: |
-          cd ${{ github.workspace }}
+          cd $GITHUB_WORKSPACE
           mkdir -p plots
           pwd
           ls
-          python -m ${{ github.workspace }}/tests-dev.scripts.create_images
+          python -m tests-dev.scripts.create_images #${{ github.workspace }}/tests-dev.scripts.create_images
       - name: Clone wiki
         uses: actions/checkout@v4
         with:
@@ -98,7 +98,7 @@ jobs:
           fi
           echo $PR_NUM
           cd plots
-          cp ${{ github.workspace }}/plots/* .
+          cp $GITHUB_WORKSPACE/plots/* .
       - name: Push images to wiki
         run: |
           
