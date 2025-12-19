@@ -97,7 +97,7 @@ def _count_passes_per_test(data):
    passing_tests = (round((data.eq('✅').sum(axis=1) / data.ne('N/A').sum(axis=1) * 100),1))
    passing_tests = passing_tests.astype(str).add('%')
    passing_tests.name = 'Passing'
-   data = pd.merge(data, pd.DataFrame(passing_tests), left_index=True, right_index=True, how='inner')
+   data = pd.merge(data, pd.DataFrame(passing_tests.astype(str)), left_index=True, right_index=True, how='inner')
 
    return data
 
