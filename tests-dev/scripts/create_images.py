@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict
 from .APICall import APICall
+from .utilities import *
 
 def get_test_names(data):
    """Create a set containing all test names by extracting the tests (keys) from the data_by_machine
@@ -43,18 +44,6 @@ def organize_data_by_test(data, category):
 
    return metrics
    
-def get_hashes():
-   """Save hashes for x-axis of plot
-   """
-   api_call = APICall("commits", 10) # Change to 50
-   response = api_call.call_API()
-   hashes = []
-
-   for item in response:
-      hashes.append(item['sha'][:8])
-
-   return hashes
-
 def detect_statistical_anomalies(test_data):
    """Detect statistical anomalies, aka tests w/runtime or memory usage greater than 2 standard deviations above the mean.
    Args:
@@ -81,7 +70,7 @@ def plot_results(data, category):
    # Need to see what to do if no data for hash on certain machine
 
    metrics = organize_data_by_test(data, category)
-   hashes = get_hashes()
+   hashes = get_hashes(10) # Change to 50
 
    # Create one plot per test
    for test in metrics:
@@ -122,8 +111,9 @@ def plot_results(data, category):
 def main():
 
    # Don't need to commit/push old plots cuz that has presumably already been done
+   # Maybe need to make new plots w/most recent commit? 
    try: 
-      data = load_json(f"{os.environ.get('PLOT_DATA')}/historical_runtime_memory.json")
+      data = load_json_from_file(f"{os.environ.get('PLOT_DATA')}/historical_runtime_memory.json")
       for category in ["runtime", "memory"]:
          plot_results(data, category)
    except FileNotFoundError:

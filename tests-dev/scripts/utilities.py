@@ -34,5 +34,6 @@ def get_hashes(num=1):
 
    for item in response:
       hashes.append(item['sha'][:8])
+   hashes.insert(0, "PR Head")
    #print(hashes)
    return hashes
