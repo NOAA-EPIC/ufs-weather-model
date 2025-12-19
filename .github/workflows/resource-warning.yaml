@@ -75,12 +75,12 @@ jobs:
           path: data
       - name: Create plots
         run: |
+          cd ${{ github.workspace }}
           echo "PLOT_DATA=${{ github.workspace }}/data" >> $GITHUB_ENV
           mkdir -p plots
           pwd
           ls
-          python -m tests-dev.scripts.create_images
-          #ls -R ${{ github.workspace }}/plots
+          python -m ${{ github.workspace }}/tests-dev.scripts.create_images
         env: 
           PLOT_DATA: ${{ github.workspace }}/data
       - name: Clone wiki
