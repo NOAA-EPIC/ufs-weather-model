@@ -39,7 +39,6 @@ def main():
          log.gather_historical_data(2) # past two commits only --> Load from cache instead and include more commits?
          log.test_stats = load_json_from_file(f"{os.environ.get('TEST_STATS')}/stats.json")[machine]
          historical_runtime_memory[machine] = load_json_from_file(f"{os.environ.get('TEST_STATS')}/historical_runtime_memory.json")[machine]
-         #historical_runtime_memory[machine] = log.historical_rt_mem_data
          for test in historical_runtime_memory[machine]:
             historical_runtime_memory[machine][test]['runtime'][0] = current_pr_data[test][0]
             historical_runtime_memory[machine][test]['memory'][0] = current_pr_data[test][1]
