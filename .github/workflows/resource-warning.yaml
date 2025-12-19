@@ -73,11 +73,13 @@ jobs:
         with: 
           name: data
           path: data
-      - name: Create plots
+      - name: Sotre data location
         run: |
           echo "PLOT_DATA=${{ github.workspace }}/data" >> $GITHUB_ENV
-          mkdir -p plots
+      - name: Create plots
+        run: |
           cd ${{ github.workspace }}
+          mkdir -p plots
           pwd
           ls
           python -m ${{ github.workspace }}/tests-dev.scripts.create_images
