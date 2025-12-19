@@ -72,6 +72,8 @@ def plot_results(data, category):
 
    metrics = organize_data_by_test(data, category)
    hashes = get_hashes(10) # Change to 50
+   hashes.insert(0, "PR Head")
+   print(f"Hashes (from create_images:) {hashes}")
 
    # Create one plot per test
    for test in metrics:

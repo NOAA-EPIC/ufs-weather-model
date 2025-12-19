@@ -36,7 +36,7 @@ def main():
       # Case where test stats have been calculated and cached:
       if os.environ.get('TEST_STATS'):
          print("If:")
-         log.gather_historical_data(2) # past two commits only --> Load from cache instead
+         log.gather_historical_data(2) # past two commits only --> Load from cache instead and include more commits?
          log.test_stats = load_json_from_file(f"{os.environ.get('TEST_STATS')}/stats.json")[machine]
          log.historical_rt_mem_data = load_json_from_file(f"{os.environ.get('TEST_STATS')}/historical_runtime_memory.json")[machine]
          for test in historical_runtime_memory[machine]:
