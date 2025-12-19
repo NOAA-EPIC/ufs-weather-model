@@ -77,6 +77,8 @@ jobs:
         run: |
           echo "PLOT_DATA=${{ github.workspace }}/data" >> $GITHUB_ENV
           mkdir -p plots
+          pwd
+          ls
           python -m tests-dev.scripts.create_images
           #ls -R ${{ github.workspace }}/plots
         env: 
