@@ -105,16 +105,14 @@ class Log():
          self._get_pr_head()
          self._fetch_log_text(self.pr_head_commit)
          pr_log_data = self._get_instance_test_data(self.text_per_log[0])
-         #print(pr_log_data)
-
+         
          return pr_log_data
       except:
          logging.error("Cannot fetch current PR data.")
 
    def gather_historical_data(self, num_commits=2):
       """Extract runtime/memory data for the authoritative repository's last two commits."""
-      #self._fetch_repo_log_commits(num_commits)
-      self._fetch_log_text(self.repo_commits)
+      self._fetch_log_text(self.repo_commits[1:]) # Skip 'PR Head'
       self._compile_historical_log_data()
 
    def calculate_stats(self):

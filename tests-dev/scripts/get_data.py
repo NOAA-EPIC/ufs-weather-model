@@ -35,6 +35,7 @@ def main():
       current_pr_data = log.get_current_pr_data()
       # Case where test stats have been calculated and cached:
       if os.environ.get('TEST_STATS'):
+         print("If:")
          log.gather_historical_data(2) # past two commits only --> Load from cache instead
          log.test_stats = load_json_from_file(f"{os.environ.get('TEST_STATS')}/stats.json")[machine]
          log.historical_rt_mem_data = load_json_from_file(f"{os.environ.get('TEST_STATS')}/historical_runtime_memory.json")[machine]
@@ -44,6 +45,7 @@ def main():
          
       # Case where test stats have NOT been calculated and cached:
       else:
+         print("Else:")
          log.gather_historical_data(10) # past 50 commits
          log.calculate_stats()
          stats_by_machine[machine] = log.test_stats # Add stats to save/cache later
