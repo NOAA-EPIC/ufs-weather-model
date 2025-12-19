@@ -44,7 +44,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/data
-          key: hist-stats-${{ github.event.pull_request.base.sha }} # If develop gets updated, data from repo should, too
+          key: hist-stats-${{ github.base_ref }} # If develop gets updated, data from repo should, too
       - name: Set data env var (if cache hit) and compare w/HEAD of develop 
         if: steps.cache-stats.outputs.cache-hit == 'true'
         run: |
