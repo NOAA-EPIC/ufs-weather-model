@@ -39,8 +39,13 @@ def main():
          log.test_stats = load_json_from_file(f"{os.environ.get('TEST_STATS')}/stats.json")[machine]
          historical_runtime_memory[machine] = load_json_from_file(f"{os.environ.get('TEST_STATS')}/historical_runtime_memory.json")[machine]
          for test in historical_runtime_memory[machine]:
-            historical_runtime_memory[machine][test]['runtime'][0] = current_pr_data[test][0]
-            historical_runtime_memory[machine][test]['memory'][0] = current_pr_data[test][1]
+            try: 
+               historical_runtime_memory[machine][test]['runtime'][0] = current_pr_data[test][0]
+               historical_runtime_memory[machine][test]['memory'][0] = current_pr_data[test][1]
+            except KeyError:
+               historical_runtime_memory[machine][test]['runtime'][0] = None
+               historical_runtime_memory[machine][test]['memory'][0] = None
+               logging.warning(f"Test {test} does not exist for current PR.")
          
       # Case where test stats have NOT been calculated and cached:
       else:
@@ -50,8 +55,13 @@ def main():
          historical_runtime_memory[machine] = log.historical_rt_mem_data
          
          for test in historical_runtime_memory[machine]:
-            historical_runtime_memory[machine][test]['runtime'].insert(0, current_pr_data[test][0])
-            historical_runtime_memory[machine][test]['memory'].insert(0, current_pr_data[test][1])
+            try:
+               historical_runtime_memory[machine][test]['runtime'].insert(0, current_pr_data[test][0])
+               historical_runtime_memory[machine][test]['memory'].insert(0, current_pr_data[test][1])
+            except:
+               historical_runtime_memory[machine][test]['runtime'].insert(0, None)
+               historical_runtime_memory[machine][test]['memory'].insert(0, None)
+               logging.warning(f"Test {test} does not exist for current PR.")
       
       # Compare current results to historical values and save results (pass/warn/fail)
       log.compare_results()
