@@ -51,8 +51,8 @@ def detect_statistical_anomalies(test_data):
    """
 
    anomalies = [False] * len(test_data)
-   mean = np.mean(test_data)
-   stdev = np.std(test_data)
+   mean = np.mean(test_data, dtype=float)
+   stdev = np.std(test_data, dtype=float)
    anomalies = [True if value > (mean + (2 * stdev)) else False for i, value in enumerate(test_data)]
 
    return anomalies
@@ -70,7 +70,7 @@ def plot_results(data, category):
    # Need to see what to do if no data for hash on certain machine
 
    metrics = organize_data_by_test(data, category)
-   hashes = get_hashes(50) # Change to 50
+   hashes = get_hashes() # Change quantity in utility function for consistency
    hashes.insert(0, "PR Head")
    hashes.reverse()
    

@@ -26,7 +26,7 @@ def main():
    # Contains information on whether test memory was more than 2 standard deviations above the mean. 
    mem_results_by_machine = {}
    
-   hashes = get_hashes(50) # Change to 50
+   hashes = get_hashes() # Change quantity in utilities
    
    for machine in machines:
       print(machine.upper())
@@ -38,30 +38,29 @@ def main():
          log.gather_historical_data(2) # past two commits only --> Load from cache instead and include more commits?
          log.test_stats = load_json_from_file(f"{os.environ.get('TEST_STATS')}/stats.json")[machine]
          historical_runtime_memory[machine] = load_json_from_file(f"{os.environ.get('TEST_STATS')}/historical_runtime_memory.json")[machine]
-         for test in historical_runtime_memory[machine]:
+         for test in list(historical_runtime_memory[machine].keys()):
             try: 
                historical_runtime_memory[machine][test]['runtime'][0] = current_pr_data[test][0]
                historical_runtime_memory[machine][test]['memory'][0] = current_pr_data[test][1]
             except KeyError:
-               historical_runtime_memory[machine][test]['runtime'][0] = None
-               historical_runtime_memory[machine][test]['memory'][0] = None
-               logging.warning(f"Test {test} does not exist for current PR.")
+               # If test is not included in current PR (aka it has been/is being removed), remove it from test list
+               historical_runtime_memory[machine].pop(f"{test}", "Key not found; could not remove")
+               logging.warning(f"Test {test} does not exist for current PR. {removed_test}")
          
       # Case where test stats have NOT been calculated and cached:
       else:
-         log.gather_historical_data(10) # past 50 commits
+         log.gather_historical_data(30) # past 40 commits
          log.calculate_stats()
          stats_by_machine[machine] = log.test_stats # Add stats to save/cache later
          historical_runtime_memory[machine] = log.historical_rt_mem_data
-         
-         for test in historical_runtime_memory[machine]:
+         for test in list(historical_runtime_memory[machine].keys()):
             try:
                historical_runtime_memory[machine][test]['runtime'].insert(0, current_pr_data[test][0])
                historical_runtime_memory[machine][test]['memory'].insert(0, current_pr_data[test][1])
             except:
-               historical_runtime_memory[machine][test]['runtime'].insert(0, None)
-               historical_runtime_memory[machine][test]['memory'].insert(0, None)
-               logging.warning(f"Test {test} does not exist for current PR.")
+               # If test is not included in current PR (aka it has been/is being removed), remove it from test list
+               removed_test = historical_runtime_memory[machine].pop(f"{test}", "Key not found; could not remove")
+               logging.warning(f"Test {test} does not exist for current PR and has been removed from the data table.")
       
       # Compare current results to historical values and save results (pass/warn/fail)
       log.compare_results()

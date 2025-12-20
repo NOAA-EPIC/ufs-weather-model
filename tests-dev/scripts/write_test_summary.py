@@ -43,7 +43,7 @@ def build_content(category):
 
 def write_content(data, mdFile, category):
    
-   machines = os.environ.get('MACHINES').split()[5:7]
+   machines = os.environ.get('MACHINES').split()
    
    # Create contents list starting with header row
    contents = ["Test"] + machines + ["Passing"]
@@ -60,8 +60,6 @@ def write_content(data, mdFile, category):
          contents.append(test_img_link)
          for item in row:
             contents.append(item)
-
-   print(f"Cols: {len(machines) + 2}\t Rows: {rows}")
 
    mdFile.new_table(columns=(len(machines) + 2), rows=rows, text_align='center', text=contents)
    mdFile.new_paragraph('\n')
