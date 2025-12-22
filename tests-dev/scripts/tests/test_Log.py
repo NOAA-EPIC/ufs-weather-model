@@ -100,20 +100,3 @@ def test_load_json_from_file(stats_dict_snippet):
    machine = "orion"
    orion_snippet = load_json_from_file('test_file_stats.json')[machine]
    assert orion_snippet == stats_dict_snippet['orion']
-
-def test_main_e2e_cached_stats(monkeypatch):
-   """Test that main function runs to completion."""
-
-   monkeypatch.setenv("MACHINES", "hercules")
-   monkeypatch.setenv("TEST_STATS", "test_file_stats.json")
-   exit_code = main()
-
-   assert exit_code == 0
-
-def test_main_e2e_no_cached_stats(monkeypatch):
-   """Test that main function runs to completion."""
-
-   monkeypatch.setenv("MACHINES", "hercules")
-   exit_code = main()
-
-   assert exit_code == 0

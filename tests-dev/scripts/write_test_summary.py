@@ -56,8 +56,11 @@ def write_content(data, mdFile, category):
       # If there is a warn or fail in the row, add the row to contents to be printed; also add summary row
       if (data.loc[index] == warn).any() or (data.loc[index] == fail).any() or (index == 'Platform Total (Passing):'):
          rows += 1
-         test_img_link = f"[{str(index)}](https://raw.githubusercontent.com/wiki/NOAA-EPIC/ufs-weather-model/plots/{str(index)}_{category}.png)"
-         contents.append(test_img_link)
+         if (index != 'Platform Total (Passing):'):
+            test_img_link = f"[{str(index)}](https://raw.githubusercontent.com/wiki/NOAA-EPIC/ufs-weather-model/plots/{str(index)}_{category}.png)"
+            contents.append(test_img_link)
+         else: 
+            contents.append(index)
          for item in row:
             contents.append(item)
 
@@ -76,9 +79,9 @@ def _count_passes_per_machine(data):
    """
 
    # Counts for passing tests
-   passing_tests_by_machine = round((data.eq('✅').sum(axis=0)/data.ne('N/A').sum(axis=0) * 100),1)
+   passing_tests_by_machine = round((data.eq('✅').sum(axis=0)/data.ne('N/A').sum(axis=0) * 100),1).astype(str)
    for machine in passing_tests_by_machine.index:
-      passing_tests_by_machine[machine] = f"**{machine.upper()}:** " + str(passing_tests_by_machine[machine]) + "% passing"
+      passing_tests_by_machine[machine] = f"**{machine.upper()}:** " + passing_tests_by_machine[machine] + "% passing"
    passing_tests_by_machine.name = 'Platform Total (Passing):'
    # Set bottom right corner to empty string
    passing_tests_by_machine.loc['Passing'] = ''
