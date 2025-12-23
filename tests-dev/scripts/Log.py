@@ -25,7 +25,7 @@ class Log():
          response = api_call.load_json_from_api_call(response)
          self.pr_head_commit = [response['head']['sha']]
       except:
-         logging.error(f"{response['status']} {response['message']}")
+         logging.error(f"{response['status']} {response['message']}. URL: {api_call.url}")
 
    def _fetch_log_text(self, commits): 
       """For each commit of a log, extract the log text."""
