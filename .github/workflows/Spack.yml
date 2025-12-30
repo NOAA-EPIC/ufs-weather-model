@@ -69,7 +69,7 @@ jobs:
     steps:
     
     - name: recipe-check
-      uses: NOAA-EMC/ci-check-spack-recipe@386c09d0e613bf0c5ea3e45dbdf0e9001c13a3b6
+      uses: NOAA-EMC/ci-check-spack-recipe@develop
       with:
         recipe-file: package/spack/package.py
         cmakelists-txt: package/CMakeLists.txt
