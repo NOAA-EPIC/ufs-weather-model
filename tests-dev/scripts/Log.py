@@ -1,6 +1,5 @@
 import requests
-import os
-import json
+import os, sys
 import re
 import numpy as np
 import logging
@@ -26,6 +25,7 @@ class Log():
          self.pr_head_commit = [response['head']['sha']]
       except:
          logging.error(f"{response['status']} {response['message']}. URL: {api_call.url}")
+         sys.exit()
 
    def _fetch_log_text(self, commits): 
       """For each commit of a log, extract the log text."""
@@ -39,6 +39,7 @@ class Log():
             if r.status_code != 200:
                commits[num] = None
                logging.error(f"Commit {commits[num]} does not exist for this log.")
+               sys.exit()
             elif commits == self.pr_head_commit:
                # Ensure that the pr log text comes first
                self.text_per_log.insert(0,r.text)
@@ -46,6 +47,7 @@ class Log():
                self.text_per_log.append(r.text)
       except:
          logging.error("An appropriate commit(s) was not provided. Call _get_pr_head() or _fetch_repo_log_commits() first.")
+         sys.exit()
 
    def _get_instance_test_data(self, log_instance):
       """For each instance of a log at a given commit, extract runtime and memory data from the log text
@@ -104,6 +106,7 @@ class Log():
          return pr_log_data
       except:
          logging.error("Cannot fetch current PR data.")
+         sys.exit()
 
    def gather_historical_data(self, num_commits=2):
       """Extract runtime/memory data for the authoritative repository's last two commits."""

@@ -36,7 +36,7 @@ def test_set_endpoint():
    assert api_call.endpoint == 'commits'
    assert api_call.url == f"{api_call.base_url}/{api_call.endpoint}"
 
-def test_call_api():
+def test_call_API():
    api_call = APICall("contents/tests/logs/RegressionTests_orion.log")
    assert api_call.call_API().text.startswith(r"====START OF ORION REGRESSION TESTING LOG====")
 
