@@ -65,12 +65,19 @@ rm -f "${PATHRT}/fail_test_${TEST_ID}"
 export INPUT_DIR=${CNTL_DIR}
 
 # Append RT_SUFFIX to RUNDIR, and BL_SUFFIX to CNTL_DIR
+RT_SUFFIX=${RT_SUFFIX:-""}
+BL_SUFFIX=${BL_SUFFIX:-""}
 export RUNDIR=${RUNDIR_ROOT}/${TEST_ID}${RT_SUFFIX}
 export CNTL_DIR=${CNTL_DIR}${BL_SUFFIX}
 
 JBNME="run_${TEST_ID}"
 export JBNME
 date_s=$( date +%s )
+
+LOG_DIR=${RUNDIR}
+echo "LOG_DIR=${LOG_DIR}"
+echo "TEST_ID=${TEST_ID}"
+[[ ! -d "${LOG_DIR}" ]] && mkdir -p "${LOG_DIR}"
 echo -n "${TEST_ID}, ${date_s}," > "${LOG_DIR}/${JBNME}_timestamp.txt"
 
 export RT_LOG=${LOG_DIR}/rt_${TEST_ID}${RT_SUFFIX}.log
@@ -88,15 +95,24 @@ cd "${RUNDIR}"
 ###############################################################################
 
 # FV3 executable:
-cp "${PATHRT}/fv3_${COMPILE_ID}.exe" "fv3.exe"
+if [[  ${MACHINE_ID} == container ]]; then
+  cp "${PATHRT}/ufs_model.sh" "fv3.exe"                       # binary wrap script
+  [[ -f "${PATHRT}/fv3.exe" ]] && rm "${PATHRT}/fv3.exe"
+  ln -s "${PATHRT}/fv3_${COMPILE_ID}.exe" "${PATHRT}/fv3.exe" # actual binary
+else
+  cp "${PATHRT}/fv3_${COMPILE_ID}.exe" "fv3.exe"
+fi
 
 # modulefile for FV3 prerequisites:
 mkdir -p modulefiles
 if [[ ${MACHINE_ID} == linux ]]; then
   cp "${PATHRT}/modules.fv3_${COMPILE_ID}" "./modulefiles/modules.fv3"
+elif [[  ${MACHINE_ID} == container ]]; then
+  cp "${PATHRT}/modules.runtime.lua" "./modulefiles/modules.fv3.lua"
 else
   cp "${PATHRT}/modules.fv3_${COMPILE_ID}.lua" "./modulefiles/modules.fv3.lua"
 fi
+
 cp "${PATHTR}/modulefiles/ufs_common.lua" "./modulefiles/."
 
 # Get the shell file that loads the "module" command and purges modules:

@@ -10,6 +10,61 @@ function trim {
     echo -n "${var}"
 }
 
+# When using a container, save build environment for the runtime in ufswm.env
+env_vars () {
+
+  local vars_file="$1"
+cat >"${vars_file}" <<EOF_ENV
+PATH=${UFS_BIN}:${PATH}  # Add a directory with ufs_model binary to the search path
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
+HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH}
+HDF5_USE_FILE_LOCKING=FALSE
+EOF_ENV
+}
+
+# Singularity/apptainer containers: make a wrapper script of the UFS WM binary
+ufs_binary_wrapper() {
+  local bind_dir="$(echo "${PATHTR}" | cut -d'/' -f1-2)"  # local directory to bind for the container
+  local wrapper="$1"
+  if [[ -n "${BIND_ADD:-}" ]]; then
+     local bind_add="-B ${BIND_ADD}"
+  fi
+  local ufs_env=${UFS_ENV:-}
+  local img_sif=${IMG:-/path/to/container/image.sif}
+
+
+cat >"${wrapper}" <<EOF_WRAP
+#!/bin/bash
+set -x
+
+export APPTAINERENV_FI_PROVIDER=tcp
+export APPTAINER_SHELL=/bin/bash
+
+img=${img_sif}
+cmd=\$(basename "\$0")
+
+export APPTAINERENV_PMIX_MCA_gds=hash
+export APPTAINERENV_OMPI_MCA_btl="^openib"
+
+if ip link show eth0 &>/dev/null; then
+    export APPTAINERENV_OMPI_MCA_btl_tcp_if_include=eth0
+    export APPTAINERENV_OMPI_MCA_oob_tcp_if_include=eth0
+fi
+
+export APPTAINERENV_OMPI_MCA_pml=ob1
+export APPTAINERENV_OMPI_MCA_btl_vader_single_copy_mechanism=none
+export APPTAINERENV_OMPI_MCA_mca_base_component_show_load_errors=0
+
+APPTAINER=\$(which apptainer)
+
+"\${APPTAINER}" exec --env-file ${ufs_env} \
+-B ${bind_dir} ${bind_add:-} \${img} \$cmd 
+
+EOF_WRAP
+
+    chmod +x "${wrapper}"
+}
+
 SECONDS=0
 
 SCRIPT_REALPATH=$(realpath "${BASH_SOURCE[0]}")
@@ -60,18 +115,7 @@ case ${MACHINE_ID} in
     source "${PATHTR}/modulefiles/ufs_${MACHINE_ID}.${RT_COMPILER}"
     ;;
   *)
-    # Activate lua environment for gaea c5
-    if [[ ${MACHINE_ID} == gaeac5 ]]; then
-      module reset
-    fi
-    if [[ ${MACHINE_ID} == gaeac6 ]]; then
-      module reset
-    elif [[ ${MACHINE_ID} == container ]]; then
-      source /usr/lmod/lmod/init/bash
-      module purge
-    elif [[ ${MACHINE_ID} == hercules ]]; then
-      module purge
-    fi
+    source "${PATHTR}/tests/module-setup.sh"
 
     # Load fv3 module
     module use "${PATHTR}/modulefiles"
@@ -120,10 +164,20 @@ export CMAKE_FLAGS
 bash -x "${PATHTR}/build.sh"
 
 rsync --remove-source-files "${BUILD_DIR}/ufs_model" "${PATHTR}/tests/${BUILD_NAME}.exe"
+
 if [[ ${MACHINE_ID} == linux ]]; then
   cp "${PATHTR}/modulefiles/ufs_${MACHINE_ID}.${RT_COMPILER}" "${PATHTR}/tests/modules.${BUILD_NAME}"
 else
   cp "${PATHTR}/modulefiles/ufs_${MACHINE_ID}.${RT_COMPILER}.lua" "${PATHTR}/tests/modules.${BUILD_NAME}.lua"
+fi
+
+if [[ ${MACHINE_ID} == container ]]; then
+  export UFS_ENV="${PATHTR}/tests/ufswm.env"               # environment file for the runtime
+  export UFS_WRAP="${PATHTR}/tests/ufs_model.sh"           # wrapper for the ufs_model executable
+  export UFS_BIN="${PATHTR}/tests" # location of actual ufs_model binary
+  env_vars ${UFS_ENV}              # create an env. file
+  ufs_binary_wrapper ${UFS_WRAP}   # create a binary wrapper
+  cp "${PATHTR}/modulefiles/ufs_container.runtime.lua" "${PATHTR}/tests/modules.runtime.lua"
 fi
 
 [[ ${clean_after} == YES ]] && rm -rf "${BUILD_DIR}"
