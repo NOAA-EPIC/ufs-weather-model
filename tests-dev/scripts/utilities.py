@@ -20,7 +20,7 @@ def load_json_from_file(file_path):
 
    return data
 
-def get_hashes(num=1):
+def get_hashes(num=30):
    """Retrieve the last "num" commit hashes from the repository.
    Args: 
       num (int): The number of commit hashes to be retrieved. 

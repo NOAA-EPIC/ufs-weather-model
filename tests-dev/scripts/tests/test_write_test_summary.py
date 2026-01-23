@@ -1,3 +1,4 @@
+import os
 from mdutils.mdutils import MdUtils
 import pandas as pd
 from scripts.write_test_summary import *
@@ -5,7 +6,7 @@ from scripts.write_test_summary import _count_passes_per_machine, _count_passes_
 
 def test_load_json(stats_dict_snippet):
 
-   content = load_json('test_file_stats.json')
+   content = load_json_from_file('test_file_stats.json')
    assert stats_dict_snippet == content
 
 def test_create_mdFile():
@@ -13,6 +14,16 @@ def test_create_mdFile():
    mdFile = create_mdFile()
    assert mdFile.get_md_text() == "\nTest Summary for PR #2882\n=========================\n"
    assert mdFile.file_name == 'summary.md'
+
+def test_add_legend(test_mdFile):
+   
+   add_legend(test_mdFile, "memory")
+   predicted_text = "\nTest MdFile\n===========\n\n\n" + "<h4>Key:</h4>\n\n" + \
+   f"&nbsp;&nbsp;&nbsp;&nbsp;✅ = NORMAL memory: Memory falls within two standard deviations of the mean.\n\n" + \
+   f"&nbsp;&nbsp;&nbsp;&nbsp;⚠️ = Memory WARNING: Memory is greater than two standard deviations above the mean.\n\n" + \
+   f"&nbsp;&nbsp;&nbsp;&nbsp;❌ = Memory FAIL: For the past 2+ PRs, memory has been greater than two standard deviations above the mean.\n\n" + \
+   f"&nbsp;&nbsp;&nbsp;&nbsp;N/A = Test does not run on this machine.\n\n\n"
+   assert test_mdFile.get_md_text() == predicted_text
 
 def test_build_content(sample_runtime_results, actual_passes_per_test, actual_passes_per_machine):
 
@@ -36,7 +47,7 @@ def test_write_content(sample_runtime_results_complete, failing_results_table, a
    os.environ["MACHINES"] = "hercules orion ursa"
    results = pd.DataFrame.from_dict(sample_runtime_results_complete).fillna("N/A").sort_index()
    results = pd.concat([results, pd.DataFrame.from_dict(actual_passes_per_machine, orient='index', columns=["hercules","orion","ursa","Passing"])])
-   results = write_content(results, mdFile)
+   results = write_content(results, mdFile, "runtime")
 
    # Create comparison markdown table with only failing results
    table_header = "\nTest Summary for PR #2882\n=========================\n\n" + \

@@ -51,15 +51,32 @@ def detect_statistical_anomalies(test_data):
    """
 
    anomalies = [False] * len(test_data)
-   mean = np.mean(test_data)
-   stdev = np.std(test_data)
+   mean = np.mean(test_data, dtype=float)
+   stdev = np.std(test_data, dtype=float)
    anomalies = [True if value > (mean + (2 * stdev)) else False for i, value in enumerate(test_data)]
 
    return anomalies
 
+def get_plotting_data(data, category):
+   """Get hashes and restructure metrics to use in plotting function
+   Args:
+      data (dict): Nested dict of metrics for each test with machine as primary key.
+      category (str): 'runtime' or 'memory'
+   Returns: tuple (metrics, hashes) - 
+      metrics (dict): Nested dict of metrics for each test (test as primary key).
+      hashes (list): Commit metadata; by default, 30 most recent hashes from the repository plus 'PR Head'.
+   """
+   
+   metrics = organize_data_by_test(data, category)
+   hashes = get_hashes() # Default 30 hashes; change quantity in utility function for consistency
+   hashes.insert(0, "PR Head")
+   hashes.reverse()
+
+   return metrics, hashes
+
 def plot_results(data, category):
    """
-   Writes metrics to CSV and generates anomaly-highlighted plots.
+   Generates anomaly-highlighted plots.
 
    Args:
       metrics (dict): Nested dict of metrics.
@@ -69,10 +86,7 @@ def plot_results(data, category):
 
    # Need to see what to do if no data for hash on certain machine
 
-   metrics = organize_data_by_test(data, category)
-   hashes = get_hashes(50) # Change to 50
-   hashes.insert(0, "PR Head")
-   hashes.reverse()
+   metrics, hashes = get_plotting_data(data, category)
    
    # Create one plot per test
    for test in metrics:
@@ -119,6 +133,7 @@ def main():
          plot_results(data, category)
    except FileNotFoundError:
       logging.error("Could not load JSON file.")
+      sys.exit()
 
 if __name__ == "__main__":
 
