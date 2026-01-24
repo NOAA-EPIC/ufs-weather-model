@@ -1,5 +1,6 @@
-import os
+import os, sys
 import json
+import logging
 from .APICall import APICall
 
 """This file contains utility functions to (1) create a JSON file from log data and (2) load data from a 
@@ -27,11 +28,15 @@ def get_hashes(num=30):
    Returns:
       hashes: list of commit hashes
    """
-   hashes = []
-   api_call = APICall(f"commits?per_page={num}")
-   response = api_call.call_API()
-   response = api_call.load_json_from_api_call(response)
-
-   for item in response:
-      hashes.append(item['sha'][:8])
-   return hashes
+   try: 
+      hashes = []
+      api_call = APICall(f"commits?per_page={num}")
+      response = api_call.call_API()
+      response = api_call.load_json_from_api_call(response)
+      
+      for item in response:
+         hashes.append(item['sha'][:8])
+      return hashes
+   except:
+      logging.error(response['message'])
+      sys.exit()

@@ -1,127 +1,151 @@
-import os
+import os, sys
 import logging
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import defaultdict
-from .APICall import APICall
 from .utilities import *
 
-def get_test_names(data):
-   """Create a set containing all test names by extracting the tests (keys) from the data_by_machine
-   Args:
-      data (dict): Runtime and memory data for each test and machine. Primary key is machine. Values are tests for each machine. 
-   Returns:
-      all_tests: Set of all test names
-   """
-   all_tests = set()
-   for data_by_machine in data.values():
-      all_tests.update(data_by_machine.keys())
+class PlotManager():
+
+   def __init__(self, data, category):
+      """Create a Plot Manager object that holds data related to all plots. 
+      Args:
+         data (dict): Runtime and memory data for each test and machine. Primary key is machine. Secondary key is test. 
+         category (str): 'runtime' or 'memory'
+      """
+      self.data = data
+      self.category = category
+
+   def get_test_names(self):
+      """Create a set containing all test names by extracting the tests (keys) from the data_by_machine
+      Returns:
+         all_tests: Set of all test names
+      """
+      all_tests = set()
+      for data_by_machine in self.data.values():
+         all_tests.update(data_by_machine.keys())
+      
+      return all_tests
+
+   def organize_data_by_test(self):
+      """Creates new runtime and memory dictionaries that use test name as key and have data for each machine 
+      under each test. 
+      Returns:
+         metrics (dict): Runtime and memory data for each test and machine. Primary key is test. Secondary key is machine. 
+      """
+
+      tests = self.get_test_names()
+
+      # Create a three-level deep dictionary where any key access at the first or second level that doesn't exist will automatically be created
+      metrics = defaultdict(lambda: dict)
+
+      for test in tests:
+         for machine, machine_data in self.data.items():
+            if test not in machine_data:
+               continue # No data to add
+            elif test not in metrics:
+               metrics[test] = {machine: machine_data[test][self.category]}
+            else:
+               metrics[test].update({machine: machine_data[test][self.category]})
+      
+      return metrics
    
-   return all_tests
-
-def organize_data_by_test(data, category):
-   """Creates new runtime and memory dictionaries that use test name as key and have data for each machine 
-   under each test. 
-   Args:
-      data (dict): Runtime and memory data for each test and machine. Primary key is machine. Secondary key is test. 
-   Returns:
-      metrics (dict): Runtime and memory data for each test and machine. Primary key is test. Secondary key is machine. 
-   """
-
-   tests = get_test_names(data)
-
-   # Create a three-level deep dictionary where any key access at the first or second level that doesn't exist will automatically be created
-   metrics = defaultdict(lambda: dict)
-
-   for test in tests:
-      for machine, machine_data in data.items():
-         if test not in machine_data:
-            continue
-         elif test not in metrics:
-            metrics[test] = {machine: machine_data[test][category]}
+   def detect_statistical_anomalies(self, test_data):
+      """Detect statistical anomalies, aka tests w/runtime or memory usage greater than 2 standard deviations above the mean.
+      Args:
+         test_data (list): Data that needs to be checked for statistical anomalies
+      Returns:
+         anomalies (list): A boolean list where True indicates the presence of an anomalous value.
+      """
+      anomalies = [False] * len(test_data)
+      mean = np.mean(test_data, dtype=float)
+      stdev = np.std(test_data, dtype=float)
+      """binmap = []
+      for value in enumerate(test_data):
+         print(value)
+         if value > (mean + (2 * stdev)):
+            binmap.append(True)
          else:
-            metrics[test].update({machine: machine_data[test][category]})
+            binmap.append(False)"""
+      anomalies = [True if value > (mean + (2 * stdev)) else False for i, value in enumerate(test_data)]
 
-   return metrics
-   
-def detect_statistical_anomalies(test_data):
-   """Detect statistical anomalies, aka tests w/runtime or memory usage greater than 2 standard deviations above the mean.
-   Args:
-      test_data (list)
-   """
+      return anomalies
 
-   anomalies = [False] * len(test_data)
-   mean = np.mean(test_data, dtype=float)
-   stdev = np.std(test_data, dtype=float)
-   anomalies = [True if value > (mean + (2 * stdev)) else False for i, value in enumerate(test_data)]
+   def rearrange_hashes(self):
+      """Rearrange hashes for use in plotting function
+      Returns:
+         hashes (list): Commit metadata; by default, 30 most recent hashes from the repository plus 'PR Head'.
+      """
+      hashes = get_hashes() # Default 30 hashes; change quantity in utility function for consistency
+      hashes.insert(0, "PR Head")
+      hashes.reverse()
+      return hashes
 
-   return anomalies
-
-def get_plotting_data(data, category):
-   """Get hashes and restructure metrics to use in plotting function
-   Args:
-      data (dict): Nested dict of metrics for each test with machine as primary key.
-      category (str): 'runtime' or 'memory'
-   Returns: tuple (metrics, hashes) - 
-      metrics (dict): Nested dict of metrics for each test (test as primary key).
-      hashes (list): Commit metadata; by default, 30 most recent hashes from the repository plus 'PR Head'.
-   """
-   
-   metrics = organize_data_by_test(data, category)
-   hashes = get_hashes() # Default 30 hashes; change quantity in utility function for consistency
-   hashes.insert(0, "PR Head")
-   hashes.reverse()
-
-   return metrics, hashes
-
-def plot_results(data, category):
-   """
-   Generates anomaly-highlighted plots.
-
-   Args:
-      metrics (dict): Nested dict of metrics.
-      hashes (list): Commit metadata.
-      category (str): Runtime or memory
-   """
-
-   # Need to see what to do if no data for hash on certain machine
-
-   metrics, hashes = get_plotting_data(data, category)
-   
-   # Create one plot per test
-   for test in metrics:
+   def generate_figure(self, test):
+      """For each test, create a plot containing figure metadata (e.g., title, xticks, yticks)."""
       plt.figure(figsize=(14, 6), dpi=200)
-
-      styles = ['o-', 's--', '^-', 'd:', 'x-.', 'v--', '*-', 'p:']
-
-      plt.title(f"{category} for {test}", fontsize=16)
+      plt.title(f"{self.category} for {test}", fontsize=16)
       plt.xlabel("Commit Hash: oldest --> newest", fontsize=14)
-      plt.ylabel(category, fontsize=14)
-      plt.xticks(np.arange(len(hashes)), labels=hashes, rotation=45, fontsize=10)
+      plt.ylabel(self.category, fontsize=14)
+      plt.xticks(np.arange(len(self.hashes)), labels=self.hashes, rotation=45, fontsize=10)
       plt.yticks(fontsize=12)
       plt.grid(True, linestyle='--', alpha=0.5)
 
+      return plt
+
+   def add_test_metrics_by_machine(self, plt, test):
+      """For each test, plot lines with data for each machine."""
+      
+      styles = ['o-', 's--', '^-', 'd:', 'x-.', 'v--', '*-', 'p:']
+      
       # Add one line to the plot with data for each machine
-      for i, machine in enumerate(metrics[test]):
-         y = metrics[test][machine]
-         anomalies = detect_statistical_anomalies(y[::-1])
+      for i, machine in enumerate(self.metrics[test]):
+         #print(f"Machine: {machine}, Test: {test}")
+         y = self.metrics[test][machine]
+         #print(y[::-1])
+         anomalies = self.detect_statistical_anomalies(y[::-1])
+         #print(self.hashes)
          
          # For new tests, there may be less data available than the number of commits, 
          # so take the most recent hashes for which there is data
-         x = hashes[:len(y)]
-         # Plot lines per machine, then add anomalies for each line
+         x = self.hashes[:len(y)]
+         # Plot lines per machine: reverse direction of data (most recent last/rightmost), then add anomalies for each line
          plt.plot(x, y[::-1], styles[i % len(styles)], label=f"{machine}", linewidth=2, markersize=6)
-         [plt.plot(x[idx], y[idx], 'ro', markersize=8) for idx, val in enumerate(anomalies) if val == True]
+         #print(anomalies)
+         #for idx, val in enumerate(anomalies):
+            #print(f"idx, val: {idx}, {val}")
+            #if val == True:
+               #print(f"hash: {x[idx]}, data: {y[idx]}")
+               #plt.plot(x[idx], y[::-1][idx], 'ro', markersize=8)
+         [plt.plot(x[idx], y[::-1][idx], 'ro', markersize=8) for idx, val in enumerate(anomalies) if val == True]
          
       plt.legend(fontsize=12)
       plt.tight_layout()
-      #plt.show()
 
-      png_path = f"plots/{test}_{category}.png"
+      return plt
+
+   def save_plot_image(self, plt, test):
+      
+      png_path = f"plots/{test}_{self.category}.png"
       os.makedirs("plots", exist_ok=True)
       plt.savefig(png_path)
-   
       plt.close()
+
+   def plot_results(self):
+      """
+      Generates anomaly-highlighted plots.
+      """
+
+      # Need to see what to do if no data for hash on certain machine
+      self.metrics = self.organize_data_by_test()
+      self.hashes = self.rearrange_hashes()
+
+      # Create one plot per test
+      for test in self.metrics:
+         plt = self.generate_figure(test)
+         plt = self.add_test_metrics_by_machine(plt, test)
+         self.save_plot_image(plt, test)
+
 
 def main():
 
@@ -130,10 +154,15 @@ def main():
    try: 
       data = load_json_from_file(f"{os.environ.get('PLOT_DATA')}/historical_runtime_memory.json")
       for category in ["runtime", "memory"]:
-         plot_results(data, category)
+         plot_manager = PlotManager(data, category)
+         plot_manager.plot_results()
    except FileNotFoundError:
       logging.error("Could not load JSON file.")
       sys.exit()
+   except:
+      sys.exit()
+
+   return plot_manager
 
 if __name__ == "__main__":
 

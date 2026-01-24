@@ -12,6 +12,8 @@ class Log():
       """Create the log file object for a specific machine."""
       self.machine = machine.lower()
       self.text_per_log = []
+      self.pr_head_commit = None
+      self.repo_commits = None
 
    def _get_pr_head(self):
       """Get SHA for the HEAD of the PR. Structure of response: 
@@ -171,3 +173,4 @@ class Log():
       
       self._compare_runtime(current_log, previous_logs)
       self._compare_memory(current_log, previous_logs)
+      
