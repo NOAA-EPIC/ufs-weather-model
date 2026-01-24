@@ -20,19 +20,18 @@ def test_get_pr_head(herc_log, set_env_vars):
    assert herc_log.pr_head_commit == ["369cead91c98eb5c72da81ff78925250dad08903"]
 
 def test_fetch_log_text_w_no_commits(herc_log, caplog): 
-   herc_log.pr_head_commit = None
-   herc_log._fetch_log_text(herc_log.pr_head_commit)
+
+   with pytest.raises(SystemExit) as e:
+      herc_log.pr_head_commit = None
+      herc_log._fetch_log_text(herc_log.pr_head_commit)
+   assert e.value.code == None
    assert caplog.records[0].message == "An appropriate commit(s) was not provided. Call _get_pr_head() or _fetch_repo_log_commits() first."
 
 def test_fetch_log_text_for_pr_head(herc_log, hercules_most_recent_commits, hercules_log_texts_2882): 
    """Check that the log texts extracted by the API are the same as the hercules log texts that we expect."""
-   herc_log.pr_head_commit = hercules_most_recent_commits[0]
-   #herc_log.repo_commits = hercules_most_recent_commits[1:]
-   # Need to mock API call
-   #herc_log._fetch_log_text(herc_log.repo_commits)
+   herc_log.pr_head_commit = [hercules_most_recent_commits[0]]
    herc_log._fetch_log_text(herc_log.pr_head_commit)
-
-   #assert herc_log.text_per_log == hercules_log_texts_2882[1:]
+   
    assert herc_log.text_per_log[0] == hercules_log_texts_2882[0]
 
 def test_fetch_log_text_for_develop(herc_log, hercules_most_recent_commits, hercules_log_texts_2882): 

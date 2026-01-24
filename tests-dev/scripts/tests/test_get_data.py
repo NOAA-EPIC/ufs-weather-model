@@ -20,3 +20,4 @@ def test_main_e2e_no_cached_stats(monkeypatch, set_env_vars):
    exit_code = main()
 
    assert exit_code == 0
+   
