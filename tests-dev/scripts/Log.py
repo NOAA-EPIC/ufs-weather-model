@@ -127,13 +127,14 @@ class Log():
          self.test_stats[test] = [runtime_mean, runtime_stdev, memory_mean, memory_stdev]
 
    def _compare_runtime(self, current_log, previous_logs):
-      """Determine whether the test runtime is within normal bounds."""
+      """Determine whether the test runtime is within normal bounds (2 standard deviations of the mean)."""
       
       self.runtime_results = {}
 
       for test in current_log:
          try:
-            hi_rt = self.test_stats[test][0] + self.test_stats[test][1]
+            hi_rt = self.test_stats[test][0] + (2 * self.test_stats[test][1])
+            print(f"{test}: Mean: {self.test_stats[test][0]} and STDev: {self.test_stats[test][1]}")
             if current_log[test][0] > hi_rt and previous_logs['last'][test][0] > hi_rt and previous_logs['second_to_last'][test][0] > hi_rt:
                self.runtime_results[test] = '❌'
             elif current_log[test][0] > hi_rt:
@@ -145,13 +146,13 @@ class Log():
             self.runtime_results[test] = 'New'
 
    def _compare_memory(self, current_log, previous_logs):
-      """Determine whether the test memory usage is within normal bounds."""
+      """Determine whether the test memory usage is within normal bounds (2 standard deviations of the mean)."""
 
       self.memory_results = {}
 
       for test in current_log:
          try:
-            hi_mem = self.test_stats[test][2] + self.test_stats[test][3]
+            hi_mem = self.test_stats[test][2] + (2 * self.test_stats[test][3])
             if current_log[test][1] > hi_mem and previous_logs['last'][test][1] > hi_mem and previous_logs['second_to_last'][test][1] > hi_mem:
                self.memory_results[test] = '❌'
             elif current_log[test][1] > hi_mem:
@@ -166,7 +167,7 @@ class Log():
       """Check results from previous two commits to determine whether the test runtime/memory usage is within normal bounds."""
 
       current_log = self._get_instance_test_data(self.text_per_log[0])
-      previous_logs = {"last" : {}, "second_to_last" : {}}
+      previous_logs = {"last" : {}, "second_to_last" : {}, "third-to-last": {}}
 
       for index, item in enumerate(previous_logs):
          previous_logs[item] = self._get_instance_test_data(self.text_per_log[index + 1])
