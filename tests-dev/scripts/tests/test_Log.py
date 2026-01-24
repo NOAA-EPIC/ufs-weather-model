@@ -72,8 +72,8 @@ def test_compare_results(herc_log, hercules_log_texts_2882, log_instance_results
    herc_log.compare_results()
 
    for test in herc_log.test_stats: 
-      hi_runtime = herc_log.test_stats[test][0] + herc_log.test_stats[test][1]
-      hi_memory = herc_log.test_stats[test][2] + herc_log.test_stats[test][3]
+      hi_runtime = herc_log.test_stats[test][0] + (2 * herc_log.test_stats[test][1])
+      hi_memory = herc_log.test_stats[test][2] + (2 * herc_log.test_stats[test][3])
 
       # Could improve test to check for correct warn vs. fail status
       if current_log[test][0] > hi_runtime:
