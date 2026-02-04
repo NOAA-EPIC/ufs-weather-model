@@ -11,7 +11,7 @@ class Log():
    def __init__(self, machine):
       """Create the log file object for a specific machine."""
       self.machine = machine.lower()
-      self.text_per_log = []
+      self.text_per_log = {}
       self.pr_head_commit = None
       self.repo_commits = None
 
@@ -24,13 +24,16 @@ class Log():
          api_call = APICall(f"pulls/{os.environ.get('PR_NUM')}")
          response = api_call.call_API()
          response = api_call.load_json_from_api_call(response)
-         self.pr_head_commit = [response['head']['sha']]
+         self.pr_head_commit = response['head']['sha']
       except:
          logging.error(f"{response['status']} {response['message']}. URL: {api_call.url}")
          sys.exit()
 
    def _fetch_log_text(self, commits): 
-      """For each commit of a log, extract the log text."""
+      """For each commit of a log, extract the log text. Store in a dictionary w/hash as key.
+      Args:
+         commits (list): list of commits for the repository - even the PR head commit is expected to be in list form. 
+      """
 
       try:
          api_call = APICall(f"contents/tests/logs/RegressionTests_{self.machine}.log")
@@ -42,35 +45,33 @@ class Log():
                commits[num] = None
                logging.error(f"Commit {commits[num]} does not exist for this log.")
                sys.exit()
-            elif commits == self.pr_head_commit:
-               # Ensure that the pr log text comes first
-               self.text_per_log.insert(0,r.text)
             else:
-               self.text_per_log.append(r.text)
+               self.text_per_log[commits[num]] = r.text
+            
       except:
          logging.error("An appropriate commit(s) was not provided. Call _get_pr_head() or _fetch_repo_log_commits() first.")
          sys.exit()
 
-   def _get_instance_test_data(self, log_instance):
+   def _get_instance_test_data(self, log_text):
       """For each instance of a log at a given commit, extract runtime and memory data from the log text
          Args:
-            log_instance: Log text for a given commit
+            log_text: Log text for a given commit
          Returns: 
             tests_for_log_instance: A dictionary of tests (keys) with an array of total runtime and memory use as the value for each test
       """
 
       tests_for_log_instance = {}
-
+      
       pattern = r"TEST \'(.*)\' \[\d+:\d+, (\d+):(\d+)\]\((\d+) MB\)"
-      log_instance = log_instance.splitlines()
-
-      for line in log_instance:
+      log_text = log_text.splitlines()
+      
+      for line in log_text:
          test_match = re.search(pattern, line)
          if test_match:
             test_name, hh, mm, mem = test_match.groups()
             total_minutes = int(hh) * 60 + int(mm)
             tests_for_log_instance[test_name] = [total_minutes, int(mem)]
-
+      
       return tests_for_log_instance
       
    def _compile_historical_log_data(self): # Could split for runtime, mem to make more maintainable
@@ -83,17 +84,17 @@ class Log():
       self.historical_rt_mem_data = {}
       
       # Skip self.text_per_log[0] because it is the log from the PR
-      for log_instance in self.text_per_log[1:]:
-         
-         data = self._get_instance_test_data(log_instance)
-         for test in data:
-            try: 
-               self.historical_rt_mem_data[test]["runtime"].append(data[test][0])
-               self.historical_rt_mem_data[test]["memory"].append(data[test][1])
-            except KeyError: 
-               logging.info("Test key doesn't exist yet. Creating test key.")
-               self.historical_rt_mem_data[test] = {"runtime": [data[test][0]], "memory": [data[test][1]]}
-      
+      for hash in self.text_per_log:
+         if hash != self.pr_head_commit:
+            data = self._get_instance_test_data(self.text_per_log[hash])
+            for test in data:
+               try: 
+                  self.historical_rt_mem_data[test]["runtime"].append(data[test][0])
+                  self.historical_rt_mem_data[test]["memory"].append(data[test][1])
+               except KeyError: 
+                  logging.info("Test key doesn't exist yet. Creating test key.")
+                  self.historical_rt_mem_data[test] = {"runtime": [data[test][0]], "memory": [data[test][1]]}
+
    def get_current_pr_data(self):
       """Extract runtime/memory data for the PR's most recent commit.
       Returns:
@@ -102,9 +103,8 @@ class Log():
 
       try: 
          self._get_pr_head()
-         self._fetch_log_text(self.pr_head_commit)
-         pr_log_data = self._get_instance_test_data(self.text_per_log[0])
-         
+         self._fetch_log_text([self.pr_head_commit]) # _fetch_log_text expects a LIST of commit(s)
+         pr_log_data = self._get_instance_test_data(self.text_per_log[self.pr_head_commit])
          return pr_log_data
       except:
          logging.error("Cannot fetch current PR data.")
@@ -114,7 +114,7 @@ class Log():
       """Extract runtime/memory data for the authoritative repository's last two commits."""
       self._fetch_log_text(self.repo_commits)
       self._compile_historical_log_data()
-
+      
    def calculate_stats(self):
       """For each test, calculate the mean and standard deviation of memory and runtime.
       """
@@ -134,8 +134,7 @@ class Log():
       for test in current_log:
          try:
             hi_rt = self.test_stats[test][0] + (2 * self.test_stats[test][1])
-            print(f"{test}: Mean: {self.test_stats[test][0]} and STDev: {self.test_stats[test][1]}")
-            if current_log[test][0] > hi_rt and previous_logs['last'][test][0] > hi_rt and previous_logs['second_to_last'][test][0] > hi_rt:
+            if current_log[test][0] > hi_rt and previous_logs['last'][test][0] > hi_rt and previous_logs['second_to_last'][test][0] > hi_rt and previous_logs['third_to_last'][test][0] > hi_rt:
                self.runtime_results[test] = '❌'
             elif current_log[test][0] > hi_rt:
                self.runtime_results[test] = '⚠️'
@@ -146,14 +145,14 @@ class Log():
             self.runtime_results[test] = 'New'
 
    def _compare_memory(self, current_log, previous_logs):
-      """Determine whether the test memory usage is within normal bounds (2 standard deviations of the mean)."""
+      """Determine whether the test memory usage is within normal bounds (< 2 standard deviations of the mean)."""
 
       self.memory_results = {}
 
       for test in current_log:
          try:
             hi_mem = self.test_stats[test][2] + (2 * self.test_stats[test][3])
-            if current_log[test][1] > hi_mem and previous_logs['last'][test][1] > hi_mem and previous_logs['second_to_last'][test][1] > hi_mem:
+            if current_log[test][1] > hi_mem and previous_logs['last'][test][1] > hi_mem and previous_logs['second_to_last'][test][1] > hi_mem and previous_logs['third_to_last'][test][1] > hi_mem:
                self.memory_results[test] = '❌'
             elif current_log[test][1] > hi_mem:
                self.memory_results[test] = '⚠️'
@@ -164,14 +163,19 @@ class Log():
             self.memory_results[test] = 'New'
 
    def compare_results(self): 
-      """Check results from previous two commits to determine whether the test runtime/memory usage is within normal bounds."""
+      """Check results from previous three commits to determine whether the test runtime/memory usage 
+      is within normal bounds."""
 
-      current_log = self._get_instance_test_data(self.text_per_log[0])
-      previous_logs = {"last" : {}, "second_to_last" : {}, "third-to-last": {}}
-
-      for index, item in enumerate(previous_logs):
-         previous_logs[item] = self._get_instance_test_data(self.text_per_log[index + 1])
+      current_log = self._get_instance_test_data(self.text_per_log[self.pr_head_commit])
+      # Most recent commits: 
+      last = self.repo_commits[0]
+      second_to_last = self.repo_commits[1]
+      third_to_last = self.repo_commits[2]
       
+      previous_logs = {"last" : self._get_instance_test_data(self.text_per_log[last]), 
+                       "second_to_last" : self._get_instance_test_data(self.text_per_log[second_to_last]), 
+                       "third_to_last": self._get_instance_test_data(self.text_per_log[third_to_last])}
+
       self._compare_runtime(current_log, previous_logs)
       self._compare_memory(current_log, previous_logs)
       

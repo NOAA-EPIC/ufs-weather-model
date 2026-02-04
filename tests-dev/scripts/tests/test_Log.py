@@ -7,7 +7,7 @@ from scripts.get_data import *
 
 def test_init_hercules_Log(herc_log):
    assert herc_log.machine == "hercules"
-   assert herc_log.text_per_log == []
+   assert herc_log.text_per_log == {}
 
 def test_get_pr_head(herc_log, set_env_vars):
    """Test the API call and it's ability to get the PR 2882's head commit. 
@@ -17,7 +17,7 @@ def test_get_pr_head(herc_log, set_env_vars):
    set_env_vars
    herc_log._get_pr_head()
 
-   assert herc_log.pr_head_commit == ["369cead91c98eb5c72da81ff78925250dad08903"]
+   assert herc_log.pr_head_commit == "369cead91c98eb5c72da81ff78925250dad08903"
 
 def test_fetch_log_text_w_no_commits(herc_log, caplog): 
 
@@ -29,26 +29,30 @@ def test_fetch_log_text_w_no_commits(herc_log, caplog):
 
 def test_fetch_log_text_for_pr_head(herc_log, hercules_most_recent_commits, hercules_log_texts_2882): 
    """Check that the log texts extracted by the API are the same as the hercules log texts that we expect."""
-   herc_log.pr_head_commit = [hercules_most_recent_commits[0]]
-   herc_log._fetch_log_text(herc_log.pr_head_commit)
+   herc_log.pr_head_commit = hercules_most_recent_commits[0]
+   herc_log._fetch_log_text([herc_log.pr_head_commit])
    
-   assert herc_log.text_per_log[0] == hercules_log_texts_2882[0]
+   assert herc_log.text_per_log[herc_log.pr_head_commit] == hercules_log_texts_2882['4760a41a2ba012b236361d99a0248b718a06921b']
 
 def test_fetch_log_text_for_develop(herc_log, hercules_most_recent_commits, hercules_log_texts_2882): 
    """Check that the log texts extracted by the API are the same as the hercules log texts that we expect."""
-   herc_log.repo_commits = hercules_most_recent_commits[1:]
+   herc_log.repo_commits = hercules_most_recent_commits[1:6]
    herc_log._fetch_log_text(herc_log.repo_commits)
 
-   assert herc_log.text_per_log[1:] == hercules_log_texts_2882[1:]
+   for hash in hercules_most_recent_commits[1:6]:
+      assert herc_log.text_per_log[hash] == hercules_log_texts_2882[hash]
 
 def test_get_instance_test_data(herc_log, hercules_log_texts_2882, log_instance_results_2882_0):
    """From the log for PR 2882, extract test data. Compare it with the expected data to be sure it's the same.
    """
-   tests_for_log_instance = herc_log._get_instance_test_data(hercules_log_texts_2882[0])
+   herc_log.pr_head_commit = '4760a41a2ba012b236361d99a0248b718a06921b' #PR #2882 head commit
+   tests_for_log_instance = herc_log._get_instance_test_data(hercules_log_texts_2882[herc_log.pr_head_commit])
    assert tests_for_log_instance == log_instance_results_2882_0
 
-def test_compile_historical_log_data(herc_log, hercules_log_texts_2882, hercules_sample_historical_log_data): 
+def test_compile_historical_log_data(herc_log, hercules_most_recent_commits, hercules_log_texts_2882, hercules_sample_historical_log_data): 
    
+   herc_log.pr_head_commit = hercules_most_recent_commits[0]
+   herc_log.repo_commits = hercules_most_recent_commits[1:6]
    herc_log.text_per_log = hercules_log_texts_2882
    herc_log._compile_historical_log_data()
    
@@ -64,8 +68,10 @@ def test_calculate_stats(herc_log, hercules_sample_historical_log_data, hercules
    for test in hercules_mean_std: 
       assert hercules_mean_std[test] == herc_log.test_stats[test]
 
-def test_compare_results(herc_log, hercules_log_texts_2882, log_instance_results_2882_0, hercules_mean_std): 
+def test_compare_results(herc_log, hercules_most_recent_commits, hercules_log_texts_2882, log_instance_results_2882_0, hercules_mean_std): 
 
+   herc_log.pr_head_commit = hercules_most_recent_commits[0]
+   herc_log.repo_commits = hercules_most_recent_commits[1:6]
    current_log = log_instance_results_2882_0
    herc_log.text_per_log = hercules_log_texts_2882
    herc_log.test_stats = hercules_mean_std
