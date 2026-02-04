@@ -1,5 +1,4 @@
 import os
-import json
 from .Log import Log
 from .create_images import *
 from .utilities import *
@@ -40,12 +39,13 @@ def main():
          historical_runtime_memory[machine] = load_json_from_file(f"{os.environ.get('TEST_STATS')}/historical_runtime_memory.json")[machine]
          for test in list(historical_runtime_memory[machine].keys()):
             try: 
+               # Replace old PR data at index 0 w/new data
                historical_runtime_memory[machine][test]['runtime'][0] = current_pr_data[test][0]
                historical_runtime_memory[machine][test]['memory'][0] = current_pr_data[test][1]
             except KeyError:
                # If test is not included in current PR (aka it has been/is being removed), remove it from test list
                historical_runtime_memory[machine].pop(f"{test}", "Key not found; could not remove")
-               logging.warning(f"Test {test} does not exist for current PR. {removed_test}")
+               logging.info(f"Test {test} does not exist for current PR. {removed_test}")
          
       # Case where test stats have NOT been calculated and cached:
       else:
@@ -57,11 +57,11 @@ def main():
             try:
                historical_runtime_memory[machine][test]['runtime'].insert(0, current_pr_data[test][0])
                historical_runtime_memory[machine][test]['memory'].insert(0, current_pr_data[test][1])
-            except:
+            except KeyError:
                # If test is not included in current PR (aka it has been/is being removed), remove it from test list
                removed_test = historical_runtime_memory[machine].pop(f"{test}", "Key not found; could not remove")
-               logging.warning(f"Test {test} does not exist for current PR and has been removed from the data table.")
-      
+               logging.info(f"Test {test} does not exist in current PR and has been removed from the data table.")
+               
       # Compare current results to historical values and save results (pass/warn/fail)
       log.compare_results()
       runtime_results_by_machine[machine] = log.runtime_results
