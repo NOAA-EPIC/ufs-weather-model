@@ -39,6 +39,7 @@ else
 fi
 
 BUILD_NAME=fv3_${COMPILE_ID}
+RT_COMPILER=${RT_COMPILER,,}
 
 PATHTR=${PATHTR:-$( cd "${MYDIR}/.." && pwd )}
 BUILD_DIR=${BUILD_DIR:-$(pwd)/build_${BUILD_NAME}}
@@ -67,7 +68,11 @@ case ${MACHINE_ID} in
     if [[ ${MACHINE_ID} == gaeac6 ]]; then
       module reset
     elif [[ ${MACHINE_ID} == container ]]; then
-      source /usr/lmod/lmod/init/bash
+      if [[ ${RT_COMPILER} == gnu ]]; then
+        source /opt/ohpc/admin/lmod/lmod/init/bash
+      else
+	source /usr/lmod/lmod/init/bash
+      fi
       module purge
     elif [[ ${MACHINE_ID} == hercules ]]; then
       module purge
