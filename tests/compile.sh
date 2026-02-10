@@ -31,33 +31,35 @@ ufs_binary_wrapper() {
   fi
   local ufs_env=${UFS_ENV:-}
   local img_sif=${IMG:-/path/to/container/image.sif}
+  local container=${CONTAINER^^}
+  local containerbin=${CONTAINER,,}
 
 
 cat >"${wrapper}" <<EOF_WRAP
 #!/bin/bash
 set -x
 
-export APPTAINERENV_FI_PROVIDER=tcp
-export APPTAINER_SHELL=/bin/bash
+export ${container}ENV_FI_PROVIDER=tcp
+export ${container}_SHELL=/bin/bash
 
 img=${img_sif}
 cmd=\$(basename "\$0")
 
-export APPTAINERENV_PMIX_MCA_gds=hash
-export APPTAINERENV_OMPI_MCA_btl="^openib"
+export ${container}ENV_PMIX_MCA_gds=hash
+export ${container}ENV_OMPI_MCA_btl="^openib"
 
 if ip link show eth0 &>/dev/null; then
-    export APPTAINERENV_OMPI_MCA_btl_tcp_if_include=eth0
-    export APPTAINERENV_OMPI_MCA_oob_tcp_if_include=eth0
+    export ${container}ENV_OMPI_MCA_btl_tcp_if_include=eth0
+    export ${container}ENV_OMPI_MCA_oob_tcp_if_include=eth0
 fi
 
-export APPTAINERENV_OMPI_MCA_pml=ob1
-export APPTAINERENV_OMPI_MCA_btl_vader_single_copy_mechanism=none
-export APPTAINERENV_OMPI_MCA_mca_base_component_show_load_errors=0
+export ${container}ENV_OMPI_MCA_pml=ob1
+export ${container}ENV_OMPI_MCA_btl_vader_single_copy_mechanism=none
+export ${container}ENV_OMPI_MCA_mca_base_component_show_load_errors=0
 
-APPTAINER=\$(which apptainer)
+CONTAINERBIN=\$(which ${containerbin})
 
-"\${APPTAINER}" exec --env-file ${ufs_env} \
+"\${CONTAINERBIN}" exec --env-file ${ufs_env} \
 -B ${bind_dir} ${bind_add:-} \${img} \$cmd 
 
 EOF_WRAP
@@ -175,6 +177,8 @@ if [[ ${MACHINE_ID} == container ]]; then
   export UFS_ENV="${PATHTR}/tests/ufswm.env"               # environment file for the runtime
   export UFS_WRAP="${PATHTR}/tests/ufs_model.sh"           # wrapper for the ufs_model executable
   export UFS_BIN="${PATHTR}/tests" # location of actual ufs_model binary
+  # Address setup diffs. for SINGULARITY vs APPTAINER, depending on a ${CONTAINER} env. variable set explicitly (SINGULARITY is the default)
+  export CONTAINER="${CONTAINER:-SINGULARITY}"
   env_vars ${UFS_ENV}              # create an env. file
   ufs_binary_wrapper ${UFS_WRAP}   # create a binary wrapper
   cp "${PATHTR}/modulefiles/ufs_container.runtime.lua" "${PATHTR}/tests/modules.runtime.lua"
