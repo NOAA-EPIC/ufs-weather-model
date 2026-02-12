@@ -97,8 +97,8 @@ cd "${RUNDIR}"
 # FV3 executable:
 if [[  ${MACHINE_ID} == container ]]; then
   cp "${PATHRT}/ufs_model.sh" "fv3.exe"                       # binary wrap script
-  [[ -f "${PATHRT}/fv3.exe" ]] && rm "${PATHRT}/fv3.exe"
-  ln -s "${PATHRT}/fv3_${COMPILE_ID}.exe" "${PATHRT}/fv3.exe" # actual binary
+  [[ -L "${PATHRT}/fv3.exe" ]] && rm "${PATHRT}/fv3.exe"
+  ln -s "${PATHRT}/fv3_${COMPILE_ID}.exe" "${PATHRT}/fv3.exe" # link actual binary
 else
   cp "${PATHRT}/fv3_${COMPILE_ID}.exe" "fv3.exe"
 fi
