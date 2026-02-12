@@ -1,12 +1,13 @@
 #!/bin/bash
+#!/bin/sh
 #SBATCH -e err
 #SBATCH -o out
-#SBATCH --account=epic
+#SBATCH --account=ca-epic
 #SBATCH --qos=batch
+## SBATCH --partition=@[PARTITION}
+### #SBATCH --ntasks=@[TASKS]
 #SBATCH --nodes=@[NODES]
-#SBATCH --partition=orion
 #SBATCH --ntasks-per-node=@[TPN]
-#SBATCH --cpus-per-task=@[THRD]
 #SBATCH --time=@[WLCLK]
 #SBATCH --job-name="@[JBNME]"
 @[EXCLUSIVE_NODES_OPT]
