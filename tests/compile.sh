@@ -21,7 +21,6 @@ HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH:-}
 HDF5_USE_FILE_LOCKING=FALSE
 ESMFMKFILE=${ESMFMKFILE:-}
 CRTM_FIX=${CRTM_FIX}
-ESMF_RUNTIME_MPI_THREAD_SUPPORT=MPI_THREAD_SINGLE
 
 EOF_ENV
 }
@@ -60,8 +59,6 @@ fi
 export ${container}ENV_OMPI_MCA_pml=ob1
 export ${container}ENV_OMPI_MCA_btl_vader_single_copy_mechanism=none
 export ${container}ENV_OMPI_MCA_mca_base_component_show_load_errors=0
-export ${container}ENV_ESMF_RUNTIME_MPI_THREAD_SUPPORT=MPI_THREAD_SINGLE
-export ${container}ENV_OMP_NUM_THREADS=1
 
 CONTAINERBIN=\$(which ${containerbin})
 
