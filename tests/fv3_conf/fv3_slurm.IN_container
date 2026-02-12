@@ -2,7 +2,7 @@
 #!/bin/sh
 #SBATCH -e err
 #SBATCH -o out
-#SBATCH --account=ca-epic
+#SBATCH --account=epic
 #SBATCH --qos=batch
 ## SBATCH --partition=@[PARTITION}
 ### #SBATCH --ntasks=@[TASKS]
