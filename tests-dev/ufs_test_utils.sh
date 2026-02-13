@@ -30,6 +30,12 @@ function set_run_task() {
     fi
 
     export WLCLK
+	export TASKS
+    export UFS_TASKS
+    export NODES
+    export TPN
+    export PPN
+    export THRD
      
     ${PYTHON_VER} -c "import create_xml; create_xml.write_runtest_env()"
     rocoto_create_run_task

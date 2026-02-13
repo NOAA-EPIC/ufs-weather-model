@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!DOCTYPE workflow
+[
+  <!ENTITY PATHRT         "/work/noaa/epic/jongkim/UFS-RT/refactor/refactor/tests">
+  <!ENTITY LOG            "/work/noaa/epic/jongkim/UFS-RT/refactor/refactor/tests/logs/log_orion">
+  <!ENTITY PATHTR         "/work/noaa/epic/jongkim/UFS-RT/refactor/refactor">
+  <!ENTITY RTPWD          "/work/noaa/epic/UFS-WM_RT/NEMSfv3gfs/develop-20250828">
+  <!ENTITY INPUTDATA_ROOT "/work/noaa/epic/UFS-WM_RT/NEMSfv3gfs/input-data-20250507">
+  <!ENTITY INPUTDATA_ROOT_WW3 "/work/noaa/epic/UFS-WM_RT/NEMSfv3gfs/input-data-20250507/WW3_input_data_20250807">
+  <!ENTITY INPUTDATA_ROOT_BMIC "/work/noaa/epic/UFS-WM_RT/NEMSfv3gfs/BM_IC-20220207">
+  <!ENTITY INPUTDATA_LM4 "/work/noaa/epic/UFS-WM_RT/NEMSfv3gfs/input-data-20250507/LM4_input_data">
+  <!ENTITY RUNDIR_ROOT    "/work/noaa/stmp/jongkim/stmp/jongkim/FV3_RT/rt_2875911">
+  <!ENTITY NEW_BASELINE   "/work/noaa/stmp/jongkim/stmp/jongkim/FV3_RT/REGRESSION_TEST">
+]>
+<workflow realtime="F" scheduler="slurm" taskthrottle="10">
+  <cycledef>197001010000 197001010000 01:00:00</cycledef>
+  <log>&LOG;/workflow.log</log>    
+  <task name="compile_datm_cdeps_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=NG-GODAS" datm_cdeps_intel 2>&amp;1 | tee &LOG;/compile_datm_cdeps_intel.log</command>
+    <jobname>compile_datm_cdeps_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_datm_cdeps_intel.log</join>
+    
+  </task>
+  <metatask name="compile_datm_cdeps_intel_tasks"><var name="zero">0</var>
+    <task name="datm_cdeps_control_cfsr_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_control_cfsr datm_cdeps_control_cfsr_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_control_cfsr_intel.log' </command>
+      <jobname>datm_cdeps_control_cfsr_intel</jobname>
+      <account>epic</account>
+      
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_control_cfsr_intel.log</join>
+      
+    </task>
+    <task name="datm_cdeps_ciceC_cfsr_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_ciceC_cfsr datm_cdeps_ciceC_cfsr_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_ciceC_cfsr_intel.log' </command>
+      <jobname>datm_cdeps_ciceC_cfsr_intel</jobname>
+      <account>epic</account>
+      
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_ciceC_cfsr_intel.log</join>
+      
+    </task>
+    <task name="datm_cdeps_bulk_cfsr_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_bulk_cfsr datm_cdeps_bulk_cfsr_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_bulk_cfsr_intel.log' </command>
+      <jobname>datm_cdeps_bulk_cfsr_intel</jobname>
+      <account>epic</account>
+      
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_bulk_cfsr_intel.log</join>
+      
+    </task>
+  </metatask>
+</workflow>

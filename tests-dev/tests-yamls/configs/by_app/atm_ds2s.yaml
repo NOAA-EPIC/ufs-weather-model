@@ -1,0 +1,17 @@
+atm_ds2s_docn_dice_intel:
+  build:
+    compiler: intel
+    option: -DAPP=ATM_DS2S -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1
+    turnoff:
+    - wcoss2
+    - acorn
+  tests:
+  - atm_ds2s_docn_dice:
+      project:
+      - daily
+      baseline: 'True'
+      dependency: cpld_control_nowave_noaero_p8
+      turnoff:
+      - noaacloud
+      - wcoss2
+      - acorn

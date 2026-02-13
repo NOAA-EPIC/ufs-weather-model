@@ -1,0 +1,166 @@
+ng-godas_datm_cdeps_intel:
+  build:
+    compiler: intel
+    option: -DAPP=NG-GODAS
+    turnoff:
+    - wcoss2
+  tests:
+  - datm_cdeps_control_cfsr:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+  - datm_cdeps_restart_cfsr:
+      project:
+      - daily
+      dependency: datm_cdeps_control_cfsr
+      turnoff:
+      - wcoss2
+      - noaacloud
+  - datm_cdeps_control_gefs:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+  - datm_cdeps_iau_gefs:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+  - datm_cdeps_stochy_gefs:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+  - datm_cdeps_ciceC_cfsr:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+      - noaacloud
+  - datm_cdeps_bulk_cfsr:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+      - noaacloud
+  - datm_cdeps_bulk_gefs:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+      - noaacloud
+  - datm_cdeps_mx025_cfsr:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+      - noaacloud
+  - datm_cdeps_mx025_gefs:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+      - noaacloud
+  - datm_cdeps_multiple_files_cfsr:
+      project:
+      - daily
+      turnoff:
+      - wcoss2
+      - noaacloud
+  - datm_cdeps_3072x1536_cfsr:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+      - noaacloud
+  - datm_cdeps_gfs:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+      - noaacloud
+ng-godas_datm_cdeps_debug_intel:
+  build:
+    compiler: intel
+    option: -DAPP=NG-GODAS -DDEBUG=ON
+    turnoff:
+    - wcoss2
+    - acorn
+    - noaacloud
+  tests:
+  - datm_cdeps_debug_cfsr:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+      - acorn
+      - noaacloud
+ng-godas_datm_cdeps_faster_intel:
+  build:
+    compiler: intel
+    option: -DAPP=NG-GODAS -DFASTER=ON
+    turnoff:
+    - wcoss2
+  tests:
+  - datm_cdeps_control_cfsr_faster:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+ng-godas_datm_cdeps_intelllvm:
+  build:
+    compiler: intelllvm
+    option: -DAPP=NG-GODAS
+    turnon:
+    - ursa
+  tests:
+  - datm_cdeps_control_cfsr:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - ursa
+ng-godas_datm_cdeps_debug_intelllvm:
+  build:
+    compiler: intelllvm
+    option: -DAPP=NG-GODAS -DDEBUG=ON
+    turnon:
+    - ursa
+  tests:
+  - datm_cdeps_debug_cfsr:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - ursa
+ng-godas_datm_cdeps_gnu:
+  build:
+    compiler: gnu
+    option: -DAPP=NG-GODAS
+    turnon:
+    - hera
+    - hercules
+    - ursa
+  tests:
+  - datm_cdeps_control_cfsr:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - hera
+      - hercules
+      - ursa

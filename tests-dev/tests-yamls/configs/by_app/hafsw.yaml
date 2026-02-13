@@ -1,0 +1,167 @@
+hafsw_default_intel:
+  build:
+    compiler: intel
+    option: -DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_thompson_tedmf_gfdlsf,FV3_global_nest_v1,FV3_HAFS_v1_gfdlmpv3_tedmf
+      -D32BIT=ON
+  tests:
+  - hafs_regional_atm:
+      project:
+      - daily
+      baseline: 'True'
+  - hafs_regional_atm_gfdlmpv3:
+      project:
+      - daily
+      baseline: 'True'
+  - hafs_regional_atm_thompson_gfdlsf:
+      project:
+      - daily
+      baseline: 'True'
+  - hafs_regional_atm_ocn:
+      project:
+      - daily
+      baseline: 'True'
+  - hafs_regional_atm_wav:
+      project:
+      - daily
+      baseline: 'True'
+  - hafs_regional_atm_ocn_wav:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+      - hera
+  - hafs_regional_1nest_atm:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+      - noaacloud
+  - hafs_regional_telescopic_2nests_atm:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+      - noaacloud
+  - hafs_global_1nest_atm:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+      - noaacloud
+  - hafs_global_multiple_4nests_atm:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+      - noaacloud
+  - hafs_regional_specified_moving_1nest_atm:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+      - noaacloud
+  - hafs_regional_storm_following_1nest_atm:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+      - noaacloud
+  - hafs_regional_storm_following_1nest_atm_ocn:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+      - noaacloud
+  - hafs_global_storm_following_1nest_atm:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+      - noaacloud
+  - gnv1_nested:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - hercules
+      - wcoss2
+      - s4
+      - noaacloud
+hafsw_debug_intel:
+  build:
+    compiler: intel
+    option: -DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf_nonsst
+      -D32BIT=ON -DDEBUG=ON
+    turnoff:
+    - noaacloud
+    - s4
+  tests:
+  - hafs_regional_storm_following_1nest_atm_ocn_debug:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+      - noaacloud
+hafsw_faster_intel:
+  build:
+    compiler: intel
+    option: -DAPP=HAFSW -DCDEPS_INLINE=ON -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_thompson,FV3_HAFS_v1_thompson_nonsst
+      -D32BIT=ON -DFASTER=ON
+    turnoff:
+    - noaacloud
+    - s4
+  tests:
+  - hafs_regional_storm_following_1nest_atm_ocn_wav:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+      - noaacloud
+  - hafs_regional_storm_following_1nest_atm_ocn_wav_inline:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+      - noaacloud
+hafsw_default_intelllvm:
+  build:
+    compiler: intelllvm
+    option: -DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf_nonsst
+      -D32BIT=ON
+    turnon:
+    - orion
+    - ursa
+  tests:
+  - hafs_regional_storm_following_1nest_atm_ocn:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - orion
+      - ursa
+hafsw_debug_intelllvm:
+  build:
+    compiler: intelllvm
+    option: -DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf_nonsst
+      -D32BIT=ON -DDEBUG=ON
+    turnon:
+    - ursa
+  tests:
+  - hafs_regional_storm_following_1nest_atm_ocn_debug:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - ursa

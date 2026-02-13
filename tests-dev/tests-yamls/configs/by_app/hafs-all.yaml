@@ -1,0 +1,27 @@
+hafs-all_hafs_all_intel:
+  build:
+    compiler: intel
+    option: -DAPP=HAFS-ALL -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst
+      -D32BIT=ON
+    turnoff:
+    - noaacloud
+  tests:
+  - hafs_regional_docn:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - hafs_regional_docn_oisst:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - hafs_regional_datm_cdeps:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+      - noaacloud

@@ -1,0 +1,34 @@
+atmaq_default_intel:
+  build:
+    compiler: intel
+    option: -DAPP=ATMAQ -DCCPP_SUITES=FV3_GFS_v16 -D32BIT=ON
+    turnoff:
+    - s4
+  tests:
+  - regional_atmaq:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+  - regional_atmaq_canopy:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+atmaq_debug_intel:
+  build:
+    compiler: intel
+    option: -DAPP=ATMAQ -DCCPP_SUITES=FV3_GFS_v16 -DDEBUG=ON -D32BIT=ON
+    turnoff:
+    - noaacloud
+    - s4
+  tests:
+  - regional_atmaq_debug:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+      - noaacloud

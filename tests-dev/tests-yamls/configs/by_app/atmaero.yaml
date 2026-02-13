@@ -1,0 +1,25 @@
+atmaero_default_intel:
+  build:
+    compiler: intel
+    option: -DAPP=ATMAERO -DCCPP_SUITES=FV3_GFS_v17_p8 -D32BIT=ON
+    turnoff:
+    - noaacloud
+  tests:
+  - atmaero_control_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - atmaero_control_p8_rad:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - atmaero_control_p8_rad_micro:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud

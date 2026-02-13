@@ -5,6 +5,50 @@ import glob
 import yaml
 import shutil
 import subprocess
+from datetime import datetime
+from pathlib import Path
+from collections import defaultdict
+
+def extract_dapp(option_str):
+    match = re.search(r"-DAPP=([A-Za-z0-9_-]+)", option_str)
+    return match.group(1).lower() if match else "unknown"
+
+def load_yaml(path):
+    with open(path) as f:
+        return yaml.safe_load(f)
+
+def reclassify_and_rekey(data):
+    grouped = defaultdict(dict)
+    for original_key, block in data.items():
+        build = block.get("build", {})
+        compiler = build.get("compiler", "unknown").lower()
+        option = build.get("option", "")
+        dapp = extract_dapp(option)
+
+        # Extract variant from original key (remove dapp and compiler if present)
+        variant = original_key
+        for token in [dapp, compiler]:
+            variant = variant.replace(token, "")
+        variant = variant.strip("_") or "default"
+
+        # Final key format: <dapp>_<variant>_<compiler>
+        new_key = f"{dapp}_{variant}_{compiler}"
+
+        grouped[dapp][new_key] = block
+    return grouped
+
+def write_grouped_yaml(grouped, output_dir="tests-dev/configs/by_app"):
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    for dapp, entries in grouped.items():
+        out_path = Path(output_dir) / f"{dapp}.yaml"
+        with open(out_path, "w") as f:
+            yaml.dump(entries, f, sort_keys=False, default_flow_style=False)
+
+def split_by_app():
+    input_path = Path("ufs_test.yaml")
+    data = load_yaml(input_path)
+    grouped = reclassify_and_rekey(data)
+    write_grouped_yaml(grouped)
 
 def update_testyaml(input_list):
     """Generates temporary test YAML based on list of tests received
@@ -350,5 +394,6 @@ def rrmdir(path):
     #        os.remove(entry)
     #        os.rmdir(path)
 
-#if __name__ == "__main__":
-#    create_yaml()
+if __name__ == "__main__":
+    create_yaml()
+    split_by_app()

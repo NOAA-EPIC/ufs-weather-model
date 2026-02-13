@@ -1,0 +1,15 @@
+atmmpas_atm_mpas_dyn32_gnu:
+  build:
+    compiler: gnu
+    option: -DAPP=ATMMPAS -DCCPP_SUITES=MPAS_RRFS -D32BIT=ON
+    turnon:
+    - hera
+    - hercules
+  tests:
+  - control_gfs_mpas:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - hera
+      - hercules

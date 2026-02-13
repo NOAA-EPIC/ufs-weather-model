@@ -1,0 +1,33 @@
+atml_default_intel:
+  build:
+    compiler: intel
+    option: -DAPP=ATML -DCCPP_SUITES=FV3_GFS_v16,FV3_GFS_v16_flake,FV3_GFS_v17_p8,FV3_GFS_v17_p8_rrtmgp,FV3_GFS_v15_thompson_mynn_lam3km,FV3_WoFS_v0,FV3_GFS_v17_p8_mynn,FV3_GFS_v17_p8_ugwpv1
+      -D32BIT=ON
+  tests:
+  - control_p8_atmlnd:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+      - wcoss2
+  - control_restart_p8_atmlnd:
+      project:
+      - daily
+      dependency: control_p8_atmlnd
+      turnoff:
+      - noaacloud
+      - wcoss2
+atml_debug_intel:
+  build:
+    compiler: intel
+    option: -DAPP=ATML -DCCPP_SUITES=FV3_GFS_v16,FV3_GFS_v16_flake,FV3_GFS_v17_p8,FV3_GFS_v17_p8_rrtmgp,FV3_GFS_v15_thompson_mynn_lam3km,FV3_WoFS_v0,FV3_GFS_v17_p8_mynn,FV3_GFS_v17_p8_ugwpv1
+      -D32BIT=ON -DDEBUG=ON
+  tests:
+  - control_p8_atmlnd_debug:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+      - wcoss2

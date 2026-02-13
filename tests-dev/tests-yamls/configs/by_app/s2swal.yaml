@@ -1,0 +1,25 @@
+s2swal_default_intel:
+  build:
+    compiler: intel
+    option: -DAPP=S2SWAL -DCCPP_SUITES=FV3_GFS_v17_coupled_p8,FV3_GFS_v17_coupled_p8_ugwpv1
+  tests:
+  - cpld_control_p8_lnd:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+      - wcoss2
+  - cpld_restart_p8_lnd:
+      project:
+      - daily
+      dependency: cpld_control_p8_lnd
+      turnoff:
+      - noaacloud
+      - wcoss2
+  - cpld_s2sa_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud

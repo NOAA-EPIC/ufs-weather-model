@@ -1,0 +1,13 @@
+atmw_default_intel:
+  build:
+    compiler: intel
+    option: -DAPP=ATMW -DCCPP_SUITES=FV3_GFS_v17_p8 -D32BIT=ON
+    turnoff:
+    - wcoss2
+  tests:
+  - atmwav_control_noaero_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2

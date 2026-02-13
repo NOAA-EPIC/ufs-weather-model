@@ -1,0 +1,3333 @@
+<?xml version="1.0"?>
+<!DOCTYPE workflow
+[
+  <!ENTITY PATHRT         "/work/noaa/epic/jongkim/UFS-RT/refactor/refactor/tests">
+  <!ENTITY LOG            "/work/noaa/epic/jongkim/UFS-RT/refactor/refactor/tests/logs/log_orion">
+  <!ENTITY PATHTR         "/work/noaa/epic/jongkim/UFS-RT/refactor/refactor">
+  <!ENTITY RTPWD          "/work/noaa/epic/UFS-WM_RT/NEMSfv3gfs/develop-20250828">
+  <!ENTITY INPUTDATA_ROOT "/work/noaa/epic/UFS-WM_RT/NEMSfv3gfs/input-data-20250507">
+  <!ENTITY INPUTDATA_ROOT_WW3 "/work/noaa/epic/UFS-WM_RT/NEMSfv3gfs/input-data-20250507/WW3_input_data_20250807">
+  <!ENTITY INPUTDATA_ROOT_BMIC "/work/noaa/epic/UFS-WM_RT/NEMSfv3gfs/BM_IC-20220207">
+  <!ENTITY INPUTDATA_LM4 "/work/noaa/epic/UFS-WM_RT/NEMSfv3gfs/input-data-20250507/LM4_input_data">
+  <!ENTITY RUNDIR_ROOT    "/work/noaa/stmp/jongkim/stmp/jongkim/FV3_RT/rt_2882393">
+  <!ENTITY NEW_BASELINE   "/work/noaa/stmp/jongkim/stmp/jongkim/FV3_RT/REGRESSION_TEST">
+]>
+<workflow realtime="F" scheduler="slurm" taskthrottle="10">
+  <cycledef>197001010000 197001010000 01:00:00</cycledef>
+  <log>&LOG;/workflow.log</log>
+  <task name="compile_s2swa_32bit_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=S2SWA -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8,FV3_GFS_v17_coupled_p8_ugwpv1" s2swa_32bit_intel 2>&amp;1 | tee &LOG;/compile_s2swa_32bit_intel.log</command>
+    <jobname>compile_s2swa_32bit_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_s2swa_32bit_intel.log</join>
+
+  </task>
+  <metatask name="compile_s2swa_32bit_intel_tasks"><var name="zero">0</var>
+    <task name="cpld_control_p8_mixedmode_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_32bit_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_p8_mixedmode cpld_control_p8_mixedmode_intel s2swa_32bit_intel 2>&amp;1 | tee &LOG;/run_cpld_control_p8_mixedmode_intel.log' </command>
+      <jobname>cpld_control_p8_mixedmode_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_p8_mixedmode_intel.log</join>
+
+    </task>
+    <task name="cpld_control_gefs_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_32bit_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_gefs cpld_control_gefs_intel s2swa_32bit_intel 2>&amp;1 | tee &LOG;/run_cpld_control_gefs_intel.log' </command>
+      <jobname>cpld_control_gefs_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>35:ppn=40</nodes>
+      <walltime>00:40:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_gefs_intel.log</join>
+
+    </task>
+    <task name="cpld_restart_gefs_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_s2swa_32bit_intel"/> <taskdep task="cpld_control_gefs_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_restart_gefs cpld_restart_gefs_intel s2swa_32bit_intel 2>&amp;1 | tee &LOG;/run_cpld_restart_gefs_intel.log' </command>
+      <jobname>cpld_restart_gefs_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>35:ppn=40</nodes>
+      <walltime>00:20:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_restart_gefs_intel.log</join>
+
+    </task>
+    <task name="cpld_dcp_gefs_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_32bit_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_dcp_gefs cpld_dcp_gefs_intel s2swa_32bit_intel 2>&amp;1 | tee &LOG;/run_cpld_dcp_gefs_intel.log' </command>
+      <jobname>cpld_dcp_gefs_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>36:ppn=40</nodes>
+      <walltime>00:40:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_dcp_gefs_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_s2swa_32bit_pdlib_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=S2SWA -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON" s2swa_32bit_pdlib_intel 2>&amp;1 | tee &LOG;/compile_s2swa_32bit_pdlib_intel.log</command>
+    <jobname>compile_s2swa_32bit_pdlib_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_s2swa_32bit_pdlib_intel.log</join>
+
+  </task>
+  <metatask name="compile_s2swa_32bit_pdlib_intel_tasks"><var name="zero">0</var>
+    <task name="cpld_control_gfsv17_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_32bit_pdlib_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_gfsv17 cpld_control_gfsv17_intel s2swa_32bit_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_control_gfsv17_intel.log' </command>
+      <jobname>cpld_control_gfsv17_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>6:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_gfsv17_intel.log</join>
+
+    </task>
+    <task name="cpld_control_gfsv17_iau_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_s2swa_32bit_pdlib_intel"/> <taskdep task="cpld_control_gfsv17_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_gfsv17_iau cpld_control_gfsv17_iau_intel s2swa_32bit_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_control_gfsv17_iau_intel.log' </command>
+      <jobname>cpld_control_gfsv17_iau_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>6:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_gfsv17_iau_intel.log</join>
+
+    </task>
+    <task name="cpld_restart_gfsv17_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_s2swa_32bit_pdlib_intel"/> <taskdep task="cpld_control_gfsv17_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_restart_gfsv17 cpld_restart_gfsv17_intel s2swa_32bit_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_restart_gfsv17_intel.log' </command>
+      <jobname>cpld_restart_gfsv17_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>6:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_restart_gfsv17_intel.log</join>
+
+    </task>
+    <task name="cpld_restart_gfsv17_iau_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_s2swa_32bit_pdlib_intel"/> <taskdep task="cpld_control_gfsv17_iau_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_restart_gfsv17_iau cpld_restart_gfsv17_iau_intel s2swa_32bit_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_restart_gfsv17_iau_intel.log' </command>
+      <jobname>cpld_restart_gfsv17_iau_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>6:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_restart_gfsv17_iau_intel.log</join>
+
+    </task>
+    <task name="cpld_mpi_gfsv17_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_32bit_pdlib_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_mpi_gfsv17 cpld_mpi_gfsv17_intel s2swa_32bit_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_mpi_gfsv17_intel.log' </command>
+      <jobname>cpld_mpi_gfsv17_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>8:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_mpi_gfsv17_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_s2swa_32bit_pdlib_sfs_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=S2SWA -D32BIT=ON -DHYDRO=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON" s2swa_32bit_pdlib_sfs_intel 2>&amp;1 | tee &LOG;/compile_s2swa_32bit_pdlib_sfs_intel.log</command>
+    <jobname>compile_s2swa_32bit_pdlib_sfs_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_s2swa_32bit_pdlib_sfs_intel.log</join>
+
+  </task>
+  <metatask name="compile_s2swa_32bit_pdlib_sfs_intel_tasks"><var name="zero">0</var>
+    <task name="cpld_control_sfs_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_32bit_pdlib_sfs_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_sfs cpld_control_sfs_intel s2swa_32bit_pdlib_sfs_intel 2>&amp;1 | tee &LOG;/run_cpld_control_sfs_intel.log' </command>
+      <jobname>cpld_control_sfs_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>6:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_sfs_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_s2swa_32bit_pdlib_debug_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=S2SWA -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON -DDEBUG=ON" s2swa_32bit_pdlib_debug_intel 2>&amp;1 | tee &LOG;/compile_s2swa_32bit_pdlib_debug_intel.log</command>
+    <jobname>compile_s2swa_32bit_pdlib_debug_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_s2swa_32bit_pdlib_debug_intel.log</join>
+
+  </task>
+  <metatask name="compile_s2swa_32bit_pdlib_debug_intel_tasks"><var name="zero">0</var>
+    <task name="cpld_debug_gfsv17_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_32bit_pdlib_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_debug_gfsv17 cpld_debug_gfsv17_intel s2swa_32bit_pdlib_debug_intel 2>&amp;1 | tee &LOG;/run_cpld_debug_gfsv17_intel.log' </command>
+      <jobname>cpld_debug_gfsv17_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>7:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_debug_gfsv17_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_s2swa_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=S2SWA -DCCPP_SUITES=FV3_GFS_v17_coupled_p8,FV3_GFS_v17_coupled_p8_ugwpv1" s2swa_intel 2>&amp;1 | tee &LOG;/compile_s2swa_intel.log</command>
+    <jobname>compile_s2swa_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_s2swa_intel.log</join>
+
+  </task>
+  <metatask name="compile_s2swa_intel_tasks"><var name="zero">0</var>
+    <task name="cpld_control_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_p8 cpld_control_p8_intel s2swa_intel 2>&amp;1 | tee &LOG;/run_cpld_control_p8_intel.log' </command>
+      <jobname>cpld_control_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_p8_intel.log</join>
+
+    </task>
+    <task name="cpld_control_p8.v2.sfc_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_p8.v2.sfc cpld_control_p8.v2.sfc_intel s2swa_intel 2>&amp;1 | tee &LOG;/run_cpld_control_p8.v2.sfc_intel.log' </command>
+      <jobname>cpld_control_p8.v2.sfc_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_p8.v2.sfc_intel.log</join>
+
+    </task>
+    <task name="cpld_restart_p8_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_s2swa_intel"/> <taskdep task="cpld_control_p8_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_restart_p8 cpld_restart_p8_intel s2swa_intel 2>&amp;1 | tee &LOG;/run_cpld_restart_p8_intel.log' </command>
+      <jobname>cpld_restart_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_restart_p8_intel.log</join>
+
+    </task>
+    <task name="cpld_control_qr_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_qr_p8 cpld_control_qr_p8_intel s2swa_intel 2>&amp;1 | tee &LOG;/run_cpld_control_qr_p8_intel.log' </command>
+      <jobname>cpld_control_qr_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_qr_p8_intel.log</join>
+
+    </task>
+    <task name="cpld_restart_qr_p8_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_s2swa_intel"/> <taskdep task="cpld_control_qr_p8_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_restart_qr_p8 cpld_restart_qr_p8_intel s2swa_intel 2>&amp;1 | tee &LOG;/run_cpld_restart_qr_p8_intel.log' </command>
+      <jobname>cpld_restart_qr_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_restart_qr_p8_intel.log</join>
+
+    </task>
+    <task name="cpld_2threads_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_2threads_p8 cpld_2threads_p8_intel s2swa_intel 2>&amp;1 | tee &LOG;/run_cpld_2threads_p8_intel.log' </command>
+      <jobname>cpld_2threads_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>7:ppn=20</nodes>
+      <walltime>00:40:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_2threads_p8_intel.log</join>
+
+    </task>
+    <task name="cpld_decomp_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_decomp_p8 cpld_decomp_p8_intel s2swa_intel 2>&amp;1 | tee &LOG;/run_cpld_decomp_p8_intel.log' </command>
+      <jobname>cpld_decomp_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_decomp_p8_intel.log</join>
+
+    </task>
+    <task name="cpld_mpi_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_mpi_p8 cpld_mpi_p8_intel s2swa_intel 2>&amp;1 | tee &LOG;/run_cpld_mpi_p8_intel.log' </command>
+      <jobname>cpld_mpi_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>7:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_mpi_p8_intel.log</join>
+
+    </task>
+    <task name="cpld_control_ciceC_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_ciceC_p8 cpld_control_ciceC_p8_intel s2swa_intel 2>&amp;1 | tee &LOG;/run_cpld_control_ciceC_p8_intel.log' </command>
+      <jobname>cpld_control_ciceC_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_ciceC_p8_intel.log</join>
+
+    </task>
+    <task name="cpld_control_c192_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_c192_p8 cpld_control_c192_p8_intel s2swa_intel 2>&amp;1 | tee &LOG;/run_cpld_control_c192_p8_intel.log' </command>
+      <jobname>cpld_control_c192_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>20:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_c192_p8_intel.log</join>
+
+    </task>
+    <task name="cpld_restart_c192_p8_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_s2swa_intel"/> <taskdep task="cpld_control_c192_p8_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_restart_c192_p8 cpld_restart_c192_p8_intel s2swa_intel 2>&amp;1 | tee &LOG;/run_cpld_restart_c192_p8_intel.log' </command>
+      <jobname>cpld_restart_c192_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>20:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_restart_c192_p8_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_s2swal_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=S2SWAL -DCCPP_SUITES=FV3_GFS_v17_coupled_p8,FV3_GFS_v17_coupled_p8_ugwpv1" s2swal_intel 2>&amp;1 | tee &LOG;/compile_s2swal_intel.log</command>
+    <jobname>compile_s2swal_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_s2swal_intel.log</join>
+
+  </task>
+  <metatask name="compile_s2swal_intel_tasks"><var name="zero">0</var>
+    <task name="cpld_control_p8_lnd_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swal_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_p8_lnd cpld_control_p8_lnd_intel s2swal_intel 2>&amp;1 | tee &LOG;/run_cpld_control_p8_lnd_intel.log' </command>
+      <jobname>cpld_control_p8_lnd_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>9:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_p8_lnd_intel.log</join>
+
+    </task>
+    <task name="cpld_restart_p8_lnd_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_s2swal_intel"/> <taskdep task="cpld_control_p8_lnd_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_restart_p8_lnd cpld_restart_p8_lnd_intel s2swal_intel 2>&amp;1 | tee &LOG;/run_cpld_restart_p8_lnd_intel.log' </command>
+      <jobname>cpld_restart_p8_lnd_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>9:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_restart_p8_lnd_intel.log</join>
+
+    </task>
+    <task name="cpld_s2sa_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swal_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_s2sa_p8 cpld_s2sa_p8_intel s2swal_intel 2>&amp;1 | tee &LOG;/run_cpld_s2sa_p8_intel.log' </command>
+      <jobname>cpld_s2sa_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_s2sa_p8_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_s2sw_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=S2SW -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1" s2sw_intel 2>&amp;1 | tee &LOG;/compile_s2sw_intel.log</command>
+    <jobname>compile_s2sw_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_s2sw_intel.log</join>
+
+  </task>
+  <metatask name="compile_s2sw_intel_tasks"><var name="zero">0</var>
+    <task name="cpld_control_noaero_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2sw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_noaero_p8 cpld_control_noaero_p8_intel s2sw_intel 2>&amp;1 | tee &LOG;/run_cpld_control_noaero_p8_intel.log' </command>
+      <jobname>cpld_control_noaero_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_noaero_p8_intel.log</join>
+
+    </task>
+    <task name="cpld_control_nowave_noaero_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2sw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_nowave_noaero_p8 cpld_control_nowave_noaero_p8_intel s2sw_intel 2>&amp;1 | tee &LOG;/run_cpld_control_nowave_noaero_p8_intel.log' </command>
+      <jobname>cpld_control_nowave_noaero_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_nowave_noaero_p8_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_s2swa_debug_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=S2SWA -DDEBUG=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1" s2swa_debug_intel 2>&amp;1 | tee &LOG;/compile_s2swa_debug_intel.log</command>
+    <jobname>compile_s2swa_debug_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_s2swa_debug_intel.log</join>
+
+  </task>
+  <metatask name="compile_s2swa_debug_intel_tasks"><var name="zero">0</var>
+    <task name="cpld_debug_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_debug_p8 cpld_debug_p8_intel s2swa_debug_intel 2>&amp;1 | tee &LOG;/run_cpld_debug_p8_intel.log' </command>
+      <jobname>cpld_debug_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_debug_p8_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_s2sw_debug_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=S2SW -DDEBUG=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1" s2sw_debug_intel 2>&amp;1 | tee &LOG;/compile_s2sw_debug_intel.log</command>
+    <jobname>compile_s2sw_debug_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_s2sw_debug_intel.log</join>
+
+  </task>
+  <metatask name="compile_s2sw_debug_intel_tasks"><var name="zero">0</var>
+    <task name="cpld_debug_noaero_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2sw_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_debug_noaero_p8 cpld_debug_noaero_p8_intel s2sw_debug_intel 2>&amp;1 | tee &LOG;/run_cpld_debug_noaero_p8_intel.log' </command>
+      <jobname>cpld_debug_noaero_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_debug_noaero_p8_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_s2s_aoflux_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=S2S -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_sfcocn -DCMEPS_AOFLUX=ON" s2s_aoflux_intel 2>&amp;1 | tee &LOG;/compile_s2s_aoflux_intel.log</command>
+    <jobname>compile_s2s_aoflux_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_s2s_aoflux_intel.log</join>
+
+  </task>
+  <metatask name="compile_s2s_aoflux_intel_tasks"><var name="zero">0</var>
+    <task name="cpld_control_noaero_p8_agrid_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2s_aoflux_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_noaero_p8_agrid cpld_control_noaero_p8_agrid_intel s2s_aoflux_intel 2>&amp;1 | tee &LOG;/run_cpld_control_noaero_p8_agrid_intel.log' </command>
+      <jobname>cpld_control_noaero_p8_agrid_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_noaero_p8_agrid_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_s2swa_faster_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=S2SWA -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DFASTER=ON" s2swa_faster_intel 2>&amp;1 | tee &LOG;/compile_s2swa_faster_intel.log</command>
+    <jobname>compile_s2swa_faster_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_s2swa_faster_intel.log</join>
+
+  </task>
+  <metatask name="compile_s2swa_faster_intel_tasks"><var name="zero">0</var>
+    <task name="cpld_control_p8_faster_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2swa_faster_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_p8_faster cpld_control_p8_faster_intel s2swa_faster_intel 2>&amp;1 | tee &LOG;/run_cpld_control_p8_faster_intel.log' </command>
+      <jobname>cpld_control_p8_faster_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_p8_faster_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_s2sw_pdlib_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=S2SW -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1,FV3_coupled_lowres -DPDLIB=ON" s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/compile_s2sw_pdlib_intel.log</command>
+    <jobname>compile_s2sw_pdlib_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_s2sw_pdlib_intel.log</join>
+
+  </task>
+  <metatask name="compile_s2sw_pdlib_intel_tasks"><var name="zero">0</var>
+    <task name="cpld_control_pdlib_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2sw_pdlib_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_pdlib_p8 cpld_control_pdlib_p8_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_control_pdlib_p8_intel.log' </command>
+      <jobname>cpld_control_pdlib_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>6:ppn=40</nodes>
+      <walltime>00:50:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_pdlib_p8_intel.log</join>
+
+    </task>
+    <task name="cpld_restart_pdlib_p8_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_s2sw_pdlib_intel"/> <taskdep task="cpld_control_pdlib_p8_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_restart_pdlib_p8 cpld_restart_pdlib_p8_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_restart_pdlib_p8_intel.log' </command>
+      <jobname>cpld_restart_pdlib_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>6:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_restart_pdlib_p8_intel.log</join>
+
+    </task>
+    <task name="cpld_mpi_pdlib_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2sw_pdlib_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_mpi_pdlib_p8 cpld_mpi_pdlib_p8_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_mpi_pdlib_p8_intel.log' </command>
+      <jobname>cpld_mpi_pdlib_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>8:ppn=40</nodes>
+      <walltime>00:50:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_mpi_pdlib_p8_intel.log</join>
+
+    </task>
+    <task name="cpld_control_c48_5deg_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2sw_pdlib_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_c48_5deg cpld_control_c48_5deg_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_control_c48_5deg_intel.log' </command>
+      <jobname>cpld_control_c48_5deg_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=18</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_c48_5deg_intel.log</join>
+
+    </task>
+    <task name="cpld_warmstart_c48_5deg_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2sw_pdlib_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_warmstart_c48_5deg cpld_warmstart_c48_5deg_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_warmstart_c48_5deg_intel.log' </command>
+      <jobname>cpld_warmstart_c48_5deg_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=18</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_warmstart_c48_5deg_intel.log</join>
+
+    </task>
+    <task name="cpld_restart_c48_5deg_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_s2sw_pdlib_intel"/> <taskdep task="cpld_warmstart_c48_5deg_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_restart_c48_5deg cpld_restart_c48_5deg_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_restart_c48_5deg_intel.log' </command>
+      <jobname>cpld_restart_c48_5deg_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=18</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_restart_c48_5deg_intel.log</join>
+
+    </task>
+    <task name="cpld_control_c24_5deg_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2sw_pdlib_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_c24_5deg cpld_control_c24_5deg_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_control_c24_5deg_intel.log' </command>
+      <jobname>cpld_control_c24_5deg_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=13</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_c24_5deg_intel.log</join>
+
+    </task>
+    <task name="cpld_warmstart_c24_5deg_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2sw_pdlib_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_warmstart_c24_5deg cpld_warmstart_c24_5deg_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_warmstart_c24_5deg_intel.log' </command>
+      <jobname>cpld_warmstart_c24_5deg_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=13</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_warmstart_c24_5deg_intel.log</join>
+
+    </task>
+    <task name="cpld_restart_c24_5deg_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_s2sw_pdlib_intel"/> <taskdep task="cpld_warmstart_c24_5deg_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_restart_c24_5deg cpld_restart_c24_5deg_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_restart_c24_5deg_intel.log' </command>
+      <jobname>cpld_restart_c24_5deg_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=13</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_restart_c24_5deg_intel.log</join>
+
+    </task>
+    <task name="cpld_control_c24_9deg_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2sw_pdlib_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_c24_9deg cpld_control_c24_9deg_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_control_c24_9deg_intel.log' </command>
+      <jobname>cpld_control_c24_9deg_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=13</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_c24_9deg_intel.log</join>
+
+    </task>
+    <task name="cpld_warmstart_c24_9deg_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2sw_pdlib_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_warmstart_c24_9deg cpld_warmstart_c24_9deg_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_warmstart_c24_9deg_intel.log' </command>
+      <jobname>cpld_warmstart_c24_9deg_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=13</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_warmstart_c24_9deg_intel.log</join>
+
+    </task>
+    <task name="cpld_restart_c24_9deg_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_s2sw_pdlib_intel"/> <taskdep task="cpld_warmstart_c24_9deg_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_restart_c24_9deg cpld_restart_c24_9deg_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_restart_c24_9deg_intel.log' </command>
+      <jobname>cpld_restart_c24_9deg_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=13</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_restart_c24_9deg_intel.log</join>
+
+    </task>
+    <task name="cpld_control_c12_9deg_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2sw_pdlib_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_control_c12_9deg cpld_control_c12_9deg_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_control_c12_9deg_intel.log' </command>
+      <jobname>cpld_control_c12_9deg_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=13</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_control_c12_9deg_intel.log</join>
+
+    </task>
+    <task name="cpld_warmstart_c12_9deg_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2sw_pdlib_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_warmstart_c12_9deg cpld_warmstart_c12_9deg_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_warmstart_c12_9deg_intel.log' </command>
+      <jobname>cpld_warmstart_c12_9deg_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=13</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_warmstart_c12_9deg_intel.log</join>
+
+    </task>
+    <task name="cpld_restart_c12_9deg_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_s2sw_pdlib_intel"/> <taskdep task="cpld_warmstart_c12_9deg_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_restart_c12_9deg cpld_restart_c12_9deg_intel s2sw_pdlib_intel 2>&amp;1 | tee &LOG;/run_cpld_restart_c12_9deg_intel.log' </command>
+      <jobname>cpld_restart_c12_9deg_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=13</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_restart_c12_9deg_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_s2sw_pdlib_debug_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=S2SW -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON -DDEBUG=ON" s2sw_pdlib_debug_intel 2>&amp;1 | tee &LOG;/compile_s2sw_pdlib_debug_intel.log</command>
+    <jobname>compile_s2sw_pdlib_debug_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_s2sw_pdlib_debug_intel.log</join>
+
+  </task>
+  <metatask name="compile_s2sw_pdlib_debug_intel_tasks"><var name="zero">0</var>
+    <task name="cpld_debug_pdlib_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_s2sw_pdlib_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_debug_pdlib_p8 cpld_debug_pdlib_p8_intel s2sw_pdlib_debug_intel 2>&amp;1 | tee &LOG;/run_cpld_debug_pdlib_p8_intel.log' </command>
+      <jobname>cpld_debug_pdlib_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>8:ppn=40</nodes>
+      <walltime>00:50:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_debug_pdlib_p8_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_atm_dyn32_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v16,FV3_GFS_v16_flake,FV3_GFS_v17_p8,FV3_GFS_v17_p8_rrtmgp,FV3_GFS_v15_thompson_mynn_lam3km,FV3_WoFS_v0,FV3_GFS_v17_p8_mynn,FV3_GFS_v17_p8_ugwpv1,FV3_GFS_v16_gfdlmpv3,FV3_GFS_v17_p8_ugwpv1_tempo -D32BIT=ON" atm_dyn32_intel 2>&amp;1 | tee &LOG;/compile_atm_dyn32_intel.log</command>
+    <jobname>compile_atm_dyn32_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_atm_dyn32_intel.log</join>
+
+  </task>
+  <metatask name="compile_atm_dyn32_intel_tasks"><var name="zero">0</var>
+    <task name="control_flake_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_flake control_flake_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_flake_intel.log' </command>
+      <jobname>control_flake_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_flake_intel.log</join>
+
+    </task>
+    <task name="control_CubedSphereGrid_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_CubedSphereGrid control_CubedSphereGrid_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_CubedSphereGrid_intel.log' </command>
+      <jobname>control_CubedSphereGrid_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_CubedSphereGrid_intel.log</join>
+
+    </task>
+    <task name="control_CubedSphereGrid_parallel_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_CubedSphereGrid_parallel control_CubedSphereGrid_parallel_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_CubedSphereGrid_parallel_intel.log' </command>
+      <jobname>control_CubedSphereGrid_parallel_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_CubedSphereGrid_parallel_intel.log</join>
+
+    </task>
+    <task name="control_latlon_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_latlon control_latlon_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_latlon_intel.log' </command>
+      <jobname>control_latlon_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_latlon_intel.log</join>
+
+    </task>
+    <task name="control_wrtGauss_netcdf_parallel_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_wrtGauss_netcdf_parallel control_wrtGauss_netcdf_parallel_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_wrtGauss_netcdf_parallel_intel.log' </command>
+      <jobname>control_wrtGauss_netcdf_parallel_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_wrtGauss_netcdf_parallel_intel.log</join>
+
+    </task>
+    <task name="control_c48_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_c48 control_c48_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_c48_intel.log' </command>
+      <jobname>control_c48_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=8</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_c48_intel.log</join>
+
+    </task>
+    <task name="control_c48.v2.sfc_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_c48.v2.sfc control_c48.v2.sfc_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_c48.v2.sfc_intel.log' </command>
+      <jobname>control_c48.v2.sfc_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=8</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_c48.v2.sfc_intel.log</join>
+
+    </task>
+    <task name="control_c48_lnd_iau_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_c48_lnd_iau control_c48_lnd_iau_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_c48_lnd_iau_intel.log' </command>
+      <jobname>control_c48_lnd_iau_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=8</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_c48_lnd_iau_intel.log</join>
+
+    </task>
+    <task name="control_c192_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_c192 control_c192_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_c192_intel.log' </command>
+      <jobname>control_c192_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>6:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_c192_intel.log</join>
+
+    </task>
+    <task name="control_c384_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_c384 control_c384_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_c384_intel.log' </command>
+      <jobname>control_c384_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>17:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_c384_intel.log</join>
+
+    </task>
+    <task name="control_c384gdas_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_c384gdas control_c384gdas_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_c384gdas_intel.log' </command>
+      <jobname>control_c384gdas_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>17:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_c384gdas_intel.log</join>
+
+    </task>
+    <task name="control_stochy_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_stochy control_stochy_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_stochy_intel.log' </command>
+      <jobname>control_stochy_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_stochy_intel.log</join>
+
+    </task>
+    <task name="control_stochy_restart_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_atm_dyn32_intel"/> <taskdep task="control_stochy_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_stochy_restart control_stochy_restart_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_stochy_restart_intel.log' </command>
+      <jobname>control_stochy_restart_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_stochy_restart_intel.log</join>
+
+    </task>
+    <task name="control_lndp_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_lndp control_lndp_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_lndp_intel.log' </command>
+      <jobname>control_lndp_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_lndp_intel.log</join>
+
+    </task>
+    <task name="control_iovr4_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_iovr4 control_iovr4_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_iovr4_intel.log' </command>
+      <jobname>control_iovr4_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_iovr4_intel.log</join>
+
+    </task>
+    <task name="control_iovr4_gfdlmpv3_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_iovr4_gfdlmpv3 control_iovr4_gfdlmpv3_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_iovr4_gfdlmpv3_intel.log' </command>
+      <jobname>control_iovr4_gfdlmpv3_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_iovr4_gfdlmpv3_intel.log</join>
+
+    </task>
+    <task name="control_iovr5_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_iovr5 control_iovr5_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_iovr5_intel.log' </command>
+      <jobname>control_iovr5_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_iovr5_intel.log</join>
+
+    </task>
+    <task name="control_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_p8 control_p8_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_p8_intel.log' </command>
+      <jobname>control_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_p8_intel.log</join>
+
+    </task>
+    <task name="control_p8.v2.sfc_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_p8.v2.sfc control_p8.v2.sfc_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_p8.v2.sfc_intel.log' </command>
+      <jobname>control_p8.v2.sfc_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_p8.v2.sfc_intel.log</join>
+
+    </task>
+    <task name="control_p8_ugwpv1_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_p8_ugwpv1 control_p8_ugwpv1_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_p8_ugwpv1_intel.log' </command>
+      <jobname>control_p8_ugwpv1_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_p8_ugwpv1_intel.log</join>
+
+    </task>
+    <task name="control_p8_ugwpv1_tempo_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_p8_ugwpv1_tempo control_p8_ugwpv1_tempo_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_p8_ugwpv1_tempo_intel.log' </command>
+      <jobname>control_p8_ugwpv1_tempo_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_p8_ugwpv1_tempo_intel.log</join>
+
+    </task>
+    <task name="control_p8_ugwpv1_tempo_aerosol_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_p8_ugwpv1_tempo_aerosol control_p8_ugwpv1_tempo_aerosol_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_p8_ugwpv1_tempo_aerosol_intel.log' </command>
+      <jobname>control_p8_ugwpv1_tempo_aerosol_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_p8_ugwpv1_tempo_aerosol_intel.log</join>
+
+    </task>
+    <task name="control_p8_ugwpv1_tempo_aerosol_hail_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_p8_ugwpv1_tempo_aerosol_hail control_p8_ugwpv1_tempo_aerosol_hail_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_p8_ugwpv1_tempo_aerosol_hail_intel.log' </command>
+      <jobname>control_p8_ugwpv1_tempo_aerosol_hail_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>8:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_p8_ugwpv1_tempo_aerosol_hail_intel.log</join>
+
+    </task>
+    <task name="control_restart_p8_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_atm_dyn32_intel"/> <taskdep task="control_p8_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_restart_p8 control_restart_p8_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_restart_p8_intel.log' </command>
+      <jobname>control_restart_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_restart_p8_intel.log</join>
+
+    </task>
+    <task name="control_noqr_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_noqr_p8 control_noqr_p8_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_noqr_p8_intel.log' </command>
+      <jobname>control_noqr_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_noqr_p8_intel.log</join>
+
+    </task>
+    <task name="control_restart_noqr_p8_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_atm_dyn32_intel"/> <taskdep task="control_noqr_p8_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_restart_noqr_p8 control_restart_noqr_p8_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_restart_noqr_p8_intel.log' </command>
+      <jobname>control_restart_noqr_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_restart_noqr_p8_intel.log</join>
+
+    </task>
+    <task name="control_decomp_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_decomp_p8 control_decomp_p8_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_decomp_p8_intel.log' </command>
+      <jobname>control_decomp_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_decomp_p8_intel.log</join>
+
+    </task>
+    <task name="control_2threads_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_2threads_p8 control_2threads_p8_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_2threads_p8_intel.log' </command>
+      <jobname>control_2threads_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=20</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_2threads_p8_intel.log</join>
+
+    </task>
+    <task name="control_p8_lndp_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_p8_lndp control_p8_lndp_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_p8_lndp_intel.log' </command>
+      <jobname>control_p8_lndp_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_p8_lndp_intel.log</join>
+
+    </task>
+    <task name="control_p8_rrtmgp_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_p8_rrtmgp control_p8_rrtmgp_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_p8_rrtmgp_intel.log' </command>
+      <jobname>control_p8_rrtmgp_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_p8_rrtmgp_intel.log</join>
+
+    </task>
+    <task name="control_p8_mynn_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_p8_mynn control_p8_mynn_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_p8_mynn_intel.log' </command>
+      <jobname>control_p8_mynn_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_p8_mynn_intel.log</join>
+
+    </task>
+    <task name="merra2_thompson_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; merra2_thompson merra2_thompson_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_merra2_thompson_intel.log' </command>
+      <jobname>merra2_thompson_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/merra2_thompson_intel.log</join>
+
+    </task>
+    <task name="merra2_hf_thompson_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; merra2_hf_thompson merra2_hf_thompson_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_merra2_hf_thompson_intel.log' </command>
+      <jobname>merra2_hf_thompson_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/merra2_hf_thompson_intel.log</join>
+
+    </task>
+    <task name="regional_control_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_control regional_control_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_regional_control_intel.log' </command>
+      <jobname>regional_control_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:40:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_control_intel.log</join>
+
+    </task>
+    <task name="regional_restart_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_atm_dyn32_intel"/> <taskdep task="regional_control_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_restart regional_restart_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_regional_restart_intel.log' </command>
+      <jobname>regional_restart_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:15:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_restart_intel.log</join>
+
+    </task>
+    <task name="regional_decomp_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_decomp regional_decomp_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_regional_decomp_intel.log' </command>
+      <jobname>regional_decomp_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:15:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_decomp_intel.log</join>
+
+    </task>
+    <task name="regional_2threads_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_2threads regional_2threads_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_regional_2threads_intel.log' </command>
+      <jobname>regional_2threads_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>6:ppn=20</nodes>
+      <walltime>00:15:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_2threads_intel.log</join>
+
+    </task>
+    <task name="regional_noquilt_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_noquilt regional_noquilt_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_regional_noquilt_intel.log' </command>
+      <jobname>regional_noquilt_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:15:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_noquilt_intel.log</join>
+
+    </task>
+    <task name="regional_netcdf_parallel_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_netcdf_parallel regional_netcdf_parallel_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_regional_netcdf_parallel_intel.log' </command>
+      <jobname>regional_netcdf_parallel_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:15:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_netcdf_parallel_intel.log</join>
+
+    </task>
+    <task name="regional_2dwrtdecomp_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_2dwrtdecomp regional_2dwrtdecomp_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_regional_2dwrtdecomp_intel.log' </command>
+      <jobname>regional_2dwrtdecomp_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:15:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_2dwrtdecomp_intel.log</join>
+
+    </task>
+    <task name="regional_wofs_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_wofs regional_wofs_intel atm_dyn32_intel 2>&amp;1 | tee &LOG;/run_regional_wofs_intel.log' </command>
+      <jobname>regional_wofs_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:15:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_wofs_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_rrfs_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATM -DCCPP_SUITES=FV3_RAP,FV3_RAP_sfcdiff,FV3_HRRR,FV3_RRFS_v1beta,FV3_RRFS_v1nssl -D32BIT=ON" rrfs_intel 2>&amp;1 | tee &LOG;/compile_rrfs_intel.log</command>
+    <jobname>compile_rrfs_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_rrfs_intel.log</join>
+
+  </task>
+  <metatask name="compile_rrfs_intel_tasks"><var name="zero">0</var>
+    <task name="rap_control_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_control rap_control_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_rap_control_intel.log' </command>
+      <jobname>rap_control_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_control_intel.log</join>
+
+    </task>
+    <task name="regional_spp_sppt_shum_skeb_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_spp_sppt_shum_skeb regional_spp_sppt_shum_skeb_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_regional_spp_sppt_shum_skeb_intel.log' </command>
+      <jobname>regional_spp_sppt_shum_skeb_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>10:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_spp_sppt_shum_skeb_intel.log</join>
+
+    </task>
+    <task name="rap_decomp_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_decomp rap_decomp_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_rap_decomp_intel.log' </command>
+      <jobname>rap_decomp_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_decomp_intel.log</join>
+
+    </task>
+    <task name="rap_2threads_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_2threads rap_2threads_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_rap_2threads_intel.log' </command>
+      <jobname>rap_2threads_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=20</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_2threads_intel.log</join>
+
+    </task>
+    <task name="rap_restart_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_rrfs_intel"/> <taskdep task="rap_control_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_restart rap_restart_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_rap_restart_intel.log' </command>
+      <jobname>rap_restart_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_restart_intel.log</join>
+
+    </task>
+    <task name="rap_sfcdiff_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_sfcdiff rap_sfcdiff_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_rap_sfcdiff_intel.log' </command>
+      <jobname>rap_sfcdiff_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_sfcdiff_intel.log</join>
+
+    </task>
+    <task name="rap_sfcdiff_decomp_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_sfcdiff_decomp rap_sfcdiff_decomp_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_rap_sfcdiff_decomp_intel.log' </command>
+      <jobname>rap_sfcdiff_decomp_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_sfcdiff_decomp_intel.log</join>
+
+    </task>
+    <task name="rap_sfcdiff_restart_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_rrfs_intel"/> <taskdep task="rap_sfcdiff_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_sfcdiff_restart rap_sfcdiff_restart_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_rap_sfcdiff_restart_intel.log' </command>
+      <jobname>rap_sfcdiff_restart_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_sfcdiff_restart_intel.log</join>
+
+    </task>
+    <task name="hrrr_control_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hrrr_control hrrr_control_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_hrrr_control_intel.log' </command>
+      <jobname>hrrr_control_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hrrr_control_intel.log</join>
+
+    </task>
+    <task name="hrrr_control_decomp_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hrrr_control_decomp hrrr_control_decomp_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_hrrr_control_decomp_intel.log' </command>
+      <jobname>hrrr_control_decomp_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hrrr_control_decomp_intel.log</join>
+
+    </task>
+    <task name="hrrr_control_2threads_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hrrr_control_2threads hrrr_control_2threads_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_hrrr_control_2threads_intel.log' </command>
+      <jobname>hrrr_control_2threads_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=20</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hrrr_control_2threads_intel.log</join>
+
+    </task>
+    <task name="hrrr_control_restart_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_rrfs_intel"/> <taskdep task="hrrr_control_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hrrr_control_restart hrrr_control_restart_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_hrrr_control_restart_intel.log' </command>
+      <jobname>hrrr_control_restart_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hrrr_control_restart_intel.log</join>
+
+    </task>
+    <task name="rrfs_v1beta_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rrfs_v1beta rrfs_v1beta_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_rrfs_v1beta_intel.log' </command>
+      <jobname>rrfs_v1beta_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rrfs_v1beta_intel.log</join>
+
+    </task>
+    <task name="rrfs_v1nssl_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rrfs_v1nssl rrfs_v1nssl_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_rrfs_v1nssl_intel.log' </command>
+      <jobname>rrfs_v1nssl_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rrfs_v1nssl_intel.log</join>
+
+    </task>
+    <task name="rrfs_v1nssl_nohailnoccn_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rrfs_v1nssl_nohailnoccn rrfs_v1nssl_nohailnoccn_intel rrfs_intel 2>&amp;1 | tee &LOG;/run_rrfs_v1nssl_nohailnoccn_intel.log' </command>
+      <jobname>rrfs_v1nssl_nohailnoccn_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rrfs_v1nssl_nohailnoccn_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_csawmg_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v16_csawmg,FV3_GFS_v16_ras" csawmg_intel 2>&amp;1 | tee &LOG;/compile_csawmg_intel.log</command>
+    <jobname>compile_csawmg_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_csawmg_intel.log</join>
+
+  </task>
+  <metatask name="compile_csawmg_intel_tasks"><var name="zero">0</var>
+    <task name="control_csawmg_intel" maxtries="3">
+      <dependency> <taskdep task="compile_csawmg_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_csawmg control_csawmg_intel csawmg_intel 2>&amp;1 | tee &LOG;/run_control_csawmg_intel.log' </command>
+      <jobname>control_csawmg_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_csawmg_intel.log</join>
+
+    </task>
+    <task name="control_ras_intel" maxtries="3">
+      <dependency> <taskdep task="compile_csawmg_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_ras control_ras_intel csawmg_intel 2>&amp;1 | tee &LOG;/run_control_ras_intel.log' </command>
+      <jobname>control_ras_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_ras_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_wam_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v17_p8 -D32BIT=ON -DMULTI_GASES=ON" wam_intel 2>&amp;1 | tee &LOG;/compile_wam_intel.log</command>
+    <jobname>compile_wam_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_wam_intel.log</join>
+
+  </task>
+  <metatask name="compile_wam_intel_tasks"><var name="zero">0</var>
+    <task name="control_wam_intel" maxtries="3">
+      <dependency> <taskdep task="compile_wam_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_wam control_wam_intel wam_intel 2>&amp;1 | tee &LOG;/run_control_wam_intel.log' </command>
+      <jobname>control_wam_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_wam_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_atm_faster_dyn32_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v17_p8,FV3_GFS_v15_thompson_mynn_lam3km -D32BIT=ON -DFASTER=ON" atm_faster_dyn32_intel 2>&amp;1 | tee &LOG;/compile_atm_faster_dyn32_intel.log</command>
+    <jobname>compile_atm_faster_dyn32_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_atm_faster_dyn32_intel.log</join>
+
+  </task>
+  <metatask name="compile_atm_faster_dyn32_intel_tasks"><var name="zero">0</var>
+    <task name="control_p8_faster_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_faster_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_p8_faster control_p8_faster_intel atm_faster_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_p8_faster_intel.log' </command>
+      <jobname>control_p8_faster_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_p8_faster_intel.log</join>
+
+    </task>
+    <task name="regional_control_faster_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_faster_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_control_faster regional_control_faster_intel atm_faster_dyn32_intel 2>&amp;1 | tee &LOG;/run_regional_control_faster_intel.log' </command>
+      <jobname>regional_control_faster_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:15:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_control_faster_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_atm_debug_dyn32_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATM -DDEBUG=ON -D32BIT=ON -DCCPP_SUITES=FV3_HRRR,FV3_GFS_v16,FV3_GFS_v16_csawmg,FV3_GFS_v16_ras,FV3_GFS_v17_p8,FV3_GFS_v17_p8_ugwpv1,FV3_GFS_v15_thompson_mynn_lam3km,FV3_RAP,FV3_RAP_unified_ugwp,FV3_RAP_cires_ugwp,FV3_RAP_flake,FV3_RAP_clm_lake,FV3_RAP_noah,FV3_RAP_sfcdiff,FV3_RAP_noah_sfcdiff_cires_ugwp,FV3_RRFS_v1beta,FV3_HRRR_c3,FV3_HRRR_gf,FV3_global_nest_v1" atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/compile_atm_debug_dyn32_intel.log</command>
+    <jobname>compile_atm_debug_dyn32_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_atm_debug_dyn32_intel.log</join>
+
+  </task>
+  <metatask name="compile_atm_debug_dyn32_intel_tasks"><var name="zero">0</var>
+    <task name="control_CubedSphereGrid_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_CubedSphereGrid_debug control_CubedSphereGrid_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_CubedSphereGrid_debug_intel.log' </command>
+      <jobname>control_CubedSphereGrid_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_CubedSphereGrid_debug_intel.log</join>
+
+    </task>
+    <task name="control_wrtGauss_netcdf_parallel_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_wrtGauss_netcdf_parallel_debug control_wrtGauss_netcdf_parallel_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_wrtGauss_netcdf_parallel_debug_intel.log' </command>
+      <jobname>control_wrtGauss_netcdf_parallel_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_wrtGauss_netcdf_parallel_debug_intel.log</join>
+
+    </task>
+    <task name="control_stochy_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_stochy_debug control_stochy_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_stochy_debug_intel.log' </command>
+      <jobname>control_stochy_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_stochy_debug_intel.log</join>
+
+    </task>
+    <task name="control_lndp_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_lndp_debug control_lndp_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_lndp_debug_intel.log' </command>
+      <jobname>control_lndp_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_lndp_debug_intel.log</join>
+
+    </task>
+    <task name="control_csawmg_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_csawmg_debug control_csawmg_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_csawmg_debug_intel.log' </command>
+      <jobname>control_csawmg_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_csawmg_debug_intel.log</join>
+
+    </task>
+    <task name="control_ras_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_ras_debug control_ras_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_ras_debug_intel.log' </command>
+      <jobname>control_ras_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_ras_debug_intel.log</join>
+
+    </task>
+    <task name="control_diag_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_diag_debug control_diag_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_diag_debug_intel.log' </command>
+      <jobname>control_diag_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_diag_debug_intel.log</join>
+
+    </task>
+    <task name="control_debug_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_debug_p8 control_debug_p8_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_control_debug_p8_intel.log' </command>
+      <jobname>control_debug_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_debug_p8_intel.log</join>
+
+    </task>
+    <task name="regional_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_debug regional_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_regional_debug_intel.log' </command>
+      <jobname>regional_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_debug_intel.log</join>
+
+    </task>
+    <task name="rap_control_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_control_debug rap_control_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_rap_control_debug_intel.log' </command>
+      <jobname>rap_control_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_control_debug_intel.log</join>
+
+    </task>
+    <task name="hrrr_control_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hrrr_control_debug hrrr_control_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_hrrr_control_debug_intel.log' </command>
+      <jobname>hrrr_control_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hrrr_control_debug_intel.log</join>
+
+    </task>
+    <task name="hrrr_gf_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hrrr_gf_debug hrrr_gf_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_hrrr_gf_debug_intel.log' </command>
+      <jobname>hrrr_gf_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hrrr_gf_debug_intel.log</join>
+
+    </task>
+    <task name="hrrr_c3_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hrrr_c3_debug hrrr_c3_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_hrrr_c3_debug_intel.log' </command>
+      <jobname>hrrr_c3_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hrrr_c3_debug_intel.log</join>
+
+    </task>
+    <task name="rap_unified_drag_suite_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_unified_drag_suite_debug rap_unified_drag_suite_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_rap_unified_drag_suite_debug_intel.log' </command>
+      <jobname>rap_unified_drag_suite_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_unified_drag_suite_debug_intel.log</join>
+
+    </task>
+    <task name="rap_diag_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_diag_debug rap_diag_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_rap_diag_debug_intel.log' </command>
+      <jobname>rap_diag_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_diag_debug_intel.log</join>
+
+    </task>
+    <task name="rap_cires_ugwp_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_cires_ugwp_debug rap_cires_ugwp_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_rap_cires_ugwp_debug_intel.log' </command>
+      <jobname>rap_cires_ugwp_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_cires_ugwp_debug_intel.log</join>
+
+    </task>
+    <task name="rap_unified_ugwp_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_unified_ugwp_debug rap_unified_ugwp_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_rap_unified_ugwp_debug_intel.log' </command>
+      <jobname>rap_unified_ugwp_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_unified_ugwp_debug_intel.log</join>
+
+    </task>
+    <task name="rap_lndp_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_lndp_debug rap_lndp_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_rap_lndp_debug_intel.log' </command>
+      <jobname>rap_lndp_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_lndp_debug_intel.log</join>
+
+    </task>
+    <task name="rap_progcld_thompson_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_progcld_thompson_debug rap_progcld_thompson_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_rap_progcld_thompson_debug_intel.log' </command>
+      <jobname>rap_progcld_thompson_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_progcld_thompson_debug_intel.log</join>
+
+    </task>
+    <task name="rap_noah_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_noah_debug rap_noah_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_rap_noah_debug_intel.log' </command>
+      <jobname>rap_noah_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_noah_debug_intel.log</join>
+
+    </task>
+    <task name="rap_sfcdiff_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_sfcdiff_debug rap_sfcdiff_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_rap_sfcdiff_debug_intel.log' </command>
+      <jobname>rap_sfcdiff_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_sfcdiff_debug_intel.log</join>
+
+    </task>
+    <task name="rap_noah_sfcdiff_cires_ugwp_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_noah_sfcdiff_cires_ugwp_debug rap_noah_sfcdiff_cires_ugwp_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_rap_noah_sfcdiff_cires_ugwp_debug_intel.log' </command>
+      <jobname>rap_noah_sfcdiff_cires_ugwp_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_noah_sfcdiff_cires_ugwp_debug_intel.log</join>
+
+    </task>
+    <task name="rap_clm_lake_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_clm_lake_debug rap_clm_lake_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_rap_clm_lake_debug_intel.log' </command>
+      <jobname>rap_clm_lake_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_clm_lake_debug_intel.log</join>
+
+    </task>
+    <task name="rap_flake_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_debug_dyn32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_flake_debug rap_flake_debug_intel atm_debug_dyn32_intel 2>&amp;1 | tee &LOG;/run_rap_flake_debug_intel.log' </command>
+      <jobname>rap_flake_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_flake_debug_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_wam_debug_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v17_p8 -D32BIT=ON -DMULTI_GASES=ON -DDEBUG=ON" wam_debug_intel 2>&amp;1 | tee &LOG;/compile_wam_debug_intel.log</command>
+    <jobname>compile_wam_debug_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_wam_debug_intel.log</join>
+
+  </task>
+  <metatask name="compile_wam_debug_intel_tasks"><var name="zero">0</var>
+    <task name="control_wam_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_wam_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_wam_debug control_wam_debug_intel wam_debug_intel 2>&amp;1 | tee &LOG;/run_control_wam_debug_intel.log' </command>
+      <jobname>control_wam_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_wam_debug_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_rrfs_dyn32_phy32_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATM -DCCPP_SUITES=FV3_RAP,FV3_HRRR -D32BIT=ON -DCCPP_32BIT=ON" rrfs_dyn32_phy32_intel 2>&amp;1 | tee &LOG;/compile_rrfs_dyn32_phy32_intel.log</command>
+    <jobname>compile_rrfs_dyn32_phy32_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_rrfs_dyn32_phy32_intel.log</join>
+
+  </task>
+  <metatask name="compile_rrfs_dyn32_phy32_intel_tasks"><var name="zero">0</var>
+    <task name="regional_spp_sppt_shum_skeb_dyn32_phy32_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_spp_sppt_shum_skeb_dyn32_phy32 regional_spp_sppt_shum_skeb_dyn32_phy32_intel rrfs_dyn32_phy32_intel 2>&amp;1 | tee &LOG;/run_regional_spp_sppt_shum_skeb_dyn32_phy32_intel.log' </command>
+      <jobname>regional_spp_sppt_shum_skeb_dyn32_phy32_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>10:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_spp_sppt_shum_skeb_dyn32_phy32_intel.log</join>
+
+    </task>
+    <task name="rap_control_dyn32_phy32_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_control_dyn32_phy32 rap_control_dyn32_phy32_intel rrfs_dyn32_phy32_intel 2>&amp;1 | tee &LOG;/run_rap_control_dyn32_phy32_intel.log' </command>
+      <jobname>rap_control_dyn32_phy32_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_control_dyn32_phy32_intel.log</join>
+
+    </task>
+    <task name="hrrr_control_dyn32_phy32_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hrrr_control_dyn32_phy32 hrrr_control_dyn32_phy32_intel rrfs_dyn32_phy32_intel 2>&amp;1 | tee &LOG;/run_hrrr_control_dyn32_phy32_intel.log' </command>
+      <jobname>hrrr_control_dyn32_phy32_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hrrr_control_dyn32_phy32_intel.log</join>
+
+    </task>
+    <task name="rap_2threads_dyn32_phy32_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_2threads_dyn32_phy32 rap_2threads_dyn32_phy32_intel rrfs_dyn32_phy32_intel 2>&amp;1 | tee &LOG;/run_rap_2threads_dyn32_phy32_intel.log' </command>
+      <jobname>rap_2threads_dyn32_phy32_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=20</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_2threads_dyn32_phy32_intel.log</join>
+
+    </task>
+    <task name="hrrr_control_2threads_dyn32_phy32_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hrrr_control_2threads_dyn32_phy32 hrrr_control_2threads_dyn32_phy32_intel rrfs_dyn32_phy32_intel 2>&amp;1 | tee &LOG;/run_hrrr_control_2threads_dyn32_phy32_intel.log' </command>
+      <jobname>hrrr_control_2threads_dyn32_phy32_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=20</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hrrr_control_2threads_dyn32_phy32_intel.log</join>
+
+    </task>
+    <task name="hrrr_control_decomp_dyn32_phy32_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hrrr_control_decomp_dyn32_phy32 hrrr_control_decomp_dyn32_phy32_intel rrfs_dyn32_phy32_intel 2>&amp;1 | tee &LOG;/run_hrrr_control_decomp_dyn32_phy32_intel.log' </command>
+      <jobname>hrrr_control_decomp_dyn32_phy32_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hrrr_control_decomp_dyn32_phy32_intel.log</join>
+
+    </task>
+    <task name="rap_restart_dyn32_phy32_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_rrfs_dyn32_phy32_intel"/> <taskdep task="rap_control_dyn32_phy32_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_restart_dyn32_phy32 rap_restart_dyn32_phy32_intel rrfs_dyn32_phy32_intel 2>&amp;1 | tee &LOG;/run_rap_restart_dyn32_phy32_intel.log' </command>
+      <jobname>rap_restart_dyn32_phy32_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_restart_dyn32_phy32_intel.log</join>
+
+    </task>
+    <task name="hrrr_control_restart_dyn32_phy32_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_rrfs_dyn32_phy32_intel"/> <taskdep task="hrrr_control_dyn32_phy32_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hrrr_control_restart_dyn32_phy32 hrrr_control_restart_dyn32_phy32_intel rrfs_dyn32_phy32_intel 2>&amp;1 | tee &LOG;/run_hrrr_control_restart_dyn32_phy32_intel.log' </command>
+      <jobname>hrrr_control_restart_dyn32_phy32_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hrrr_control_restart_dyn32_phy32_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_rrfs_dyn32_phy32_faster_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATM -DFASTER=ON -DCCPP_SUITES=FV3_HRRR -D32BIT=ON -DCCPP_32BIT=ON" rrfs_dyn32_phy32_faster_intel 2>&amp;1 | tee &LOG;/compile_rrfs_dyn32_phy32_faster_intel.log</command>
+    <jobname>compile_rrfs_dyn32_phy32_faster_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_rrfs_dyn32_phy32_faster_intel.log</join>
+
+  </task>
+  <metatask name="compile_rrfs_dyn32_phy32_faster_intel_tasks"><var name="zero">0</var>
+    <task name="conus13km_control_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_faster_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; conus13km_control conus13km_control_intel rrfs_dyn32_phy32_faster_intel 2>&amp;1 | tee &LOG;/run_conus13km_control_intel.log' </command>
+      <jobname>conus13km_control_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/conus13km_control_intel.log</join>
+
+    </task>
+    <task name="conus13km_2threads_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_faster_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; conus13km_2threads conus13km_2threads_intel rrfs_dyn32_phy32_faster_intel 2>&amp;1 | tee &LOG;/run_conus13km_2threads_intel.log' </command>
+      <jobname>conus13km_2threads_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=20</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/conus13km_2threads_intel.log</join>
+
+    </task>
+    <task name="conus13km_decomp_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_faster_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; conus13km_decomp conus13km_decomp_intel rrfs_dyn32_phy32_faster_intel 2>&amp;1 | tee &LOG;/run_conus13km_decomp_intel.log' </command>
+      <jobname>conus13km_decomp_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/conus13km_decomp_intel.log</join>
+
+    </task>
+    <task name="conus13km_restart_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_rrfs_dyn32_phy32_faster_intel"/> <taskdep task="conus13km_control_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; conus13km_restart conus13km_restart_intel rrfs_dyn32_phy32_faster_intel 2>&amp;1 | tee &LOG;/run_conus13km_restart_intel.log' </command>
+      <jobname>conus13km_restart_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/conus13km_restart_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_rrfs_dyn64_phy32_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATM -DCCPP_SUITES=FV3_RAP,FV3_HRRR -DCCPP_32BIT=ON" rrfs_dyn64_phy32_intel 2>&amp;1 | tee &LOG;/compile_rrfs_dyn64_phy32_intel.log</command>
+    <jobname>compile_rrfs_dyn64_phy32_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_rrfs_dyn64_phy32_intel.log</join>
+
+  </task>
+  <metatask name="compile_rrfs_dyn64_phy32_intel_tasks"><var name="zero">0</var>
+    <task name="rap_control_dyn64_phy32_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn64_phy32_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_control_dyn64_phy32 rap_control_dyn64_phy32_intel rrfs_dyn64_phy32_intel 2>&amp;1 | tee &LOG;/run_rap_control_dyn64_phy32_intel.log' </command>
+      <jobname>rap_control_dyn64_phy32_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_control_dyn64_phy32_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_rrfs_dyn32_phy32_debug_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATM -DCCPP_SUITES=FV3_RAP,FV3_HRRR,FV3_HRRR_gf -D32BIT=ON -DCCPP_32BIT=ON -DDEBUG=ON" rrfs_dyn32_phy32_debug_intel 2>&amp;1 | tee &LOG;/compile_rrfs_dyn32_phy32_debug_intel.log</command>
+    <jobname>compile_rrfs_dyn32_phy32_debug_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_rrfs_dyn32_phy32_debug_intel.log</join>
+
+  </task>
+  <metatask name="compile_rrfs_dyn32_phy32_debug_intel_tasks"><var name="zero">0</var>
+    <task name="rap_control_debug_dyn32_phy32_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_control_debug_dyn32_phy32 rap_control_debug_dyn32_phy32_intel rrfs_dyn32_phy32_debug_intel 2>&amp;1 | tee &LOG;/run_rap_control_debug_dyn32_phy32_intel.log' </command>
+      <jobname>rap_control_debug_dyn32_phy32_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_control_debug_dyn32_phy32_intel.log</join>
+
+    </task>
+    <task name="hrrr_control_debug_dyn32_phy32_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hrrr_control_debug_dyn32_phy32 hrrr_control_debug_dyn32_phy32_intel rrfs_dyn32_phy32_debug_intel 2>&amp;1 | tee &LOG;/run_hrrr_control_debug_dyn32_phy32_intel.log' </command>
+      <jobname>hrrr_control_debug_dyn32_phy32_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hrrr_control_debug_dyn32_phy32_intel.log</join>
+
+    </task>
+    <task name="conus13km_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; conus13km_debug conus13km_debug_intel rrfs_dyn32_phy32_debug_intel 2>&amp;1 | tee &LOG;/run_conus13km_debug_intel.log' </command>
+      <jobname>conus13km_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/conus13km_debug_intel.log</join>
+
+    </task>
+    <task name="conus13km_debug_qr_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; conus13km_debug_qr conus13km_debug_qr_intel rrfs_dyn32_phy32_debug_intel 2>&amp;1 | tee &LOG;/run_conus13km_debug_qr_intel.log' </command>
+      <jobname>conus13km_debug_qr_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/conus13km_debug_qr_intel.log</join>
+
+    </task>
+    <task name="conus13km_debug_2threads_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; conus13km_debug_2threads conus13km_debug_2threads_intel rrfs_dyn32_phy32_debug_intel 2>&amp;1 | tee &LOG;/run_conus13km_debug_2threads_intel.log' </command>
+      <jobname>conus13km_debug_2threads_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=20</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/conus13km_debug_2threads_intel.log</join>
+
+    </task>
+    <task name="conus13km_debug_decomp_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; conus13km_debug_decomp conus13km_debug_decomp_intel rrfs_dyn32_phy32_debug_intel 2>&amp;1 | tee &LOG;/run_conus13km_debug_decomp_intel.log' </command>
+      <jobname>conus13km_debug_decomp_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/conus13km_debug_decomp_intel.log</join>
+
+    </task>
+    <task name="conus13km_radar_tten_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn32_phy32_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; conus13km_radar_tten_debug conus13km_radar_tten_debug_intel rrfs_dyn32_phy32_debug_intel 2>&amp;1 | tee &LOG;/run_conus13km_radar_tten_debug_intel.log' </command>
+      <jobname>conus13km_radar_tten_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/conus13km_radar_tten_debug_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_rrfs_dyn64_phy32_debug_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATM -DCCPP_SUITES=FV3_RAP,FV3_HRRR -DCCPP_32BIT=ON -DDEBUG=ON" rrfs_dyn64_phy32_debug_intel 2>&amp;1 | tee &LOG;/compile_rrfs_dyn64_phy32_debug_intel.log</command>
+    <jobname>compile_rrfs_dyn64_phy32_debug_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_rrfs_dyn64_phy32_debug_intel.log</join>
+
+  </task>
+  <metatask name="compile_rrfs_dyn64_phy32_debug_intel_tasks"><var name="zero">0</var>
+    <task name="rap_control_dyn64_phy32_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_rrfs_dyn64_phy32_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; rap_control_dyn64_phy32_debug rap_control_dyn64_phy32_debug_intel rrfs_dyn64_phy32_debug_intel 2>&amp;1 | tee &LOG;/run_rap_control_dyn64_phy32_debug_intel.log' </command>
+      <jobname>rap_control_dyn64_phy32_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/rap_control_dyn64_phy32_debug_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_hafsw_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_thompson_tedmf_gfdlsf,FV3_global_nest_v1,FV3_HAFS_v1_gfdlmpv3_tedmf -D32BIT=ON" hafsw_intel 2>&amp;1 | tee &LOG;/compile_hafsw_intel.log</command>
+    <jobname>compile_hafsw_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_hafsw_intel.log</join>
+
+  </task>
+  <metatask name="compile_hafsw_intel_tasks"><var name="zero">0</var>
+    <task name="hafs_regional_atm_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_atm hafs_regional_atm_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_atm_intel.log' </command>
+      <jobname>hafs_regional_atm_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>15:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_atm_intel.log</join>
+
+    </task>
+    <task name="hafs_regional_atm_gfdlmpv3_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_atm_gfdlmpv3 hafs_regional_atm_gfdlmpv3_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_atm_gfdlmpv3_intel.log' </command>
+      <jobname>hafs_regional_atm_gfdlmpv3_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>15:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_atm_gfdlmpv3_intel.log</join>
+
+    </task>
+    <task name="hafs_regional_atm_thompson_gfdlsf_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_atm_thompson_gfdlsf hafs_regional_atm_thompson_gfdlsf_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_atm_thompson_gfdlsf_intel.log' </command>
+      <jobname>hafs_regional_atm_thompson_gfdlsf_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>15:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_atm_thompson_gfdlsf_intel.log</join>
+
+    </task>
+    <task name="hafs_regional_atm_ocn_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_atm_ocn hafs_regional_atm_ocn_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_atm_ocn_intel.log' </command>
+      <jobname>hafs_regional_atm_ocn_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>9:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_atm_ocn_intel.log</join>
+
+    </task>
+    <task name="hafs_regional_atm_wav_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_atm_wav hafs_regional_atm_wav_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_atm_wav_intel.log' </command>
+      <jobname>hafs_regional_atm_wav_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>9:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_atm_wav_intel.log</join>
+
+    </task>
+    <task name="hafs_regional_atm_ocn_wav_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_atm_ocn_wav hafs_regional_atm_ocn_wav_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_atm_ocn_wav_intel.log' </command>
+      <jobname>hafs_regional_atm_ocn_wav_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>11:ppn=40</nodes>
+      <walltime>00:40:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_atm_ocn_wav_intel.log</join>
+
+    </task>
+    <task name="hafs_regional_1nest_atm_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_1nest_atm hafs_regional_1nest_atm_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_1nest_atm_intel.log' </command>
+      <jobname>hafs_regional_1nest_atm_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>9:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_1nest_atm_intel.log</join>
+
+    </task>
+    <task name="hafs_regional_telescopic_2nests_atm_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_telescopic_2nests_atm hafs_regional_telescopic_2nests_atm_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_telescopic_2nests_atm_intel.log' </command>
+      <jobname>hafs_regional_telescopic_2nests_atm_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>12:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_telescopic_2nests_atm_intel.log</join>
+
+    </task>
+    <task name="hafs_global_1nest_atm_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_global_1nest_atm hafs_global_1nest_atm_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_hafs_global_1nest_atm_intel.log' </command>
+      <jobname>hafs_global_1nest_atm_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>12:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_global_1nest_atm_intel.log</join>
+
+    </task>
+    <task name="hafs_global_multiple_4nests_atm_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_global_multiple_4nests_atm hafs_global_multiple_4nests_atm_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_hafs_global_multiple_4nests_atm_intel.log' </command>
+      <jobname>hafs_global_multiple_4nests_atm_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>21:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_global_multiple_4nests_atm_intel.log</join>
+
+    </task>
+    <task name="hafs_regional_specified_moving_1nest_atm_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_specified_moving_1nest_atm hafs_regional_specified_moving_1nest_atm_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_specified_moving_1nest_atm_intel.log' </command>
+      <jobname>hafs_regional_specified_moving_1nest_atm_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>9:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_specified_moving_1nest_atm_intel.log</join>
+
+    </task>
+    <task name="hafs_regional_storm_following_1nest_atm_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_storm_following_1nest_atm hafs_regional_storm_following_1nest_atm_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_storm_following_1nest_atm_intel.log' </command>
+      <jobname>hafs_regional_storm_following_1nest_atm_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>9:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_storm_following_1nest_atm_intel.log</join>
+
+    </task>
+    <task name="hafs_regional_storm_following_1nest_atm_ocn_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_storm_following_1nest_atm_ocn hafs_regional_storm_following_1nest_atm_ocn_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_storm_following_1nest_atm_ocn_intel.log' </command>
+      <jobname>hafs_regional_storm_following_1nest_atm_ocn_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>15:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_storm_following_1nest_atm_ocn_intel.log</join>
+
+    </task>
+    <task name="hafs_global_storm_following_1nest_atm_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_global_storm_following_1nest_atm hafs_global_storm_following_1nest_atm_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_hafs_global_storm_following_1nest_atm_intel.log' </command>
+      <jobname>hafs_global_storm_following_1nest_atm_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>12:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_global_storm_following_1nest_atm_intel.log</join>
+
+    </task>
+    <task name="gnv1_nested_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; gnv1_nested gnv1_nested_intel hafsw_intel 2>&amp;1 | tee &LOG;/run_gnv1_nested_intel.log' </command>
+      <jobname>gnv1_nested_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>6:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/gnv1_nested_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_hafsw_debug_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf_nonsst -D32BIT=ON -DDEBUG=ON" hafsw_debug_intel 2>&amp;1 | tee &LOG;/compile_hafsw_debug_intel.log</command>
+    <jobname>compile_hafsw_debug_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_hafsw_debug_intel.log</join>
+
+  </task>
+  <metatask name="compile_hafsw_debug_intel_tasks"><var name="zero">0</var>
+    <task name="hafs_regional_storm_following_1nest_atm_ocn_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_storm_following_1nest_atm_ocn_debug hafs_regional_storm_following_1nest_atm_ocn_debug_intel hafsw_debug_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_storm_following_1nest_atm_ocn_debug_intel.log' </command>
+      <jobname>hafs_regional_storm_following_1nest_atm_ocn_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>15:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_storm_following_1nest_atm_ocn_debug_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_hafsw_faster_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=HAFSW -DCDEPS_INLINE=ON -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_thompson,FV3_HAFS_v1_thompson_nonsst -D32BIT=ON -DFASTER=ON" hafsw_faster_intel 2>&amp;1 | tee &LOG;/compile_hafsw_faster_intel.log</command>
+    <jobname>compile_hafsw_faster_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_hafsw_faster_intel.log</join>
+
+  </task>
+  <metatask name="compile_hafsw_faster_intel_tasks"><var name="zero">0</var>
+    <task name="hafs_regional_storm_following_1nest_atm_ocn_wav_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_faster_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_storm_following_1nest_atm_ocn_wav hafs_regional_storm_following_1nest_atm_ocn_wav_intel hafsw_faster_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_storm_following_1nest_atm_ocn_wav_intel.log' </command>
+      <jobname>hafs_regional_storm_following_1nest_atm_ocn_wav_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>15:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_storm_following_1nest_atm_ocn_wav_intel.log</join>
+
+    </task>
+    <task name="hafs_regional_storm_following_1nest_atm_ocn_wav_inline_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_faster_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_storm_following_1nest_atm_ocn_wav_inline hafs_regional_storm_following_1nest_atm_ocn_wav_inline_intel hafsw_faster_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_storm_following_1nest_atm_ocn_wav_inline_intel.log' </command>
+      <jobname>hafs_regional_storm_following_1nest_atm_ocn_wav_inline_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>15:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_storm_following_1nest_atm_ocn_wav_inline_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_hafs_mom6w_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=HAFS-MOM6W -DREGIONAL_MOM6=ON -DCDEPS_INLINE=ON -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_thompson,FV3_HAFS_v1_thompson_nonsst -D32BIT=ON" hafs_mom6w_intel 2>&amp;1 | tee &LOG;/compile_hafs_mom6w_intel.log</command>
+    <jobname>compile_hafs_mom6w_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_hafs_mom6w_intel.log</join>
+
+  </task>
+  <metatask name="compile_hafs_mom6w_intel_tasks"><var name="zero">0</var>
+    <task name="hafs_regional_storm_following_1nest_atm_ocn_wav_mom6_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafs_mom6w_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_storm_following_1nest_atm_ocn_wav_mom6 hafs_regional_storm_following_1nest_atm_ocn_wav_mom6_intel hafs_mom6w_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_storm_following_1nest_atm_ocn_wav_mom6_intel.log' </command>
+      <jobname>hafs_regional_storm_following_1nest_atm_ocn_wav_mom6_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>15:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_storm_following_1nest_atm_ocn_wav_mom6_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_hafs_all_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=HAFS-ALL -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst -D32BIT=ON" hafs_all_intel 2>&amp;1 | tee &LOG;/compile_hafs_all_intel.log</command>
+    <jobname>compile_hafs_all_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_hafs_all_intel.log</join>
+
+  </task>
+  <metatask name="compile_hafs_all_intel_tasks"><var name="zero">0</var>
+    <task name="hafs_regional_docn_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafs_all_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_docn hafs_regional_docn_intel hafs_all_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_docn_intel.log' </command>
+      <jobname>hafs_regional_docn_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>9:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_docn_intel.log</join>
+
+    </task>
+    <task name="hafs_regional_docn_oisst_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafs_all_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_docn_oisst hafs_regional_docn_oisst_intel hafs_all_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_docn_oisst_intel.log' </command>
+      <jobname>hafs_regional_docn_oisst_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>9:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_docn_oisst_intel.log</join>
+
+    </task>
+    <task name="hafs_regional_datm_cdeps_intel" maxtries="3">
+      <dependency> <taskdep task="compile_hafs_all_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_datm_cdeps hafs_regional_datm_cdeps_intel hafs_all_intel 2>&amp;1 | tee &LOG;/run_hafs_regional_datm_cdeps_intel.log' </command>
+      <jobname>hafs_regional_datm_cdeps_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>3:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_datm_cdeps_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_datm_cdeps_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=NG-GODAS" datm_cdeps_intel 2>&amp;1 | tee &LOG;/compile_datm_cdeps_intel.log</command>
+    <jobname>compile_datm_cdeps_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_datm_cdeps_intel.log</join>
+
+  </task>
+  <metatask name="compile_datm_cdeps_intel_tasks"><var name="zero">0</var>
+    <task name="datm_cdeps_control_cfsr_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_control_cfsr datm_cdeps_control_cfsr_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_control_cfsr_intel.log' </command>
+      <jobname>datm_cdeps_control_cfsr_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_control_cfsr_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_restart_cfsr_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_datm_cdeps_intel"/> <taskdep task="datm_cdeps_control_cfsr_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_restart_cfsr datm_cdeps_restart_cfsr_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_restart_cfsr_intel.log' </command>
+      <jobname>datm_cdeps_restart_cfsr_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_restart_cfsr_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_control_gefs_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_control_gefs datm_cdeps_control_gefs_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_control_gefs_intel.log' </command>
+      <jobname>datm_cdeps_control_gefs_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_control_gefs_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_iau_gefs_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_iau_gefs datm_cdeps_iau_gefs_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_iau_gefs_intel.log' </command>
+      <jobname>datm_cdeps_iau_gefs_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_iau_gefs_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_stochy_gefs_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_stochy_gefs datm_cdeps_stochy_gefs_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_stochy_gefs_intel.log' </command>
+      <jobname>datm_cdeps_stochy_gefs_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_stochy_gefs_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_ciceC_cfsr_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_ciceC_cfsr datm_cdeps_ciceC_cfsr_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_ciceC_cfsr_intel.log' </command>
+      <jobname>datm_cdeps_ciceC_cfsr_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_ciceC_cfsr_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_bulk_cfsr_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_bulk_cfsr datm_cdeps_bulk_cfsr_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_bulk_cfsr_intel.log' </command>
+      <jobname>datm_cdeps_bulk_cfsr_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_bulk_cfsr_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_bulk_gefs_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_bulk_gefs datm_cdeps_bulk_gefs_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_bulk_gefs_intel.log' </command>
+      <jobname>datm_cdeps_bulk_gefs_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_bulk_gefs_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_mx025_cfsr_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_mx025_cfsr datm_cdeps_mx025_cfsr_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_mx025_cfsr_intel.log' </command>
+      <jobname>datm_cdeps_mx025_cfsr_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>6:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_mx025_cfsr_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_mx025_gefs_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_mx025_gefs datm_cdeps_mx025_gefs_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_mx025_gefs_intel.log' </command>
+      <jobname>datm_cdeps_mx025_gefs_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>6:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_mx025_gefs_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_multiple_files_cfsr_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_multiple_files_cfsr datm_cdeps_multiple_files_cfsr_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_multiple_files_cfsr_intel.log' </command>
+      <jobname>datm_cdeps_multiple_files_cfsr_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_multiple_files_cfsr_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_3072x1536_cfsr_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_3072x1536_cfsr datm_cdeps_3072x1536_cfsr_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_3072x1536_cfsr_intel.log' </command>
+      <jobname>datm_cdeps_3072x1536_cfsr_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:15:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_3072x1536_cfsr_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_gfs_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_gfs datm_cdeps_gfs_intel datm_cdeps_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_gfs_intel.log' </command>
+      <jobname>datm_cdeps_gfs_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_gfs_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_datm_cdeps_debug_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=NG-GODAS -DDEBUG=ON" datm_cdeps_debug_intel 2>&amp;1 | tee &LOG;/compile_datm_cdeps_debug_intel.log</command>
+    <jobname>compile_datm_cdeps_debug_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_datm_cdeps_debug_intel.log</join>
+
+  </task>
+  <metatask name="compile_datm_cdeps_debug_intel_tasks"><var name="zero">0</var>
+    <task name="datm_cdeps_debug_cfsr_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_debug_cfsr datm_cdeps_debug_cfsr_intel datm_cdeps_debug_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_debug_cfsr_intel.log' </command>
+      <jobname>datm_cdeps_debug_cfsr_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_debug_cfsr_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_datm_cdeps_faster_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=NG-GODAS -DFASTER=ON" datm_cdeps_faster_intel 2>&amp;1 | tee &LOG;/compile_datm_cdeps_faster_intel.log</command>
+    <jobname>compile_datm_cdeps_faster_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_datm_cdeps_faster_intel.log</join>
+
+  </task>
+  <metatask name="compile_datm_cdeps_faster_intel_tasks"><var name="zero">0</var>
+    <task name="datm_cdeps_control_cfsr_faster_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_faster_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_control_cfsr_faster datm_cdeps_control_cfsr_faster_intel datm_cdeps_faster_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_control_cfsr_faster_intel.log' </command>
+      <jobname>datm_cdeps_control_cfsr_faster_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_control_cfsr_faster_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_datm_cdeps_land_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=LND" datm_cdeps_land_intel 2>&amp;1 | tee &LOG;/compile_datm_cdeps_land_intel.log</command>
+    <jobname>compile_datm_cdeps_land_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_datm_cdeps_land_intel.log</join>
+
+  </task>
+  <metatask name="compile_datm_cdeps_land_intel_tasks"><var name="zero">0</var>
+    <task name="datm_cdeps_lnd_gswp3_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_land_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_lnd_gswp3 datm_cdeps_lnd_gswp3_intel datm_cdeps_land_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_lnd_gswp3_intel.log' </command>
+      <jobname>datm_cdeps_lnd_gswp3_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>8:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_lnd_gswp3_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_lnd_era5_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_land_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_lnd_era5 datm_cdeps_lnd_era5_intel datm_cdeps_land_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_lnd_era5_intel.log' </command>
+      <jobname>datm_cdeps_lnd_era5_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>8:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_lnd_era5_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_lnd_era5_rst_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_datm_cdeps_land_intel"/> <taskdep task="datm_cdeps_lnd_era5_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_lnd_era5_rst datm_cdeps_lnd_era5_rst_intel datm_cdeps_land_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_lnd_era5_rst_intel.log' </command>
+      <jobname>datm_cdeps_lnd_era5_rst_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>8:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_lnd_era5_rst_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_datm_cdeps_lm4_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=LND-LM4" datm_cdeps_lm4_intel 2>&amp;1 | tee &LOG;/compile_datm_cdeps_lm4_intel.log</command>
+    <jobname>compile_datm_cdeps_lm4_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_datm_cdeps_lm4_intel.log</join>
+
+  </task>
+  <metatask name="compile_datm_cdeps_lm4_intel_tasks"><var name="zero">0</var>
+    <task name="datm_cdeps_lm4_gswp3_intel" maxtries="3">
+      <dependency> <taskdep task="compile_datm_cdeps_lm4_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_lm4_gswp3 datm_cdeps_lm4_gswp3_intel datm_cdeps_lm4_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_lm4_gswp3_intel.log' </command>
+      <jobname>datm_cdeps_lm4_gswp3_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=24</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_lm4_gswp3_intel.log</join>
+
+    </task>
+    <task name="datm_cdeps_lm4_gswp3_rst_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_datm_cdeps_lm4_intel"/> <taskdep task="datm_cdeps_lm4_gswp3_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; datm_cdeps_lm4_gswp3_rst datm_cdeps_lm4_gswp3_rst_intel datm_cdeps_lm4_intel 2>&amp;1 | tee &LOG;/run_datm_cdeps_lm4_gswp3_rst_intel.log' </command>
+      <jobname>datm_cdeps_lm4_gswp3_rst_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=24</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/datm_cdeps_lm4_gswp3_rst_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_atm_ds2s_docn_pcice_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATM_DS2S-PCICE -DCCPP_SUITES=FV3_GFS_v17_coupled_p8" atm_ds2s_docn_pcice_intel 2>&amp;1 | tee &LOG;/compile_atm_ds2s_docn_pcice_intel.log</command>
+    <jobname>compile_atm_ds2s_docn_pcice_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_atm_ds2s_docn_pcice_intel.log</join>
+
+  </task>
+  <metatask name="compile_atm_ds2s_docn_pcice_intel_tasks"><var name="zero">0</var>
+    <task name="atm_ds2s_docn_pcice_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_ds2s_docn_pcice_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; atm_ds2s_docn_pcice atm_ds2s_docn_pcice_intel atm_ds2s_docn_pcice_intel 2>&amp;1 | tee &LOG;/run_atm_ds2s_docn_pcice_intel.log' </command>
+      <jobname>atm_ds2s_docn_pcice_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/atm_ds2s_docn_pcice_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_atm_ds2s_docn_dice_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATM_DS2S -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1" atm_ds2s_docn_dice_intel 2>&amp;1 | tee &LOG;/compile_atm_ds2s_docn_dice_intel.log</command>
+    <jobname>compile_atm_ds2s_docn_dice_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_atm_ds2s_docn_dice_intel.log</join>
+
+  </task>
+  <metatask name="compile_atm_ds2s_docn_dice_intel_tasks"><var name="zero">0</var>
+    <task name="atm_ds2s_docn_dice_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_atm_ds2s_docn_dice_intel"/> <taskdep task="cpld_control_nowave_noaero_p8_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; atm_ds2s_docn_dice atm_ds2s_docn_dice_intel atm_ds2s_docn_dice_intel 2>&amp;1 | tee &LOG;/run_atm_ds2s_docn_dice_intel.log' </command>
+      <jobname>atm_ds2s_docn_dice_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:50:00</walltime>
+      <join>&RUNDIR_ROOT;/atm_ds2s_docn_dice_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_atml_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATML -DCCPP_SUITES=FV3_GFS_v16,FV3_GFS_v16_flake,FV3_GFS_v17_p8,FV3_GFS_v17_p8_rrtmgp,FV3_GFS_v15_thompson_mynn_lam3km,FV3_WoFS_v0,FV3_GFS_v17_p8_mynn,FV3_GFS_v17_p8_ugwpv1 -D32BIT=ON" atml_intel 2>&amp;1 | tee &LOG;/compile_atml_intel.log</command>
+    <jobname>compile_atml_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_atml_intel.log</join>
+
+  </task>
+  <metatask name="compile_atml_intel_tasks"><var name="zero">0</var>
+    <task name="control_p8_atmlnd_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atml_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_p8_atmlnd control_p8_atmlnd_intel atml_intel 2>&amp;1 | tee &LOG;/run_control_p8_atmlnd_intel.log' </command>
+      <jobname>control_p8_atmlnd_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>8:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_p8_atmlnd_intel.log</join>
+
+    </task>
+    <task name="control_restart_p8_atmlnd_intel" maxtries="3">
+      <dependency> <and> <taskdep task="compile_atml_intel"/> <taskdep task="control_p8_atmlnd_intel"/> </and> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_restart_p8_atmlnd control_restart_p8_atmlnd_intel atml_intel 2>&amp;1 | tee &LOG;/run_control_restart_p8_atmlnd_intel.log' </command>
+      <jobname>control_restart_p8_atmlnd_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>8:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_restart_p8_atmlnd_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_atml_debug_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATML -DCCPP_SUITES=FV3_GFS_v16,FV3_GFS_v16_flake,FV3_GFS_v17_p8,FV3_GFS_v17_p8_rrtmgp,FV3_GFS_v15_thompson_mynn_lam3km,FV3_WoFS_v0,FV3_GFS_v17_p8_mynn,FV3_GFS_v17_p8_ugwpv1 -D32BIT=ON -DDEBUG=ON" atml_debug_intel 2>&amp;1 | tee &LOG;/compile_atml_debug_intel.log</command>
+    <jobname>compile_atml_debug_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_atml_debug_intel.log</join>
+
+  </task>
+  <metatask name="compile_atml_debug_intel_tasks"><var name="zero">0</var>
+    <task name="control_p8_atmlnd_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atml_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; control_p8_atmlnd_debug control_p8_atmlnd_debug_intel atml_debug_intel 2>&amp;1 | tee &LOG;/run_control_p8_atmlnd_debug_intel.log' </command>
+      <jobname>control_p8_atmlnd_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>8:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/control_p8_atmlnd_debug_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_atmw_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATMW -DCCPP_SUITES=FV3_GFS_v17_p8 -D32BIT=ON" atmw_intel 2>&amp;1 | tee &LOG;/compile_atmw_intel.log</command>
+    <jobname>compile_atmw_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_atmw_intel.log</join>
+
+  </task>
+  <metatask name="compile_atmw_intel_tasks"><var name="zero">0</var>
+    <task name="atmwav_control_noaero_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atmw_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; atmwav_control_noaero_p8 atmwav_control_noaero_p8_intel atmw_intel 2>&amp;1 | tee &LOG;/run_atmwav_control_noaero_p8_intel.log' </command>
+      <jobname>atmwav_control_noaero_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/atmwav_control_noaero_p8_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_atmaero_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATMAERO -DCCPP_SUITES=FV3_GFS_v17_p8 -D32BIT=ON" atmaero_intel 2>&amp;1 | tee &LOG;/compile_atmaero_intel.log</command>
+    <jobname>compile_atmaero_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_atmaero_intel.log</join>
+
+  </task>
+  <metatask name="compile_atmaero_intel_tasks"><var name="zero">0</var>
+    <task name="atmaero_control_p8_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atmaero_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; atmaero_control_p8 atmaero_control_p8_intel atmaero_intel 2>&amp;1 | tee &LOG;/run_atmaero_control_p8_intel.log' </command>
+      <jobname>atmaero_control_p8_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>5:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/atmaero_control_p8_intel.log</join>
+
+    </task>
+    <task name="atmaero_control_p8_rad_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atmaero_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; atmaero_control_p8_rad atmaero_control_p8_rad_intel atmaero_intel 2>&amp;1 | tee &LOG;/run_atmaero_control_p8_rad_intel.log' </command>
+      <jobname>atmaero_control_p8_rad_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/atmaero_control_p8_rad_intel.log</join>
+
+    </task>
+    <task name="atmaero_control_p8_rad_micro_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atmaero_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; atmaero_control_p8_rad_micro atmaero_control_p8_rad_micro_intel atmaero_intel 2>&amp;1 | tee &LOG;/run_atmaero_control_p8_rad_micro_intel.log' </command>
+      <jobname>atmaero_control_p8_rad_micro_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>4:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/atmaero_control_p8_rad_micro_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_atmaq_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATMAQ -DCCPP_SUITES=FV3_GFS_v16 -D32BIT=ON" atmaq_intel 2>&amp;1 | tee &LOG;/compile_atmaq_intel.log</command>
+    <jobname>compile_atmaq_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_atmaq_intel.log</join>
+
+  </task>
+  <metatask name="compile_atmaq_intel_tasks"><var name="zero">0</var>
+    <task name="regional_atmaq_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atmaq_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_atmaq regional_atmaq_intel atmaq_intel 2>&amp;1 | tee &LOG;/run_regional_atmaq_intel.log' </command>
+      <jobname>regional_atmaq_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>7:ppn=40</nodes>
+      <walltime>00:40:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_atmaq_intel.log</join>
+
+    </task>
+    <task name="regional_atmaq_canopy_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atmaq_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_atmaq_canopy regional_atmaq_canopy_intel atmaq_intel 2>&amp;1 | tee &LOG;/run_regional_atmaq_canopy_intel.log' </command>
+      <jobname>regional_atmaq_canopy_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>7:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_atmaq_canopy_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_atmaq_debug_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATMAQ -DCCPP_SUITES=FV3_GFS_v16 -DDEBUG=ON -D32BIT=ON" atmaq_debug_intel 2>&amp;1 | tee &LOG;/compile_atmaq_debug_intel.log</command>
+    <jobname>compile_atmaq_debug_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_atmaq_debug_intel.log</join>
+
+  </task>
+  <metatask name="compile_atmaq_debug_intel_tasks"><var name="zero">0</var>
+    <task name="regional_atmaq_debug_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atmaq_debug_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; regional_atmaq_debug regional_atmaq_debug_intel atmaq_debug_intel 2>&amp;1 | tee &LOG;/run_regional_atmaq_debug_intel.log' </command>
+      <jobname>regional_atmaq_debug_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>7:ppn=40</nodes>
+      <walltime>00:45:00</walltime>
+      <join>&RUNDIR_ROOT;/regional_atmaq_debug_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_atm_fbh_intel" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=ATMF -DCCPP_SUITES=FV3_HRRR -D32BIT=ON" atm_fbh_intel 2>&amp;1 | tee &LOG;/compile_atm_fbh_intel.log</command>
+    <jobname>compile_atm_fbh_intel</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_atm_fbh_intel.log</join>
+
+  </task>
+  <metatask name="compile_atm_fbh_intel_tasks"><var name="zero">0</var>
+    <task name="cpld_regional_atm_fbh_intel" maxtries="3">
+      <dependency> <taskdep task="compile_atm_fbh_intel"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; cpld_regional_atm_fbh cpld_regional_atm_fbh_intel atm_fbh_intel 2>&amp;1 | tee &LOG;/run_cpld_regional_atm_fbh_intel.log' </command>
+      <jobname>cpld_regional_atm_fbh_intel</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>1:ppn=31</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/cpld_regional_atm_fbh_intel.log</join>
+
+    </task>
+  </metatask>
+  <task name="compile_hafsw_intelllvm" maxtries="3">
+    <command>&PATHRT;/run_compile.sh &PATHRT; &RUNDIR_ROOT; "-DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf_nonsst -D32BIT=ON" hafsw_intelllvm 2>&amp;1 | tee &LOG;/compile_hafsw_intelllvm.log</command>
+    <jobname>compile_hafsw_intelllvm</jobname>
+    <account>epic</account>
+    <queue>batch</queue>
+    <partition>orion</partition>
+    <nodes>1:ppn=8</nodes>
+    <walltime>01:00:00</walltime>
+    <join>&RUNDIR_ROOT;/compile_hafsw_intelllvm.log</join>
+
+  </task>
+  <metatask name="compile_hafsw_intelllvm_tasks"><var name="zero">0</var>
+    <task name="hafs_regional_storm_following_1nest_atm_ocn_intelllvm" maxtries="3">
+      <dependency> <taskdep task="compile_hafsw_intelllvm"/> </dependency>
+      <command>bash -c 'set -xe -o pipefail ; &PATHRT;/run_test.sh &PATHRT; &RUNDIR_ROOT; hafs_regional_storm_following_1nest_atm_ocn hafs_regional_storm_following_1nest_atm_ocn_intelllvm hafsw_intelllvm 2>&amp;1 | tee &LOG;/run_hafs_regional_storm_following_1nest_atm_ocn_intelllvm.log' </command>
+      <jobname>hafs_regional_storm_following_1nest_atm_ocn_intelllvm</jobname>
+      <account>epic</account>
+
+      <queue>batch</queue>
+      <partition>orion</partition>
+      <nodes>15:ppn=40</nodes>
+      <walltime>00:30:00</walltime>
+      <join>&RUNDIR_ROOT;/hafs_regional_storm_following_1nest_atm_ocn_intelllvm.log</join>
+
+    </task>
+  </metatask>
+</workflow>

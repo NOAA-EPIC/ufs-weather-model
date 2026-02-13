@@ -1,0 +1,22 @@
+lnd-lm4_datm_cdeps_lm4_intel:
+  build:
+    compiler: intel
+    option: -DAPP=LND-LM4
+    turnon:
+    - hera
+    - orion
+  tests:
+  - datm_cdeps_lm4_gswp3:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - hera
+      - orion
+  - datm_cdeps_lm4_gswp3_rst:
+      project:
+      - daily
+      dependency: datm_cdeps_lm4_gswp3
+      turnon:
+      - hera
+      - orion

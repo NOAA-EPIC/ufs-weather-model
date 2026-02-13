@@ -1,0 +1,11 @@
+atm_ds2s-pcice_atm_ds2s_docn_pcice_intel:
+  build:
+    compiler: intel
+    option: -DAPP=ATM_DS2S-PCICE -DCCPP_SUITES=FV3_GFS_v17_coupled_p8
+  tests:
+  - atm_ds2s_docn_pcice:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud

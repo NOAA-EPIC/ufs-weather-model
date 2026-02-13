@@ -1,0 +1,20 @@
+apps:
+  - atmaero
+  - atmaq
+  - atm_ds2s-pcice
+  - atm_ds2s
+  - atmf
+  - atml
+  - atmmpas
+  - atmw
+  - atm
+  - hafs-all
+  - hafs-mom6w
+  - hafsw
+  - lnd-lm4
+  - lnd
+  - ng-godas
+  - s2swal
+  - s2swa
+  - s2sw
+  - s2s

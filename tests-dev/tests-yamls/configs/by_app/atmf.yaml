@@ -1,0 +1,17 @@
+atmf_atm_fbh_intel:
+  build:
+    compiler: intel
+    option: -DAPP=ATMF -DCCPP_SUITES=FV3_HRRR -D32BIT=ON
+    turnoff:
+    - wcoss2
+    - noaacloud
+    - acorn
+  tests:
+  - cpld_regional_atm_fbh:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+      - noaacloud
+      - acorn

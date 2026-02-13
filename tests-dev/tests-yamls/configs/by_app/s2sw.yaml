@@ -1,0 +1,176 @@
+s2sw_default_intel:
+  build:
+    compiler: intel
+    option: -DAPP=S2SW -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1
+  tests:
+  - cpld_control_noaero_p8:
+      project:
+      - daily
+      baseline: 'True'
+  - cpld_control_nowave_noaero_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+s2sw_debug_intel:
+  build:
+    compiler: intel
+    option: -DAPP=S2SW -DDEBUG=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1
+    turnoff:
+    - wcoss2
+    - noaacloud
+    - acorn
+  tests:
+  - cpld_debug_noaero_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+      - acorn
+      - noaacloud
+s2sw_pdlib_intel:
+  build:
+    compiler: intel
+    option: -DAPP=S2SW -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1,FV3_coupled_lowres
+      -DPDLIB=ON
+    turnoff:
+    - noaacloud
+  tests:
+  - cpld_control_pdlib_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - cpld_restart_pdlib_p8:
+      project:
+      - daily
+      dependency: cpld_control_pdlib_p8
+      turnoff:
+      - noaacloud
+  - cpld_mpi_pdlib_p8:
+      project:
+      - daily
+      turnoff:
+      - noaacloud
+  - cpld_control_c48_5deg:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - cpld_warmstart_c48_5deg:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - cpld_restart_c48_5deg:
+      project:
+      - daily
+      dependency: cpld_warmstart_c48_5deg
+      turnoff:
+      - noaacloud
+  - cpld_control_c24_5deg:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - cpld_warmstart_c24_5deg:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - cpld_restart_c24_5deg:
+      project:
+      - daily
+      dependency: cpld_warmstart_c24_5deg
+      turnoff:
+      - noaacloud
+  - cpld_control_c24_9deg:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - cpld_warmstart_c24_9deg:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - cpld_restart_c24_9deg:
+      project:
+      - daily
+      dependency: cpld_warmstart_c24_9deg
+      turnoff:
+      - noaacloud
+  - cpld_control_c12_9deg:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - cpld_warmstart_c12_9deg:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - cpld_restart_c12_9deg:
+      project:
+      - daily
+      dependency: cpld_warmstart_c12_9deg
+      turnoff:
+      - noaacloud
+s2sw_pdlib_debug_intel:
+  build:
+    compiler: intel
+    option: -DAPP=S2SW -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON -DDEBUG=ON
+    turnoff:
+    - noaacloud
+  tests:
+  - cpld_debug_pdlib_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+s2sw_pdlib_gnu:
+  build:
+    compiler: gnu
+    option: -DAPP=S2SW -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON
+    turnon:
+    - hera
+    - hercules
+    - ursa
+  tests:
+  - cpld_control_pdlib_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - hera
+      - hercules
+      - ursa
+s2sw_pdlib_debug_gnu:
+  build:
+    compiler: gnu
+    option: -DAPP=S2SW -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON -DDEBUG=ON
+    turnon:
+    - hera
+    - hercules
+    - ursa
+  tests:
+  - cpld_debug_pdlib_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - hera
+      - hercules
+      - ursa

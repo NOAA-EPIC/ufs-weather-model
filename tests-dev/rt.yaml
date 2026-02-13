@@ -4,9 +4,9 @@ s2swa_32bit_intel:
     option: '-DAPP=S2SWA -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8,FV3_GFS_v17_coupled_p8_ugwpv1'
   tests: 
     - cpld_control_p8_mixedmode: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
-    - cpld_control_gefs: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud','derecho']}
-    - cpld_restart_gefs: {'project':['daily'],'dependency':'cpld_control_gefs','turnoff':['noaacloud','derecho']}
-    - cpld_dcp_gefs: {'project':['daily'],'turnoff':['noaacloud','derecho','wcoss2','acorn','gaeac5']}
+    - cpld_control_gefs: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud','derecho','gaeac6']}
+    - cpld_restart_gefs: {'project':['daily'],'dependency':'cpld_control_gefs','turnoff':['noaacloud','derecho','gaeac6']}
+    - cpld_dcp_gefs: {'project':['daily'],'turnoff':['noaacloud','derecho','wcoss2','acorn','gaeac6']}
 s2swa_32bit_pdlib_intel:
   build: 
     compiler: 'intel'
@@ -16,9 +16,8 @@ s2swa_32bit_pdlib_intel:
     - cpld_control_gfsv17: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - cpld_control_gfsv17_iau: {'project':['daily'],'baseline': 'True','dependency':'cpld_control_gfsv17','turnoff':['noaacloud']}
     - cpld_restart_gfsv17: {'project':['daily'],'dependency':'cpld_control_gfsv17','turnoff':['noaacloud']}
+    - cpld_restart_gfsv17_iau: {'project':['daily'],'dependency':'cpld_control_gfsv17_iau','turnoff':['noaacloud']}
     - cpld_mpi_gfsv17: {'project':['daily'],'turnoff':['noaacloud']}
-    - cpld_control_gfsv17_nowav_iau: {'project':['daily'],'baseline': 'True','dependency':'cpld_control_gfsv17','turnoff':['noaacloud']}
-    - cpld_restart_gfsv17_nowav_iau: {'project':['daily'],'dependency':'cpld_control_gfsv17_nowav_iau','turnoff':['noaacloud']}
 s2swa_32bit_pdlib_sfs_intel:
   build: 
     compiler: 'intel'
@@ -30,9 +29,9 @@ s2swa_32bit_pdlib_debug_intel:
   build: 
     compiler: 'intel'
     option: '-DAPP=S2SWA -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON -DDEBUG=ON'
-    turnoff: ['noaacloud','jet']
+    turnoff: ['noaacloud']
   tests: 
-    - cpld_debug_gfsv17: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud','jet']}
+    - cpld_debug_gfsv17: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
 s2swa_intel:
   build: 
     compiler: 'intel'
@@ -47,8 +46,8 @@ s2swa_intel:
     - cpld_decomp_p8: {'project':['daily'],'turnoff':['noaacloud']}
     - cpld_mpi_p8: {'project':['daily'],'turnoff':['noaacloud']}
     - cpld_control_ciceC_p8: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
-    - cpld_control_c192_p8: {'project':['daily'],'baseline': 'True','turnoff':['wcoss2','jet','acorn','s4','noaacloud']}
-    - cpld_restart_c192_p8: {'project':['daily'],'dependency':'cpld_control_c192_p8','turnoff':['wcoss2','jet','acorn','s4','noaacloud']}
+    - cpld_control_c192_p8: {'project':['daily'],'baseline': 'True','turnoff':['wcoss2','acorn','s4','noaacloud']}
+    - cpld_restart_c192_p8: {'project':['daily'],'dependency':'cpld_control_c192_p8','turnoff':['wcoss2','acorn','s4','noaacloud','gaeac6']}
 s2swal_intel:
   build: 
     compiler: 'intel'
@@ -122,7 +121,7 @@ s2sw_pdlib_debug_intel:
 atm_dyn32_intel:
   build: 
     compiler: 'intel'
-    option: '-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v16,FV3_GFS_v16_flake,FV3_GFS_v17_p8,FV3_GFS_v17_p8_rrtmgp,FV3_GFS_v15_thompson_mynn_lam3km,FV3_WoFS_v0,FV3_GFS_v17_p8_mynn,FV3_GFS_v17_p8_ugwpv1 -D32BIT=ON'
+    option: '-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v16,FV3_GFS_v16_flake,FV3_GFS_v17_p8,FV3_GFS_v17_p8_rrtmgp,FV3_GFS_v15_thompson_mynn_lam3km,FV3_WoFS_v0,FV3_GFS_v17_p8_mynn,FV3_GFS_v17_p8_ugwpv1,FV3_GFS_v16_gfdlmpv3,FV3_GFS_v17_p8_ugwpv1_tempo -D32BIT=ON'
   tests: 
     - control_flake: {'project':['daily'],'baseline': 'True'}
     - control_CubedSphereGrid: {'project':['daily'],'baseline': 'True'}
@@ -139,10 +138,14 @@ atm_dyn32_intel:
     - control_stochy_restart: {'project':['daily'],'dependency':'control_stochy','turnoff':['noaacloud']}
     - control_lndp: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - control_iovr4: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
+    - control_iovr4_gfdlmpv3: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - control_iovr5: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - control_p8: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - control_p8.v2.sfc: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - control_p8_ugwpv1: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
+    - control_p8_ugwpv1_tempo: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
+    - control_p8_ugwpv1_tempo_aerosol: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
+    - control_p8_ugwpv1_tempo_aerosol_hail: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - control_restart_p8: {'project':['daily'],'dependency':'control_p8','turnoff':['noaacloud']}
     - control_noqr_p8: {'project':['daily'],'turnoff':['noaacloud']}
     - control_restart_noqr_p8: {'project':['daily'],'dependency':'control_noqr_p8','turnoff':['noaacloud']}
@@ -152,14 +155,15 @@ atm_dyn32_intel:
     - control_p8_rrtmgp: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - control_p8_mynn: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - merra2_thompson: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
+    - merra2_hf_thompson: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - regional_control: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - regional_restart: {'project':['daily'],'dependency':'regional_control','turnoff':['noaacloud']}
     - regional_decomp: {'project':['daily'],'turnoff':['noaacloud']}
     - regional_2threads: {'project':['daily'],'turnoff':['derecho','noaacloud']}
-    - regional_noquilt: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4']}
+    - regional_noquilt: {'project':['daily'],'baseline': 'True','turnoff':['s4']}
     - regional_netcdf_parallel: {'project':['daily'],'baseline': 'True','turnoff':['acorn']}
     - regional_2dwrtdecomp: {'project':['daily'],'turnoff':['acorn']}
-    - regional_wofs: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4']}
+    - regional_wofs: {'project':['daily'],'baseline': 'True','turnoff':['s4']}
 rrfs_intel:
   build: 
     compiler: 'intel'
@@ -230,17 +234,9 @@ atm_debug_dyn32_intel:
     - rap_noah_debug: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - rap_sfcdiff_debug: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - rap_noah_sfcdiff_cires_ugwp_debug: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
-    - rrfs_v1beta_debug: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - rap_clm_lake_debug: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - rap_flake_debug: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
-    - gnv1_c96_no_nest_debug: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
-atm_debug_dyn32_gnu:
-  build: 
-    compiler: 'gnu'
-    option: '-DAPP=ATM -DDEBUG=ON -D32BIT=ON -DCCPP_SUITES=FV3_HRRR,FV3_GFS_v16,FV3_GFS_v16_csawmg,FV3_GFS_v16_ras,FV3_GFS_v17_p8,FV3_GFS_v15_thompson_mynn_lam3km,FV3_RAP,FV3_RAP_unified_ugwp,FV3_RAP_cires_ugwp,FV3_RAP_flake,FV3_RAP_clm_lake,FV3_RAP_noah,FV3_RAP_sfcdiff,FV3_RAP_noah_sfcdiff_cires_ugwp,FV3_RRFS_v1beta,FV3_HRRR_c3,FV3_HRRR_gf,FV3_global_nest_v1'
-    turnon: ['hera','hercules']
-  tests: 
-    - control_csawmg_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - gnv1_c96_no_nest_debug: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud','orion','hercules']}
 wam_debug_intel:
   build: 
     compiler: 'intel'
@@ -269,8 +265,9 @@ rrfs_dyn32_phy32_faster_intel:
     turnoff: ['noaacloud']
   tests: 
     - conus13km_control: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
-    - conus13km_2threads: {'project':['daily'],'dependency':'conus13km_control','turnoff':['noaacloud']}
-    - conus13km_restart_mismatch: {'project':['daily'],'baseline': 'True','dependency':'conus13km_control','turnoff':['noaacloud']}
+    - conus13km_2threads: {'project':['daily'],'turnoff':['noaacloud']}
+    - conus13km_decomp: {'project':['daily'],'turnoff':['noaacloud']}
+    - conus13km_restart: {'project':['daily'],'dependency':'conus13km_control','turnoff':['noaacloud']}
 rrfs_dyn64_phy32_intel:
   build: 
     compiler: 'intel'
@@ -289,6 +286,7 @@ rrfs_dyn32_phy32_debug_intel:
     - conus13km_debug: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - conus13km_debug_qr: {'project':['daily'],'turnoff':['noaacloud']}
     - conus13km_debug_2threads: {'project':['daily'],'turnoff':['noaacloud']}
+    - conus13km_debug_decomp: {'project':['daily'],'turnoff':['noaacloud']}
     - conus13km_radar_tten_debug: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
 rrfs_dyn64_phy32_debug_intel:
   build: 
@@ -300,44 +298,45 @@ rrfs_dyn64_phy32_debug_intel:
 hafsw_intel:
   build: 
     compiler: 'intel'
-    option: '-DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_thompson_tedmf_gfdlsf,FV3_global_nest_v1 -D32BIT=ON'
+    option: '-DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_thompson_tedmf_gfdlsf,FV3_global_nest_v1,FV3_HAFS_v1_gfdlmpv3_tedmf -D32BIT=ON'
   tests: 
     - hafs_regional_atm: {'project':['daily'],'baseline': 'True'}
+    - hafs_regional_atm_gfdlmpv3: {'project':['daily'],'baseline': 'True'}
     - hafs_regional_atm_thompson_gfdlsf: {'project':['daily'],'baseline': 'True'}
     - hafs_regional_atm_ocn: {'project':['daily'],'baseline': 'True'}
     - hafs_regional_atm_wav: {'project':['daily'],'baseline': 'True'}
-    - hafs_regional_atm_ocn_wav: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
-    - hafs_regional_1nest_atm: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4','noaacloud']}
-    - hafs_regional_telescopic_2nests_atm: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4','noaacloud']}
-    - hafs_global_1nest_atm: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4','noaacloud']}
-    - hafs_global_multiple_4nests_atm: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4','noaacloud']}
-    - hafs_regional_specified_moving_1nest_atm: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4','noaacloud']}
-    - hafs_regional_storm_following_1nest_atm: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4','noaacloud']}
-    - hafs_regional_storm_following_1nest_atm_ocn: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4','noaacloud']}
-    - hafs_global_storm_following_1nest_atm: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4','noaacloud']}
+    - hafs_regional_atm_ocn_wav: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud','hera']}
+    - hafs_regional_1nest_atm: {'project':['daily'],'baseline': 'True','turnoff':['s4','noaacloud']}
+    - hafs_regional_telescopic_2nests_atm: {'project':['daily'],'baseline': 'True','turnoff':['s4','noaacloud']}
+    - hafs_global_1nest_atm: {'project':['daily'],'baseline': 'True','turnoff':['s4','noaacloud']}
+    - hafs_global_multiple_4nests_atm: {'project':['daily'],'baseline': 'True','turnoff':['s4','noaacloud']}
+    - hafs_regional_specified_moving_1nest_atm: {'project':['daily'],'baseline': 'True','turnoff':['s4','noaacloud']}
+    - hafs_regional_storm_following_1nest_atm: {'project':['daily'],'baseline': 'True','turnoff':['s4','noaacloud']}
+    - hafs_regional_storm_following_1nest_atm_ocn: {'project':['daily'],'baseline': 'True','turnoff':['s4','noaacloud']}
+    - hafs_global_storm_following_1nest_atm: {'project':['daily'],'baseline': 'True','turnoff':['s4','noaacloud']}
     - gnv1_nested: {'project':['daily'],'baseline': 'True','turnoff':['hercules','wcoss2','s4','noaacloud']}
 hafsw_debug_intel:
   build: 
     compiler: 'intel'
     option: '-DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf_nonsst -D32BIT=ON -DDEBUG=ON'
-    turnoff: ['jet','noaacloud','s4']
+    turnoff: ['noaacloud','s4']
   tests: 
-    - hafs_regional_storm_following_1nest_atm_ocn_debug: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4','noaacloud']}
+    - hafs_regional_storm_following_1nest_atm_ocn_debug: {'project':['daily'],'baseline': 'True','turnoff':['s4','noaacloud']}
 hafsw_faster_intel:
   build: 
     compiler: 'intel'
     option: '-DAPP=HAFSW -DCDEPS_INLINE=ON -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_thompson,FV3_HAFS_v1_thompson_nonsst -D32BIT=ON -DFASTER=ON'
-    turnoff: ['jet','noaacloud','s4']
+    turnoff: ['noaacloud','s4']
   tests: 
-    - hafs_regional_storm_following_1nest_atm_ocn_wav: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4','noaacloud']}
-    - hafs_regional_storm_following_1nest_atm_ocn_wav_inline: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4','noaacloud']}
+    - hafs_regional_storm_following_1nest_atm_ocn_wav: {'project':['daily'],'baseline': 'True','turnoff':['s4','noaacloud']}
+    - hafs_regional_storm_following_1nest_atm_ocn_wav_inline: {'project':['daily'],'baseline': 'True','turnoff':['s4','noaacloud']}
 hafs_mom6w_intel:
   build: 
     compiler: 'intel'
     option: '-DAPP=HAFS-MOM6W -DREGIONAL_MOM6=ON -DCDEPS_INLINE=ON -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_thompson,FV3_HAFS_v1_thompson_nonsst -D32BIT=ON'
-    turnoff: ['jet','noaacloud','s4']
+    turnoff: ['noaacloud','s4']
   tests: 
-    - hafs_regional_storm_following_1nest_atm_ocn_wav_mom6: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4','noaacloud']}
+    - hafs_regional_storm_following_1nest_atm_ocn_wav_mom6: {'project':['daily'],'baseline': 'True','turnoff':['s4','noaacloud']}
 hafs_all_intel:
   build: 
     compiler: 'intel'
@@ -346,7 +345,7 @@ hafs_all_intel:
   tests: 
     - hafs_regional_docn: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
     - hafs_regional_docn_oisst: {'project':['daily'],'baseline': 'True','turnoff':['noaacloud']}
-    - hafs_regional_datm_cdeps: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4','noaacloud']}
+    - hafs_regional_datm_cdeps: {'project':['daily'],'baseline': 'True','turnoff':['s4','noaacloud']}
 datm_cdeps_intel:
   build: 
     compiler: 'intel'
@@ -393,10 +392,10 @@ datm_cdeps_lm4_intel:
   build: 
     compiler: 'intel'
     option: '-DAPP=LND-LM4'
-    turnon: ['hera','orion','gaeac5']
+    turnon: ['hera','orion']
   tests: 
-    - datm_cdeps_lm4_gswp3: {'project':['daily'],'baseline': 'True','turnon':['hera','orion','gaeac5']}
-    - datm_cdeps_lm4_gswp3_rst: {'project':['daily'],'dependency':'datm_cdeps_lm4_gswp3','turnon':['hera','orion','gaeac5']}
+    - datm_cdeps_lm4_gswp3: {'project':['daily'],'baseline': 'True','turnon':['hera','orion']}
+    - datm_cdeps_lm4_gswp3_rst: {'project':['daily'],'dependency':'datm_cdeps_lm4_gswp3','turnon':['hera','orion']}
 atm_ds2s_docn_pcice_intel:
   build: 
     compiler: 'intel'
@@ -443,16 +442,17 @@ atmaq_intel:
   build: 
     compiler: 'intel'
     option: '-DAPP=ATMAQ -DCCPP_SUITES=FV3_GFS_v16 -D32BIT=ON'
-    turnoff: ['jet','s4']
+    turnoff: ['s4']
   tests: 
-    - regional_atmaq: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4']}
+    - regional_atmaq: {'project':['daily'],'baseline': 'True','turnoff':['s4']}
+    - regional_atmaq_canopy: {'project':['daily'],'baseline': 'True','turnoff':['s4']}
 atmaq_debug_intel:
   build: 
     compiler: 'intel'
     option: '-DAPP=ATMAQ -DCCPP_SUITES=FV3_GFS_v16 -DDEBUG=ON -D32BIT=ON'
-    turnoff: ['jet','noaacloud','s4']
+    turnoff: ['noaacloud','s4']
   tests: 
-    - regional_atmaq_debug: {'project':['daily'],'baseline': 'True','turnoff':['jet','s4','noaacloud']}
+    - regional_atmaq_debug: {'project':['daily'],'baseline': 'True','turnoff':['s4','noaacloud']}
 atm_fbh_intel:
   build: 
     compiler: 'intel'
@@ -464,221 +464,243 @@ s2swa_32bit_pdlib_intelllvm:
   build: 
     compiler: 'intelllvm'
     option: '-DAPP=S2SWA -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON'
-    turnon: ['gaeac5']
+    turnon: ['ursa']
   tests: 
-    - cpld_control_gfsv17: {'project':['daily'],'baseline': 'True','turnon':['gaeac5']}
+    - cpld_control_gfsv17: {'project':['daily'],'baseline': 'True','turnon':['ursa']}
 s2swa_32bit_pdlib_debug_intelllvm:
   build: 
     compiler: 'intelllvm'
     option: '-DAPP=S2SWA -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON -DDEBUG=ON'
-    turnon: ['gaeac5']
+    turnon: ['ursa']
   tests: 
-    - cpld_debug_gfsv17: {'project':['daily'],'baseline': 'True','turnon':['gaeac5']}
+    - cpld_debug_gfsv17: {'project':['daily'],'baseline': 'True','turnon':['ursa']}
 s2swa_32bit_pdlib_sfs_intelllvm:
   build: 
     compiler: 'intelllvm'
     option: '-DAPP=S2SWA -D32BIT=ON -DHYDRO=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON'
-    turnon: ['gaeac5']
+    turnon: ['ursa']
   tests: 
-    - cpld_control_sfs: {'project':['daily'],'baseline': 'True','turnon':['gaeac5']}
+    - cpld_control_sfs: {'project':['daily'],'baseline': 'True','turnon':['ursa']}
 s2swa_intelllvm:
   build: 
     compiler: 'intelllvm'
     option: '-DAPP=S2SWA -DCCPP_SUITES=FV3_GFS_v17_coupled_p8,FV3_GFS_v17_coupled_p8_ugwpv1'
-    turnon: ['gaeac5']
+    turnon: ['ursa']
   tests: 
-    - cpld_control_p8: {'project':['daily'],'baseline': 'True','turnon':['gaeac5']}
+    - cpld_control_p8: {'project':['daily'],'baseline': 'True','turnon':['ursa']}
 rrfs_dyn32_phy32_intelllvm:
   build: 
     compiler: 'intelllvm'
     option: '-DAPP=ATM -DCCPP_SUITES=FV3_RAP -D32BIT=ON -DCCPP_32BIT=ON'
-    turnon: ['hera']
+    turnon: ['hera','ursa']
   tests: 
-    - rap_control_dyn32_phy32: {'project':['daily'],'baseline': 'True','turnon':['hera']}
+    - rap_control_dyn32_phy32: {'project':['daily'],'baseline': 'True','turnon':['hera','ursa']}
 rrfs_dyn64_phy32_intelllvm:
   build: 
     compiler: 'intelllvm'
     option: '-DAPP=ATM -DCCPP_SUITES=FV3_RAP -DCCPP_32BIT=ON'
-    turnon: ['hera']
+    turnon: ['hera','ursa']
   tests: 
-    - rap_control_dyn64_phy32: {'project':['daily'],'baseline': 'True','turnon':['hera']}
+    - rap_control_dyn64_phy32: {'project':['daily'],'baseline': 'True','turnon':['hera','ursa']}
 hafsw_intelllvm:
   build: 
     compiler: 'intelllvm'
     option: '-DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf_nonsst -D32BIT=ON'
-    turnon: ['orion']
+    turnon: ['orion','ursa']
   tests: 
-    - hafs_regional_storm_following_1nest_atm_ocn: {'project':['daily'],'baseline': 'True','turnon':['orion']}
+    - hafs_regional_storm_following_1nest_atm_ocn: {'project':['daily'],'baseline': 'True','turnon':['orion','ursa']}
 hafsw_debug_intelllvm:
   build: 
     compiler: 'intelllvm'
     option: '-DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf_nonsst -D32BIT=ON -DDEBUG=ON'
-    turnon: ['orion']
+    turnon: ['ursa']
   tests: 
-    - hafs_regional_storm_following_1nest_atm_ocn_debug: {'project':['daily'],'baseline': 'True','turnon':['orion']}
+    - hafs_regional_storm_following_1nest_atm_ocn_debug: {'project':['daily'],'baseline': 'True','turnon':['ursa']}
 datm_cdeps_intelllvm:
   build: 
     compiler: 'intelllvm'
     option: '-DAPP=NG-GODAS'
-    turnon: ['gaeac5']
+    turnon: ['ursa']
   tests: 
-    - datm_cdeps_control_cfsr: {'project':['daily'],'baseline': 'True','turnon':['gaeac5']}
+    - datm_cdeps_control_cfsr: {'project':['daily'],'baseline': 'True','turnon':['ursa']}
 datm_cdeps_debug_intelllvm:
   build: 
     compiler: 'intelllvm'
     option: '-DAPP=NG-GODAS -DDEBUG=ON'
-    turnon: ['gaeac5']
+    turnon: ['ursa']
   tests: 
-    - datm_cdeps_debug_cfsr: {'project':['daily'],'baseline': 'True','turnon':['gaeac5']}
+    - datm_cdeps_debug_cfsr: {'project':['daily'],'baseline': 'True','turnon':['ursa']}
 atm_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v16,FV3_GFS_v16_flake,FV3_GFS_v16_ras,FV3_GFS_v17_p8,FV3_GFS_v17_p8_ugwpv1'
-    turnon: ['hera','hercules']
+    turnon: ['hera','hercules','ursa']
   tests: 
-    - control_c48: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - control_stochy: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - control_ras: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - control_p8: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - control_p8_ugwpv1: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - control_flake: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - control_c48: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - control_stochy: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - control_ras: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - control_p8: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - control_p8_ugwpv1: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - control_flake: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
 rrfs_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=ATM -DCCPP_SUITES=FV3_RAP,FV3_RAP_sfcdiff,FV3_HRRR,FV3_RRFS_v1beta -D32BIT=ON'
-    turnon: ['hera','hercules']
+    turnon: ['hera','hercules','ursa']
   tests: 
-    - rap_control: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - rap_decomp: {'project':['daily'],'turnon':['hera','hercules']}
-    - rap_2threads: {'project':['daily'],'turnon':['hera','hercules']}
-    - rap_restart: {'project':['daily'],'dependency':'rap_control','turnon':['hera','hercules']}
-    - rap_sfcdiff: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - rap_sfcdiff_decomp: {'project':['daily'],'turnon':['hera','hercules']}
-    - rap_sfcdiff_restart: {'project':['daily'],'dependency':'rap_sfcdiff','turnon':['hera','hercules']}
-    - hrrr_control: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - hrrr_control_noqr: {'project':['daily'],'turnon':['hera','hercules']}
-    - hrrr_control_2threads: {'project':['daily'],'turnon':['hera','hercules']}
-    - hrrr_control_decomp: {'project':['daily'],'turnon':['hera','hercules']}
-    - hrrr_control_restart: {'project':['daily'],'dependency':'hrrr_control','turnon':['hera','hercules']}
-    - hrrr_control_restart_noqr: {'project':['daily'],'dependency':'hrrr_control_noqr','turnon':['hera','hercules']}
-    - rrfs_v1beta: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - rap_control: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - rap_decomp: {'project':['daily'],'turnon':['hera','hercules','ursa']}
+    - rap_2threads: {'project':['daily'],'turnon':['hera','hercules','ursa']}
+    - rap_restart: {'project':['daily'],'dependency':'rap_control','turnon':['hera','hercules','ursa']}
+    - rap_sfcdiff: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - rap_sfcdiff_decomp: {'project':['daily'],'turnon':['hera','hercules','ursa']}
+    - rap_sfcdiff_restart: {'project':['daily'],'dependency':'rap_sfcdiff','turnon':['hera','hercules','ursa']}
+    - hrrr_control: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - hrrr_control_noqr: {'project':['daily'],'turnon':['hera','hercules','ursa']}
+    - hrrr_control_2threads: {'project':['daily'],'turnon':['hera','hercules','ursa']}
+    - hrrr_control_decomp: {'project':['daily'],'turnon':['hera','hercules','ursa']}
+    - hrrr_control_restart: {'project':['daily'],'dependency':'hrrr_control','turnon':['hera','hercules','ursa']}
+    - hrrr_control_restart_noqr: {'project':['daily'],'dependency':'hrrr_control_noqr','turnon':['hera','hercules','ursa']}
+    - rrfs_v1beta: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
 csawmg_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v16_csawmg,FV3_GFS_v16_ras'
-    turnon: ['hera','hercules']
+    turnon: ['hera','hercules','ursa']
   tests: 
-    - control_csawmg: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - control_csawmg: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
 atm_dyn32_debug_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=ATM -D32BIT=ON -DDEBUG=ON'
-    turnon: ['hera','hercules']
+    turnon: ['hera','hercules','ursa']
   tests: 
-    - control_diag_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - regional_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - rap_control_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - hrrr_control_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - hrrr_gf_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - hrrr_c3_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - rap_diag_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - rap_noah_sfcdiff_cires_ugwp_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - rap_progcld_thompson_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - rrfs_v1beta_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - control_ras_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - control_stochy_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - control_debug_p8: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - rap_flake_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - rap_clm_lake_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - gnv1_c96_no_nest_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - control_diag_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - regional_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - rap_control_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - hrrr_control_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - hrrr_gf_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - hrrr_c3_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - rap_diag_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - rap_noah_sfcdiff_cires_ugwp_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - rap_progcld_thompson_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - control_ras_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - control_stochy_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - control_debug_p8: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - rap_flake_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - rap_clm_lake_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - gnv1_c96_no_nest_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
 wam_debug_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v17_p8 -D32BIT=ON -DMULTI_GASES=ON -DDEBUG=ON'
-    turnon: ['hera','hercules']
+    turnon: ['hera','hercules','ursa']
   tests: 
-    - control_wam_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - control_wam_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+atm_debug_dyn32_gnu:
+  build: 
+    compiler: 'gnu'
+    option: '-DAPP=ATM -DDEBUG=ON -D32BIT=ON -DCCPP_SUITES=FV3_HRRR,FV3_GFS_v16,FV3_GFS_v16_csawmg,FV3_GFS_v16_ras,FV3_GFS_v17_p8,FV3_GFS_v15_thompson_mynn_lam3km,FV3_RAP,FV3_RAP_unified_ugwp,FV3_RAP_cires_ugwp,FV3_RAP_flake,FV3_RAP_clm_lake,FV3_RAP_noah,FV3_RAP_sfcdiff,FV3_RAP_noah_sfcdiff_cires_ugwp,FV3_RRFS_v1beta,FV3_HRRR_c3,FV3_HRRR_gf,FV3_global_nest_v1'
+    turnon: ['hera','hercules','ursa']
+  tests: 
+    - control_csawmg_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
 rrfs_dyn32_phy32_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=ATM -DCCPP_SUITES=FV3_RAP,FV3_HRRR -D32BIT=ON -DCCPP_32BIT=ON'
-    turnon: ['hera','hercules']
+    turnon: ['hera','hercules','ursa']
   tests: 
-    - rap_control_dyn32_phy32: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - hrrr_control_dyn32_phy32: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - rap_2threads_dyn32_phy32: {'project':['daily'],'turnon':['hera','hercules']}
-    - hrrr_control_2threads_dyn32_phy32: {'project':['daily'],'turnon':['hera','hercules']}
-    - hrrr_control_decomp_dyn32_phy32: {'project':['daily'],'turnon':['hera','hercules']}
-    - rap_restart_dyn32_phy32: {'project':['daily'],'dependency':'rap_control_dyn32_phy32','turnon':['hera','hercules']}
-    - hrrr_control_restart_dyn32_phy32: {'project':['daily'],'dependency':'hrrr_control_dyn32_phy32','turnon':['hera','hercules']}
-    - conus13km_control: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - conus13km_2threads: {'project':['daily'],'dependency':'conus13km_control','turnon':['hera','hercules']}
-    - conus13km_restart_mismatch: {'project':['daily'],'baseline': 'True','dependency':'conus13km_control','turnon':['hera','hercules']}
+    - rap_control_dyn32_phy32: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - hrrr_control_dyn32_phy32: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - rap_2threads_dyn32_phy32: {'project':['daily'],'turnon':['hera','hercules','ursa']}
+    - hrrr_control_2threads_dyn32_phy32: {'project':['daily'],'turnon':['hera','hercules','ursa']}
+    - hrrr_control_decomp_dyn32_phy32: {'project':['daily'],'turnon':['hera','hercules','ursa']}
+    - rap_restart_dyn32_phy32: {'project':['daily'],'dependency':'rap_control_dyn32_phy32','turnon':['hera','hercules','ursa']}
+    - hrrr_control_restart_dyn32_phy32: {'project':['daily'],'dependency':'hrrr_control_dyn32_phy32','turnon':['hera','hercules','ursa']}
+    - conus13km_control: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - conus13km_2threads: {'project':['daily'],'turnon':['hera','hercules','ursa']}
+    - conus13km_decomp: {'project':['daily'],'turnon':['hera','hercules','ursa']}
+    - conus13km_restart: {'project':['daily'],'dependency':'conus13km_control','turnon':['hera','hercules','ursa']}
 atm_dyn64_phy32_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=ATM -DCCPP_32BIT=ON'
-    turnon: ['hera','hercules']
+    turnon: ['hera','hercules','ursa']
   tests: 
-    - rap_control_dyn64_phy32: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - rap_control_dyn64_phy32: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
 atm_dyn32_phy32_debug_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=ATM -D32BIT=ON -DCCPP_32BIT=ON -DDEBUG=ON'
-    turnon: ['hera','hercules']
+    turnon: ['hera','hercules','ursa']
   tests: 
-    - rap_control_debug_dyn32_phy32: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - hrrr_control_debug_dyn32_phy32: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - conus13km_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
-    - conus13km_debug_qr: {'project':['daily'],'turnon':['hera','hercules']}
-    - conus13km_debug_2threads: {'project':['daily'],'turnon':['hera','hercules']}
-    - conus13km_radar_tten_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - rap_control_debug_dyn32_phy32: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - hrrr_control_debug_dyn32_phy32: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - conus13km_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+    - conus13km_debug_qr: {'project':['daily'],'turnon':['hera','hercules','ursa']}
+    - conus13km_debug_2threads: {'project':['daily'],'turnon':['hera','hercules','ursa']}
+    - conus13km_debug_decomp: {'project':['daily'],'turnon':['hera','hercules','ursa']}
+    - conus13km_radar_tten_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
 atm_dyn64_phy32_debug_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=ATM -DCCPP_32BIT=ON -DDEBUG=ON'
-    turnon: ['hera','hercules']
+    turnon: ['hera','hercules','ursa']
   tests: 
-    - rap_control_dyn64_phy32_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - rap_control_dyn64_phy32_debug: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
 s2swa_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=S2SWA -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1'
-    turnon: ['hera','hercules']
+    turnon: ['hera','hercules','ursa']
   tests: 
-    - cpld_control_p8: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - cpld_control_p8: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
 s2s_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=S2S -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1'
-    turnon: ['hera','hercules']
+    turnon: ['hera','hercules','ursa']
   tests: 
-    - cpld_control_nowave_noaero_p8: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - cpld_control_nowave_noaero_p8: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
 s2swa_debug_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=S2SWA -DDEBUG=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1'
-    turnon: ['hera','hercules']
+    turnon: ['hera','hercules','ursa']
   tests: 
-    - cpld_debug_p8: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - cpld_debug_p8: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
 s2sw_pdlib_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=S2SW -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON'
-    turnon: ['hera','hercules']
+    turnon: ['hera','hercules','ursa']
   tests: 
-    - cpld_control_pdlib_p8: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - cpld_control_pdlib_p8: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
 s2sw_pdlib_debug_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=S2SW -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON -DDEBUG=ON'
-    turnon: ['hera','hercules']
+    turnon: ['hera','hercules','ursa']
   tests: 
-    - cpld_debug_pdlib_p8: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - cpld_debug_pdlib_p8: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
 datm_cdeps_gnu:
   build: 
     compiler: 'gnu'
     option: '-DAPP=NG-GODAS'
+    turnon: ['hera','hercules','ursa']
+  tests: 
+    - datm_cdeps_control_cfsr: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules','ursa']}
+atm_mpas_dyn32_gnu:
+  build: 
+    compiler: 'gnu'
+    option: '-DAPP=ATMMPAS -DCCPP_SUITES=MPAS_RRFS -D32BIT=ON'
     turnon: ['hera','hercules']
   tests: 
-    - datm_cdeps_control_cfsr: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+    - control_gfs_mpas: {'project':['daily'],'baseline': 'True','turnon':['hera','hercules']}
+pm_ideal_doubly_periodic_intel:
+  build: 
+    compiler: 'intel'
+    option: '-DAPP=ATM -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8,FV3_ideal_mp_nssl -DCCPP_32BIT=ON'
+    turnon: ['hera']
+  tests: 
+    - pm_ideal_supercell: {'project':['daily'],'baseline': 'True','turnon':['hera']}

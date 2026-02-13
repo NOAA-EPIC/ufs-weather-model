@@ -1,0 +1,26 @@
+lnd_datm_cdeps_land_intel:
+  build:
+    compiler: intel
+    option: -DAPP=LND
+    turnoff:
+    - wcoss2
+  tests:
+  - datm_cdeps_lnd_gswp3:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+  - datm_cdeps_lnd_era5:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+  - datm_cdeps_lnd_era5_rst:
+      project:
+      - daily
+      dependency: datm_cdeps_lnd_era5
+      turnoff:
+      - wcoss2
+      - noaacloud

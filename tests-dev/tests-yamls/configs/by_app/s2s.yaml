@@ -1,0 +1,26 @@
+s2s_aoflux_intel:
+  build:
+    compiler: intel
+    option: -DAPP=S2S -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_sfcocn -DCMEPS_AOFLUX=ON
+  tests:
+  - cpld_control_noaero_p8_agrid:
+      project:
+      - daily
+      baseline: 'True'
+s2s_default_gnu:
+  build:
+    compiler: gnu
+    option: -DAPP=S2S -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1
+    turnon:
+    - hera
+    - hercules
+    - ursa
+  tests:
+  - cpld_control_nowave_noaero_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - hera
+      - hercules
+      - ursa

@@ -295,4 +295,4 @@ TEST_END_TIME="$(date '+%Y%m%d %T')"
 export TEST_END_TIME
 
 ## Lets verify all tests were run and that they passed
-${PYTHON_VER} -c "import create_log; create_log.finish_log()"
+${PYTHON_VER} -c "import logmanager; logmanager.run_regression_logging()"

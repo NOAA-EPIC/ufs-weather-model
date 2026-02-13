@@ -1,0 +1,17 @@
+hafs-mom6w_hafs_mom6w_intel:
+  build:
+    compiler: intel
+    option: -DAPP=HAFS-MOM6W -DREGIONAL_MOM6=ON -DCDEPS_INLINE=ON -DMOVING_NEST=ON
+      -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_thompson,FV3_HAFS_v1_thompson_nonsst
+      -D32BIT=ON
+    turnoff:
+    - noaacloud
+    - s4
+  tests:
+  - hafs_regional_storm_following_1nest_atm_ocn_wav_mom6:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - s4
+      - noaacloud

@@ -1,0 +1,293 @@
+s2swa_32bit_intel:
+  build:
+    compiler: intel
+    option: -DAPP=S2SWA -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8,FV3_GFS_v17_coupled_p8_ugwpv1
+  tests:
+  - cpld_control_p8_mixedmode:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - cpld_control_gefs:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+      - derecho
+      - gaeac6
+  - cpld_restart_gefs:
+      project:
+      - daily
+      dependency: cpld_control_gefs
+      turnoff:
+      - noaacloud
+      - derecho
+      - gaeac6
+  - cpld_dcp_gefs:
+      project:
+      - daily
+      turnoff:
+      - noaacloud
+      - derecho
+      - wcoss2
+      - acorn
+      - gaeac6
+s2swa_32bit_pdlib_intel:
+  build:
+    compiler: intel
+    option: -DAPP=S2SWA -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON
+    turnoff:
+    - noaacloud
+  tests:
+  - cpld_control_gfsv17:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - cpld_control_gfsv17_iau:
+      project:
+      - daily
+      baseline: 'True'
+      dependency: cpld_control_gfsv17
+      turnoff:
+      - noaacloud
+  - cpld_restart_gfsv17:
+      project:
+      - daily
+      dependency: cpld_control_gfsv17
+      turnoff:
+      - noaacloud
+  - cpld_restart_gfsv17_iau:
+      project:
+      - daily
+      dependency: cpld_control_gfsv17_iau
+      turnoff:
+      - noaacloud
+  - cpld_mpi_gfsv17:
+      project:
+      - daily
+      turnoff:
+      - noaacloud
+s2swa_32bit_pdlib_sfs_intel:
+  build:
+    compiler: intel
+    option: -DAPP=S2SWA -D32BIT=ON -DHYDRO=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1
+      -DPDLIB=ON
+    turnoff:
+    - noaacloud
+  tests:
+  - cpld_control_sfs:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+s2swa_32bit_pdlib_debug_intel:
+  build:
+    compiler: intel
+    option: -DAPP=S2SWA -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON
+      -DDEBUG=ON
+    turnoff:
+    - noaacloud
+  tests:
+  - cpld_debug_gfsv17:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+s2swa_default_intel:
+  build:
+    compiler: intel
+    option: -DAPP=S2SWA -DCCPP_SUITES=FV3_GFS_v17_coupled_p8,FV3_GFS_v17_coupled_p8_ugwpv1
+  tests:
+  - cpld_control_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - cpld_control_p8.v2.sfc:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - cpld_restart_p8:
+      project:
+      - daily
+      dependency: cpld_control_p8
+      turnoff:
+      - noaacloud
+  - cpld_control_qr_p8:
+      project:
+      - daily
+      turnoff:
+      - noaacloud
+  - cpld_restart_qr_p8:
+      project:
+      - daily
+      dependency: cpld_control_qr_p8
+      turnoff:
+      - noaacloud
+  - cpld_2threads_p8:
+      project:
+      - daily
+      turnoff:
+      - noaacloud
+  - cpld_decomp_p8:
+      project:
+      - daily
+      turnoff:
+      - noaacloud
+  - cpld_mpi_p8:
+      project:
+      - daily
+      turnoff:
+      - noaacloud
+  - cpld_control_ciceC_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+  - cpld_control_c192_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+      - acorn
+      - s4
+      - noaacloud
+  - cpld_restart_c192_p8:
+      project:
+      - daily
+      dependency: cpld_control_c192_p8
+      turnoff:
+      - wcoss2
+      - acorn
+      - s4
+      - noaacloud
+      - gaeac6
+s2swa_debug_intel:
+  build:
+    compiler: intel
+    option: -DAPP=S2SWA -DDEBUG=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1
+    turnoff:
+    - wcoss2
+    - noaacloud
+    - acorn
+  tests:
+  - cpld_debug_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - wcoss2
+      - acorn
+      - noaacloud
+s2swa_faster_intel:
+  build:
+    compiler: intel
+    option: -DAPP=S2SWA -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DFASTER=ON
+    turnoff:
+    - noaacloud
+  tests:
+  - cpld_control_p8_faster:
+      project:
+      - daily
+      baseline: 'True'
+      turnoff:
+      - noaacloud
+s2swa_32bit_pdlib_intelllvm:
+  build:
+    compiler: intelllvm
+    option: -DAPP=S2SWA -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON
+    turnon:
+    - ursa
+  tests:
+  - cpld_control_gfsv17:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - ursa
+s2swa_32bit_pdlib_debug_intelllvm:
+  build:
+    compiler: intelllvm
+    option: -DAPP=S2SWA -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON
+      -DDEBUG=ON
+    turnon:
+    - ursa
+  tests:
+  - cpld_debug_gfsv17:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - ursa
+s2swa_32bit_pdlib_sfs_intelllvm:
+  build:
+    compiler: intelllvm
+    option: -DAPP=S2SWA -D32BIT=ON -DHYDRO=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1
+      -DPDLIB=ON
+    turnon:
+    - ursa
+  tests:
+  - cpld_control_sfs:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - ursa
+s2swa_default_intelllvm:
+  build:
+    compiler: intelllvm
+    option: -DAPP=S2SWA -DCCPP_SUITES=FV3_GFS_v17_coupled_p8,FV3_GFS_v17_coupled_p8_ugwpv1
+    turnon:
+    - ursa
+  tests:
+  - cpld_control_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - ursa
+s2swa_default_gnu:
+  build:
+    compiler: gnu
+    option: -DAPP=S2SWA -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1
+    turnon:
+    - hera
+    - hercules
+    - ursa
+  tests:
+  - cpld_control_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - hera
+      - hercules
+      - ursa
+s2swa_debug_gnu:
+  build:
+    compiler: gnu
+    option: -DAPP=S2SWA -DDEBUG=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1
+    turnon:
+    - hera
+    - hercules
+    - ursa
+  tests:
+  - cpld_debug_p8:
+      project:
+      - daily
+      baseline: 'True'
+      turnon:
+      - hera
+      - hercules
+      - ursa
