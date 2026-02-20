@@ -69,14 +69,6 @@ if [[ -n "$INPUT" ]]; then
     echo "Using DISKNM=$DISKNM"
 fi
 
-export INPUTDATA_ROOT="${DISKNM}/NEMSfv3gfs/input-data-20251015"
-echo "INPUTDATA_ROOT = $INPUTDATA_ROOT"
-read -p "  ...press Enter to keep, or type new value: " INPUT
-if [[ -n "$INPUT" ]]; then
-    export INPUTDATA_ROOT="$INPUT"
-    echo "Using INPUTDATA_ROOT=$INPUTDATA_ROOT"
-fi
-
 export INPUTDATA_ROOT="${INPUTDATA_ROOT:-${DISKNM}/NEMSfv3gfs/input-data-20251015}"
 echo "INPUTDATA_ROOT = $INPUTDATA_ROOT"
 read -p "  ...press Enter to keep, or type new value: " INPUT
