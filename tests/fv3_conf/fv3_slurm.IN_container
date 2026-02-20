@@ -50,7 +50,6 @@ export PMI2=""
 if [[ @[RT_COMPILER] == intel ]]; then
   export I_MPI_EXTRA_FILESYSTEM=ON
 elif [[ @[RT_COMPILER] == gnu ]]; then
-  export PMI2="--mpi=pmi2"
   # For mvapich2
   export MV2_SHMEM_COLL_NUM_COMM=128
   export MV2_HOMOGENEOUS_CLUSTER=1
@@ -68,7 +67,7 @@ if [ "${JOB_SHOULD_FAIL:-NO}" = WHEN_RUNNING ] ; then
     false
 fi
 
-srun ${PMI2} --label --distribution=block:block -n @[TASKS] ./fv3.exe
+srun --mpi=pmi2 --label --distribution=block:block -n @[TASKS] ./fv3.exe
 
 date_end=$(date)
 echo "Model ended: ${date_end}"
