@@ -58,6 +58,7 @@ EOF_WRAP
 elif [[ ${RT_COMPILER} == gnu ]]; then
     cat >>"${wrapper}" <<EOF_WRAP
 export ${container}ENV_PMIX_MCA_gds=hash
+export ${container}ENV_PMIX_MCA_psec=native
 export ${container}ENV_OMPI_MCA_btl="^openib"
 
 if ip link show eth0 &>/dev/null; then
