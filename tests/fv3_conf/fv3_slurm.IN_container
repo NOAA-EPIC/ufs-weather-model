@@ -2,10 +2,9 @@
 #!/bin/sh
 #SBATCH -e err
 #SBATCH -o out
-#SBATCH --account=ca-epic
+#SBATCH --account=epic
 #SBATCH --qos=batch
 ## SBATCH --partition=@[PARTITION}
-### #SBATCH --ntasks=@[TASKS]
 #SBATCH --nodes=@[NODES]
 #SBATCH --ntasks-per-node=@[TPN]
 #SBATCH --time=@[WLCLK]
@@ -17,6 +16,8 @@ date_s_start=$(date +%s)
 echo -n "${date_s_start}," > job_timestamp.txt
 
 set +x
+# export MACHINE_ID=orion
+# source ./module-setup.sh
 module use "${PWD}/modulefiles"
 module load modules.fv3
 module list
@@ -45,12 +46,10 @@ if [ "${JOB_SHOULD_FAIL:-NO}" = WHEN_RUNNING ] ; then
     false
 fi
 
-# GNU was not compiled with right SLURM option:
-export PMI2=""
+# Enforce using the PMI2 plugin with SLURM:
 if [[ @[RT_COMPILER] == intel ]]; then
   export I_MPI_EXTRA_FILESYSTEM=ON
 elif [[ @[RT_COMPILER] == gnu ]]; then
-  export PMI2="--mpi=pmi2"
   # For mvapich2
   export MV2_SHMEM_COLL_NUM_COMM=128
   export MV2_HOMOGENEOUS_CLUSTER=1
@@ -68,7 +67,8 @@ if [ "${JOB_SHOULD_FAIL:-NO}" = WHEN_RUNNING ] ; then
     false
 fi
 
-srun ${PMI2} --label --distribution=block:block -n @[TASKS] ./fv3.exe
+# Enforce using the PMI2 plugin with SLURM:
+srun --mpi=pmi2 --label --distribution=block:block -n @[TASKS] ./fv3.exe
 
 date_end=$(date)
 echo "Model ended: ${date_end}"

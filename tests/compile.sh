@@ -21,7 +21,6 @@ HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH:-}
 HDF5_USE_FILE_LOCKING=FALSE
 ESMFMKFILE=${ESMFMKFILE:-}
 CRTM_FIX=${CRTM_FIX}
-ESMF_RUNTIME_MPI_THREAD_SUPPORT=MPI_THREAD_SINGLE
 
 EOF_ENV
 }
@@ -38,7 +37,7 @@ ufs_binary_wrapper() {
   local container=${CONTAINER^^}
   local containerbin=${CONTAINER,,}
 
-
+# Start EOF_WRAP
 cat >"${wrapper}" <<EOF_WRAP
 #!/bin/bash
 set -x
@@ -49,7 +48,17 @@ export ${container}_SHELL=/bin/bash
 img=${img_sif}
 cmd=\$(basename "\$0")
 
+EOF_WRAP
+
+# Add compiler specific variables to EOF_WRAP
+if [[ ${RT_COMPILER} == intel ]]; then
+    cat >>"${wrapper}" <<EOF_WRAP
+export ${container}FI_PROVIDER_PATH=${FI_PROVIDER_PATH}    
+EOF_WRAP
+elif [[ ${RT_COMPILER} == gnu ]]; then
+    cat >>"${wrapper}" <<EOF_WRAP
 export ${container}ENV_PMIX_MCA_gds=hash
+export ${container}ENV_PMIX_MCA_psec=native
 export ${container}ENV_OMPI_MCA_btl="^openib"
 
 if ip link show eth0 &>/dev/null; then
@@ -60,8 +69,11 @@ fi
 export ${container}ENV_OMPI_MCA_pml=ob1
 export ${container}ENV_OMPI_MCA_btl_vader_single_copy_mechanism=none
 export ${container}ENV_OMPI_MCA_mca_base_component_show_load_errors=0
-export ${container}ENV_ESMF_RUNTIME_MPI_THREAD_SUPPORT=MPI_THREAD_SINGLE
-export ${container}ENV_OMP_NUM_THREADS=1
+EOF_WRAP
+fi
+
+# Complete EOF_WRAP
+cat >>"${wrapper}" <<EOF_WRAP
 
 CONTAINERBIN=\$(which ${containerbin})
 

@@ -61,6 +61,14 @@ if [[ -n "$INPUT" ]]; then
     echo "Using RUNDIR_ROOT=$RUNDIR_ROOT"
 fi
 
+export SCHEDULER="${SCHEDULER:-slurm}"
+echo "SCHEDULER = $SCHEDULER"
+read -p "  ...press Enter to keep, or type new value: " INPUT
+if [[ -n "$INPUT" ]]; then
+    export SCHEDULER="$INPUT"
+    echo "Using SCHEDULER=$SCHEDULER"
+fi
+
 export DISKNM="${DISKNM:-/contrib/ufs-weather-model/RT}"
 echo "DISKNM = $DISKNM"
 read -p "  ...press Enter to keep, or type new value: " INPUT
@@ -107,13 +115,5 @@ read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export skip_check_results="$INPUT"
     echo "Using skip_check_results=$skip_check_results"
-fi
-
-export SCHEDULER="${SCHEDULER:-slurm}"
-echo "SCHEDULER = $SCHEDULER"
-read -p "  ...press Enter to keep, or type new value: " INPUT
-if [[ -n "$INPUT" ]]; then
-    export SCHEDULER="$INPUT"
-    echo "Using SCHEDULER=$SCHEDULER"
 fi
 

@@ -84,7 +84,11 @@ elif [[ ${MACHINE_ID} = gaeac6 ]]; then
 
 elif [[ ${MACHINE_ID} = container ]] ; then
     # We are in a container
-    source /usr/share/lmod/lmod/init/bash
+    if [[ -e /usr/share/lmod/lmod/init/bash ]] ; then
+        source /usr/share/lmod/lmod/init/bash
+    else
+	source /usr/lmod/lmod/init/bash
+    fi
     module purge
 
 elif [[ ${MACHINE_ID} = noaacloud ]] ; then
