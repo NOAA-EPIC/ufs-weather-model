@@ -1,1 +1,3 @@
-load("singularity")
+--load("singularity")
+--load("gcc")
+--load("openmpi")
