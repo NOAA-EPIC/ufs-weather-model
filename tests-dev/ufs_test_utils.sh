@@ -10,7 +10,7 @@ fi
 function set_run_task() {
     source default_vars.sh
     source rt_utils.sh
-    # shellcheck source=../tests/tests/control_c48
+    # shellcheck source=/github/workspace/tests/tests/control_c48
     source "${PATHRT}"/tests/"${TEST_NAME}"
     #jkim compute_petbounds_and_tasks
     if [[ ${ESMF_THREADING} == true ]]; then
