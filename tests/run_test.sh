@@ -149,6 +149,9 @@ case ${MACHINE_ID} in
     #module load modules.fv3
     #module load gcc-native/12.3
     ;;
+  container)
+    echo "Not loading nccmp, not performing baseline comparison"
+    ;;
   *)
     module use modulefiles
     module load modules.fv3
