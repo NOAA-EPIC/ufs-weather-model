@@ -2,9 +2,10 @@
 #!/bin/sh
 #SBATCH -e err
 #SBATCH -o out
-#SBATCH --account=<ACCOUNT>
+#SBATCH --account=epic
 #SBATCH --qos=batch
-#SBATCH --partition=<PARTITION>
+#SBATCH --partition="u1-compute"
+### #SBATCH --ntasks=@[TASKS]
 #SBATCH --nodes=@[NODES]
 #SBATCH --ntasks-per-node=@[TPN]
 #SBATCH --time=@[WLCLK]
@@ -44,7 +45,7 @@ if [ "${JOB_SHOULD_FAIL:-NO}" = WHEN_RUNNING ] ; then
     false
 fi
 
-# Specify a plugin to use with Slurm: 
+# Specify a plugin to use with Slurm:
 export PMI="--mpi=pmi2"
 if [[ @[RT_COMPILER] == intel ]]; then
   export I_MPI_EXTRA_FILESYSTEM=ON
