@@ -1,0 +1,3 @@
+load("apptainer")
+load("gcc/14.3.0")
+load("openmpi/5.0.9")
