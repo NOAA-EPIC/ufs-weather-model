@@ -10,6 +10,7 @@ fi
 function set_run_task() {
     source default_vars.sh
     source rt_utils.sh
+    PATHRT=${PATHRT:-}
     source "${PATHRT}"/tests/"${TEST_NAME}"
     #jkim compute_petbounds_and_tasks
     if [[ ${ESMF_THREADING} == true ]]; then
