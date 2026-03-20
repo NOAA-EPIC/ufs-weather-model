@@ -183,7 +183,8 @@ do
 done
 
 if [[ ${check_machine} == true ]]; then
-    source "${PATHRT:-}"/machine_config/machine_"${MACHINE_ID:-}".config
+    # shellcheck source=./machine_config/machine_ursa.config
+    source "${PATHRT}"/machine_config/machine_"${MACHINE_ID}".config
 else
     echo "*** Current support of ufs_test.sh only for ${platforms[*]} ! ***"
     exit 1
