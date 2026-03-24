@@ -74,15 +74,22 @@ class Log():
       tests_for_log_instance = {}
 
       # Use non-capturing groups in pattern to indicate warnings/remarks may or may not be present.
-      pattern = r"COMPILE \'(.*)\' \[\d+:\d+, \d+:\d+\](?: \( (?:(\d+) warnings)?\s*(?:(\d+) remarks)? \))?"
-      
+      compile_pattern = r"COMPILE \'(.*)\' \[\d+:\d+, \d+:\d+\](?: \( (?:(\d+) warnings)?\s*(?:(\d+) remarks)? \))?"
+      failure_pattern = r"^(?:FAILED|SKIPPED): (?!UNABLE TO (?:COMPLETE COMPARISON|START TEST))(.+?) -- (?:TEST|COMPILE) '([^']+)"
+
+
       log_instance = log_instance.splitlines()
 
       for line in log_instance:
-         test_match = re.search(pattern, line)
-         if test_match:
-            test_name, warnings, remarks = test_match.groups()
+         test_match_compile = re.search(compile_pattern, line)
+         failure_match = re.search(failure_pattern, line)
+         if test_match_compile:
+            test_name, warnings, remarks = test_match_compile.groups()
             tests_for_log_instance[test_name] = (warnings, remarks)
+         if failure_match:
+            # Add logic
+            print(failure_match)
+            pass
 
       return tests_for_log_instance
 
