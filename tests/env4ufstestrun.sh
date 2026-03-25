@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 export MACHINE_ID="${MACHINE_ID:-container}"
-echo "MACHINE_ID = $MACHINE_ID"
+echo "MACHINE_ID=$MACHINE_ID"
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export MACHINE_ID="$INPUT"
@@ -9,15 +9,15 @@ if [[ -n "$INPUT" ]]; then
 fi
 
 export RT_COMPILER="${RT_COMPILER:-gnu}"
-echo "RT_COMPILER = $RT_COMPILER " 
+echo "RT_COMPILER=$RT_COMPILER " 
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export RT_COMPILER="$INPUT"
     echo "Using RT_COMPILER=$RT_COMPILER"
 fi
 
-export TPN="${TPN:-40}"
-echo "TPN = $TPN"
+export TPN="${TPN:-192}"
+echo "TPN=$TPN"
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export TPN="$INPUT"
@@ -25,7 +25,7 @@ if [[ -n "$INPUT" ]]; then
 fi
 
 export COMPILE_ID="${COMPILE_ID:-atm}"
-echo "COMPILE_ID = $COMPILE_ID " 
+echo "COMPILE_ID=$COMPILE_ID " 
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export COMPILE_ID="$INPUT"
@@ -33,7 +33,7 @@ if [[ -n "$INPUT" ]]; then
 fi
 
 export TEST_NAME="${TEST_NAME:-control_p8}"
-echo "TEST_NAME = $TEST_NAME"
+echo "TEST_NAME=$TEST_NAME"
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export TEST_NAME="$INPUT"
@@ -41,11 +41,11 @@ if [[ -n "$INPUT" ]]; then
 fi
 
 export TEST_ID="${TEST_NAME}_${RT_COMPILER}"
-echo "TEST_ID = $TEST_ID"
+echo "TEST_ID=$TEST_ID"
 
 PARENT_DIR="$(cd .. && pwd)"
 export PATHTR=$PARENT_DIR
-echo "PATHTR = $PATHTR"
+echo "PATHTR=$PATHTR"
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export PATHTR="$INPUT"
@@ -54,7 +54,7 @@ fi
 
 export PATHRT="${PATHTR}/tests"
 export RUNDIR_ROOT="${PATHTR}/tests/run_container"
-echo "RUNDIR_ROOT = $RUNDIR_ROOT"
+echo "RUNDIR_ROOT=$RUNDIR_ROOT"
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export RUNDIR_ROOT="$INPUT"
@@ -62,7 +62,7 @@ if [[ -n "$INPUT" ]]; then
 fi
 
 export SCHEDULER="${SCHEDULER:-slurm}"
-echo "SCHEDULER = $SCHEDULER"
+echo "SCHEDULER=$SCHEDULER"
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export SCHEDULER="$INPUT"
@@ -70,7 +70,7 @@ if [[ -n "$INPUT" ]]; then
 fi
 
 export DISKNM="${DISKNM:-/contrib/ufs-weather-model/RT}"
-echo "DISKNM = $DISKNM"
+echo "DISKNM=$DISKNM"
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export DISKNM="$INPUT"
@@ -78,7 +78,7 @@ if [[ -n "$INPUT" ]]; then
 fi
 
 export INPUTDATA_ROOT="${INPUTDATA_ROOT:-${DISKNM}/NEMSfv3gfs/input-data-20251015}"
-echo "INPUTDATA_ROOT = $INPUTDATA_ROOT"
+echo "INPUTDATA_ROOT=$INPUTDATA_ROOT"
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export INPUTDATA_ROOT="$INPUT"
@@ -86,7 +86,7 @@ if [[ -n "$INPUT" ]]; then
 fi
 
 export INPUTDATA_ROOT_WW3="${INPUTDATA_ROOT_WW3:-${INPUTDATA_ROOT}/WW3_input_data_20250807}"
-echo "INPUTDATA_ROOT_WW3 = $INPUTDATA_ROOT_WW3"
+echo "INPUTDATA_ROOT_WW3=$INPUTDATA_ROOT_WW3"
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export INPUTDATA_ROOT_WW3="$INPUT"
@@ -94,7 +94,7 @@ if [[ -n "$INPUT" ]]; then
 fi
 
 export RTVERBOSE="${RTVERBOSE:-true}"
-echo "RTVERBOSE = $RTVERBOSE"
+echo "RTVERBOSE=$RTVERBOSE"
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export RTVERBOSE="$INPUT"
@@ -102,7 +102,7 @@ if [[ -n "$INPUT" ]]; then
 fi
 
 export ROCOTO="${ROCOTO:-false}"
-echo "ROCOTO = $ROCOTO"
+echo "ROCOTO=$ROCOTO"
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export ROCOTO="$INPUT"
@@ -110,7 +110,7 @@ if [[ -n "$INPUT" ]]; then
 fi
 
 export skip_check_results="${skip_check_results:-true}"
-echo "skip_check_results = $skip_check_results"
+echo "skip_check_results=$skip_check_results"
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then
     export skip_check_results="$INPUT"
