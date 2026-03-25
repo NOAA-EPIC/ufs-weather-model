@@ -7,7 +7,7 @@ logKindFlag:            ESMF_LOGKIND_MULTI
 globalResourceControl:  @[ESMF_THREADING]
 
 # EARTH #
-EARTH_component_list: MED ATM CHM OCN ICE WAV LND
+EARTH_component_list: MED ATM OCN ICE WAV LND
 EARTH_attributes::
   Verbosity = 0
 ::
@@ -28,14 +28,6 @@ ATM_attributes::
   OverwriteSlice = true
 ::
 
-# CHM #
-CHM_model:                      @[chm_model]
-CHM_petlist_bounds:             @[chm_petlist_bounds]
-CHM_omp_num_threads:            @[chm_omp_num_threads]
-CHM_attributes::
-  Verbosity = 0
-::
-
 # OCN #
 OCN_model:                      @[ocn_model]
 OCN_petlist_bounds:             @[ocn_petlist_bounds]
@@ -49,7 +41,7 @@ OCN_attributes::
   use_coldstart = @[use_coldstart]
   use_mommesh = @[use_mommesh]
   mom6_output_dir = @[MOM6_OUTPUT_DIR]
-  mom6_output_fh = @[MOM6_OUTPUT_FH]
+  mom6_output_fh = @[MOM6_HISTFREQ_N]
   mom6_restart_dir = @[MOM6_RESTART_DIR]
 ::
 
@@ -141,11 +133,7 @@ runSeq::
      MED -> ICE :remapMethod=redist
      MED -> WAV :remapMethod=redist
      MED -> LND :remapMethod=redist
-     ATM phase1
-     ATM -> CHM
-     CHM
-     CHM -> ATM
-     ATM phase2
+     ATM
      ICE
      WAV
      LND
