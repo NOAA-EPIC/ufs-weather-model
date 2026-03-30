@@ -50,7 +50,7 @@ function compute_petbounds_and_tasks_traditional_threading() {
   if [[ ${ATM_tasks:-0} -gt 0 ]]; then
      atm_petlist_bounds="${n} $((n + ATM_tasks - 1))"
      n=$((n + ATM_tasks))
-     # shellcheck source=1
+     # shellcheck atm_omp_num_threads=1
      _tasks=$(( ATM_tasks*atm_omp_num_threads ))
      atm_nodes=$(( _tasks / TPN ))
      if (( atm_nodes * TPN < _tasks )); then
@@ -62,7 +62,7 @@ function compute_petbounds_and_tasks_traditional_threading() {
   if [[ ${OCN_tasks:-0} -gt 0 ]]; then
      ocn_petlist_bounds="${n} $((n + OCN_tasks - 1))"
      n=$((n + OCN_tasks))
-     # shellcheck source=1
+     # shellcheck ocn_omp_num_threads=1
      _tasks=$(( OCN_tasks*ocn_omp_num_threads ))
      ocn_nodes=$(( _tasks / TPN ))
      if (( ocn_nodes * TPN < _tasks )); then
@@ -74,7 +74,7 @@ function compute_petbounds_and_tasks_traditional_threading() {
   if [[ ${ICE_tasks:-0} -gt 0 ]]; then
      ice_petlist_bounds="${n} $((n + ICE_tasks - 1))"
      n=$((n + ICE_tasks))
-     # shellcheck source=1
+     # shellcheck ice_omp_num_threads=1
      _tasks=$(( ICE_tasks*ice_omp_num_threads ))
      ice_nodes=$(( _tasks / TPN ))
      if (( ice_nodes * TPN < _tasks )); then
@@ -86,7 +86,7 @@ function compute_petbounds_and_tasks_traditional_threading() {
   if [[ ${WAV_tasks:-0} -gt 0 ]]; then
      wav_petlist_bounds="${n} $((n + WAV_tasks - 1))"
      n=$((n + WAV_tasks))
-     # shellcheck source=1
+     # shellcheck wav_omp_num_threads=1
      _tasks=$(( WAV_tasks*wav_omp_num_threads ))
      wav_nodes=$(( _tasks / TPN ))
      if (( wav_nodes * TPN < _tasks )); then
@@ -203,7 +203,7 @@ function compute_petbounds_and_tasks_esmf_threading() {
       # set lnd_petlist_bounds to be same as ATM_compute_tasks
       lnd_petlist_bounds="0 $((ATM_compute_tasks - 1))"
   elif [[ ${LND_tasks:-0} -gt 0 ]]; then # noahmp component or other
-      # shellcheck source=1
+      # shellcheck lnd_omp_num_threads=1
       LND_tasks=$((LND_tasks * lnd_omp_num_threads))
       lnd_petlist_bounds="${n} $((n + LND_tasks - 1))"
       n=$((n + LND_tasks))
@@ -211,7 +211,7 @@ function compute_petbounds_and_tasks_esmf_threading() {
 
   # FBH
   if [[ ${FBH_tasks:-0} -gt 0 ]]; then
-     # shellcheck source=1
+     # shellcheck fbh_omp_num_threads=1
      FBH_tasks=$((FBH_tasks * fbh_omp_num_threads))
      fbh_petlist_bounds="${n} $((n + FBH_tasks - 1))"
      n=$((n + FBH_tasks))
