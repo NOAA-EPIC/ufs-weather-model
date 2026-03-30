@@ -93,6 +93,14 @@ if [[ -n "$INPUT" ]]; then
     echo "Using INPUTDATA_ROOT_WW3=$INPUTDATA_ROOT_WW3"
 fi
 
+export INPUTDATA_GFSv17opn="${INPUTDATA_GFSv17opn:-${DISKNM}/NEMSfv3gfs/GFSv17opn_20251014}"
+echo "INPUTDATA_GFSv17opn=$INPUTDATA_GFSv17opn"
+read -p "  ...press Enter to keep, or type new value: " INPUT
+if [[ -n "$INPUT" ]]; then
+    export INPUTDATA_GFSv17opn="$INPUT"
+    echo "Using INPUTDATA_GFSv17opn=$INPUTDATA_GFSv17opn"
+fi
+
 export RTVERBOSE="${RTVERBOSE:-true}"
 echo "RTVERBOSE=$RTVERBOSE"
 read -p "  ...press Enter to keep, or type new value: " INPUT
