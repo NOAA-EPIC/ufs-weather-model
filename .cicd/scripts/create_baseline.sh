@@ -51,7 +51,7 @@ function create_baseline() {
 	ls -al .cicd/*
 	cd tests
 		pwd
-
+      # shellcheck disable=SC2015
 		[[ ${UFS_PLATFORM} =~ clusternoaa ]] && echo "export BL_DATE=20240426" > bl_date.conf || cat bl_date.conf
 
 		mkdir -p logs/

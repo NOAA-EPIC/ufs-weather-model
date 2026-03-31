@@ -128,9 +128,9 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 	ls -al logs/.
 
 	## Test Results ...
-	echo "ExperimentName: "${WM_OPERATIONAL_TESTS:=default}"" | tee -a "${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt" | tee    "${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt"
-	grep -E " DIRECTORY: |Time: | Completed: |Result: " logs/RegressionTests_${UFS_PLATFORM}.log        | tee -a "${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt"
-	grep -E " -- COMPILE | -- TEST "                    logs/RegressionTests_${UFS_PLATFORM}.log        | tee -a "${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt"
+	echo "ExperimentName: ${WM_OPERATIONAL_TESTS:=default}" | tee -a "${workspace}/${UFS_PLATFORM}-${UFS_COMPILER}-wm_test-log.txt" | tee    "${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt"
+	grep -E " DIRECTORY: |Time: | Completed: |Result: " "logs/RegressionTests_${UFS_PLATFORM}.log"        | tee -a "${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt"
+	grep -E " -- COMPILE | -- TEST "                    "logs/RegressionTests_${UFS_PLATFORM}.log"        | tee -a "${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt"
 
 	cd "${workspace}"
 	find "${workspace}/tests/logs" -ls
@@ -145,4 +145,4 @@ else
 	echo "ExperimentName: null" > "${workspace}/wm_test_results-${UFS_PLATFORM}-${UFS_COMPILER}.txt"
 fi
 
-exit ${status}
+exit "${status}"

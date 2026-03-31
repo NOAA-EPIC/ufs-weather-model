@@ -168,8 +168,11 @@ while getopts ":a:b:cl:mn:dwkreohs" opt; do
   esac
 done
 
+# shellcheck source=${GITHUB_WORKSPACE}/tests/detect_machine.sh
 source detect_machine.sh # Note: this does not set ACCNR. The "if" block below does.
+# shellcheck source=${GITHUB_WORKSPACE}/tests/rt_utils.sh
 source rt_utils.sh
+# shellcheck source=${GITHUB_WORKSPACE}/tests/module-setup.sh
 source module-setup.sh
 
 check_machine=false

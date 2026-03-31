@@ -8,7 +8,9 @@ else
 fi
 
 function set_run_task() {
+    # shellcheck source=${GITHUB_WORKSPACE}/tests/default_vars.sh
     source default_vars.sh
+    # shellcheck source=${GITHUB_WORKSPACE}/tests/rt_utils.sh
     source rt_utils.sh
     # shellcheck source=/github/workspace/tests/tests/control_c48
     source "${PATHRT}"/tests/"${TEST_NAME}"
