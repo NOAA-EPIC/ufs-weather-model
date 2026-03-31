@@ -1223,7 +1223,7 @@ EOF
     fi
 
     ( 
-      # shellcheck source=/github/workspace/tests/tests/control_c48
+      # shellcheck source=${GITHUB_WORKSPACE}/tests/tests/control_c48
       source "${PATHRT}/tests/${TEST_NAME}"
 
       if [[ ${ESMF_THREADING} == true ]]; then

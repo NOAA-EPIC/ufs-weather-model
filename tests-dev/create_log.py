@@ -1,5 +1,3 @@
-# 
-# shellcheck shell=sh
 import os
 import sys
 import subprocess
