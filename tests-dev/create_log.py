@@ -1,3 +1,5 @@
+# 
+# shellcheck shell=sh
 import os
 import sys
 import subprocess
@@ -138,6 +140,7 @@ def finish_log():
                                 f.close()
                                 if pass_flag :
                                     with open('./logs/log_'+MACHINE_ID+'/'+TEST_LOG) as f:
+                                        memsize=None
                                         rtlog_file = f.readlines()
                                         for line in rtlog_file:
                                             if MAXS_CHECK in line:
