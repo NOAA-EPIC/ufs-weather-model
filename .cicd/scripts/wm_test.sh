@@ -136,7 +136,7 @@ if [[ ${WM_REGRESSION_TESTS} = true ]] ; then
 	find "${workspace}/tests/logs" -ls
         ###Fail case check if no test logs were completed move old file back.
 	if [[ ! -f "tests/logs/RegressionTests_${UFS_PLATFORM}.log" && -f "tests/logs/RegressionTests_${UFS_PLATFORM}.log.orig" ]];then 
-           mv tests/logs/RegressionTests_${UFS_PLATFORM}.log.orig tests/logs/RegressionTests_${UFS_PLATFORM}.log
+           mv "tests/logs/RegressionTests_${UFS_PLATFORM}.log.orig" "tests/logs/RegressionTests_${UFS_PLATFORM}.log"
         fi
 
 	echo "Pipeline Reqression Tests on ${UFS_PLATFORM} complete. status=${status}" | tee "${workspace}/${UFS_PLATFORM}-status"
