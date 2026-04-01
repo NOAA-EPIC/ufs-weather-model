@@ -289,6 +289,7 @@ fi
 cp "${PATHRT}/parm/fd_ufs.yaml" fd_ufs.yaml
 
 # Set up the run directory
+# shellcheck disable=SC1091
 source ./fv3_run
 
 if [[ ${CPLWAV} == .true. ]]; then
