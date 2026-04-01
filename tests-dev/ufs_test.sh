@@ -170,11 +170,11 @@ while getopts ":a:b:cl:mn:dwkreohs" opt; do
   esac
 done
 
-# shellcheck source=detect_machine.sh
+# shellcheck source=/github/workspace/tests/detect_machine.sh
 source detect_machine.sh # Note: this does not set ACCNR. The "if" block below does.
-# shellcheck source=rt_utils.sh
+# shellcheck source=/github/workspace/tests/rt_utils.sh
 source rt_utils.sh
-# shellcheck source=module-setup.sh
+# shellcheck source=/github/workspace/tests/module-setup.sh
 source module-setup.sh
 
 check_machine=false
@@ -188,7 +188,7 @@ do
 done
 
 if [[ ${check_machine} == true ]]; then
-    # shellcheck source-path=${GITHUB_WORKSPACE}/tests-dev/machine_config/machine_ursa.config
+    # shellcheck source=/github/workspace/tests-dev/machine_config/machine_ursa.config
     source "${PATHRT}"/machine_config/machine_"${MACHINE_ID}".config
 else
     echo "*** Current support of ufs_test.sh only for ${platforms[*]} ! ***"
