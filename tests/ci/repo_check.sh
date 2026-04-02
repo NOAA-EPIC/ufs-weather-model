@@ -25,7 +25,9 @@ get_shas () {
 flag_sync=true
 
 declare -A urls branches pathes
-submodules="base ufsatm mom6 cice ww3 stoch cmeps cdeps cmake ccpp_physics ccpp_framework aqm noahmp cubed_sphere gocart lm4"
+# UPP and ccpp-framework are intentionally excluded because they update at a different cadence 
+# and periodically bring in changes. 
+submodules="base ufsatm mom6 cice ww3 stoch cmeps cdeps cmake ccpp_physics aqm noahmp cubed_sphere gocart lm4"
 
 urls[base]='https://github.com/ufs-community/ufs-weather-model'
 branches[base]='develop'
@@ -71,10 +73,6 @@ urls[ccpp_physics]='https://github.com/ufs-community/ccpp-physics'
 branches[ccpp_physics]='ufs/dev'
 pathes[ccpp_physics]='UFSATM/ccpp/physics'
 
-urls[ccpp_framework]='https://github.com/NCAR/ccpp-framework'
-branches[ccpp_framework]='main'
-pathes[ccpp_framework]='UFSATM/ccpp/framework'
-
 urls[aqm]='https://github.com/NOAA-EMC/AQM'
 branches[aqm]='develop'
 pathes[aqm]='AQM'
@@ -82,10 +80,6 @@ pathes[aqm]='AQM'
 urls[noahmp]='https://github.com/NOAA-EMC/noahmp'
 branches[noahmp]='develop'
 pathes[noahmp]='NOAHMP-interface/noahmp'
-
-#urls[upp]='https://github.com/NOAA-EMC/UPP'
-#branches[upp]='develop'
-#pathes[upp]='upp'
 
 urls[cubed_sphere]='https://github.com/NOAA-GFDL/GFDL_atmos_cubed_sphere'
 branches[cubed_sphere]='dev/emc'
