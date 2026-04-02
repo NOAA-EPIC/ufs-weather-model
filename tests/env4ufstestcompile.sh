@@ -40,14 +40,6 @@ if [[ -n "$INPUT" ]]; then
     echo "Using MAKE_OPT=$MAKE_OPT"
 fi
 
-export IMG="${IMG:-/path/to/container/image/rocky9-gcc13-ss192.sif}"
-echo "IMG=$IMG"
-read -p "  ...press Enter to keep, or type new value: " INPUT
-if [[ -n "$INPUT" ]]; then
-    export IMG="$INPUT"
-    echo "Using IMG=$IMG"
-fi
-
 export BIND_ADD="${BIND_ADD:-}"
 echo "BIND_ADD=$BIND_ADD"
 read -p "  ...press Enter to keep, or type new value: " INPUT

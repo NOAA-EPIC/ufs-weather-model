@@ -109,19 +109,6 @@ if [[ -n "$INPUT" ]]; then
     echo "Using RTVERBOSE=$RTVERBOSE"
 fi
 
-export ROCOTO="${ROCOTO:-false}"
-echo "ROCOTO=$ROCOTO"
-read -p "  ...press Enter to keep, or type new value: " INPUT
-if [[ -n "$INPUT" ]]; then
-    export ROCOTO="$INPUT"
-    echo "Using ROCOTO=$ROCOTO"
-fi
-
-export skip_check_results="${skip_check_results:-true}"
-echo "skip_check_results=$skip_check_results"
-read -p "  ...press Enter to keep, or type new value: " INPUT
-if [[ -n "$INPUT" ]]; then
-    export skip_check_results="$INPUT"
-    echo "Using skip_check_results=$skip_check_results"
-fi
+export ROCOTO="false"
+export skip_check_results="true"
 

@@ -33,7 +33,6 @@ ufs_binary_wrapper() {
      local bind_add="-B ${BIND_ADD}"
   fi
   local ufs_env=${UFS_ENV:-}
-  local img_sif=${IMG:-/path/to/container/image.sif}
   local container=${CONTAINER^^}
   local containerbin=${CONTAINER,,}
 
@@ -45,7 +44,7 @@ set -x
 export ${container}ENV_FI_PROVIDER=tcp
 export ${container}_SHELL=/bin/bash
 
-img=${img_sif}
+img=${SINGULARITY_CONTAINER:-/path/to/container/image.sif}
 cmd=\$(basename "\$0")
 
 EOF_WRAP
@@ -136,12 +135,12 @@ case ${MACHINE_ID} in
     ;;
   *)
     source "${PATHTR}/tests/module-setup.sh"
-
     # Load fv3 module
     module use "${PATHTR}/modulefiles"
     modulefile="ufs_${MACHINE_ID}.${RT_COMPILER}"
     module load "${modulefile}"
     module list
+    ;;
 esac
 set -x
 
