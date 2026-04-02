@@ -81,10 +81,6 @@ urls[cubed_sphere]='https://github.com/NOAA-GFDL/GFDL_atmos_cubed_sphere'
 branches[cubed_sphere]='dev/emc'
 paths[cubed_sphere]='UFSATM/fv3/atmos_cubed_sphere'
 
-urls[gocart]='https://github.com/GEOS-ESM/GOCART'
-branches[gocart]='develop'
-paths[gocart]='GOCART'
-
 urls[lm4]='https://github.com/NOAA-GFDL/LM4-NUOPC-driver'
 branches[lm4]='develop'
 paths[lm4]='LM4-driver'
