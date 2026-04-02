@@ -25,7 +25,7 @@ get_shas () {
 flag_sync=true
 
 declare -A urls branches pathes
-submodules="base ufsatm mom6 cice ww3 stoch cmeps cdeps hycom ccpp_physics aqm noahmp cubed_sphere"
+submodules="base ufsatm mom6 cice ww3 stoch cmeps cdeps cmake ccpp_physics ccpp_framework aqm noahmp cubed_sphere gocart lm4"
 
 urls[base]='https://github.com/ufs-community/ufs-weather-model'
 branches[base]='develop'
@@ -63,10 +63,6 @@ urls[cdeps]='https://github.com/NOAA-EMC/CDEPS'
 branches[cdeps]='develop'
 pathes[cdeps]='CDEPS-interface/CDEPS'
 
-urls[hycom]='https://github.com/NOAA-EMC/HYCOM-src'
-branches[hycom]='emc/develop'
-pathes[hycom]='HYCOM-interface/HYCOM'
-
 urls[cmake]='https://github.com/NOAA-EMC/CMakeModules'
 branches[cmake]='develop'
 pathes[cmake]='CMakeModules'
@@ -94,6 +90,15 @@ pathes[noahmp]='NOAHMP-interface/noahmp'
 urls[cubed_sphere]='https://github.com/NOAA-GFDL/GFDL_atmos_cubed_sphere'
 branches[cubed_sphere]='dev/emc'
 pathes[cubed_sphere]='UFSATM/fv3/atmos_cubed_sphere'
+
+urls[gocart]='https://github.com/GEOS-ESM/GOCART'
+branches[gocart]='develop'
+pathes[gocart]='GOCART'
+
+urls[lm4]='https://github.com/NOAA-GFDL/LM4-NUOPC-driver'
+branches[lm4]='develop'
+pathes[lm4]='LM4-driver'
+
 
 for submodule in $submodules; do
     url=${urls[$submodule]}
