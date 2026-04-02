@@ -44,8 +44,6 @@ if [ "${JOB_SHOULD_FAIL:-NO}" = WHEN_RUNNING ] ; then
     false
 fi
 
-# Specify a plugin to use with Slurm: 
-export PMI="--mpi=pmi2"
 if [[ @[RT_COMPILER] == intel ]]; then
   export I_MPI_EXTRA_FILESYSTEM=ON
 elif [[ @[RT_COMPILER] == gnu ]]; then
@@ -65,8 +63,10 @@ if [ "${JOB_SHOULD_FAIL:-NO}" = WHEN_RUNNING ] ; then
     echo "If error checking is working, the metascheduler should mark the job as failed." 1>&2
     false
 fi
+# Specify a plugin to use with Slurm: 
+export PMI="--mpi=pmi2"
 
-srun ${PMI} --label --distribution=block:block -n @[TASKS] ./fv3.exe
+srun ${PMI:-} --label --distribution=block:block -n @[TASKS] ./fv3.exe
 
 date_end=$(date)
 echo "Model ended: ${date_end}"
