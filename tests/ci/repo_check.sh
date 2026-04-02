@@ -25,9 +25,9 @@ get_shas () {
 flag_sync=true
 
 declare -A urls branches pathes
-# UPP and ccpp-framework are intentionally excluded because they update at a different cadence 
+# UPP, ccpp-framework, and gocart are intentionally excluded because they update at a different cadence 
 # and periodically bring in changes. 
-submodules="base ufsatm mom6 cice ww3 stoch cmeps cdeps cmake ccpp_physics aqm noahmp cubed_sphere gocart lm4"
+submodules="base ufsatm mom6 cice ww3 stoch cmeps cdeps cmake ccpp_physics aqm noahmp cubed_sphere lm4"
 
 urls[base]='https://github.com/ufs-community/ufs-weather-model'
 branches[base]='develop'
@@ -52,10 +52,6 @@ pathes[ww3]='WW3'
 urls[stoch]='https://github.com/noaa-psl/stochastic_physics'
 branches[stoch]='master'
 pathes[stoch]='stochastic_physics'
-
-urls[gocart]='https://github.com/GEOS-ESM/GOCART'
-branches[gocart]='develop'
-pathes[gocart]='GOCART'
 
 urls[cmeps]='https://github.com/NOAA-EMC/CMEPS'
 branches[cmeps]='emc/develop'
