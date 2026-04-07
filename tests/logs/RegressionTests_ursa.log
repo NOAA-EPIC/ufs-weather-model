@@ -48,9 +48,9 @@ RT.SH OPTIONS USED:
 * (-a) - HPC PROJECT ACCOUNT: nems
 * (-e) - USE ECFLOW
 
-PASS -- COMPILE 's2swa_32bit_intel' [15:12, 13:52] ( 1 warnings 1092 remarks )
-PASS -- TEST 'cpld_control_gefs_intel' [27:55, 19:28](3223 MB)
-PASS -- TEST 'cpld_restart_gefs_intel' [14:11, 05:53](2927 MB)
+PASS -- COMPILE 's2swa_32bit_intel' [15:12, 13:52] ( 5 warnings 1092 remarks )
+FAILED: UNABLE TO COMPLETE COMPARISON -- TEST 'cpld_control_gefs_intel' [, ]( MB)
+FAILED: UNABLE TO START TEST -- TEST 'cpld_restart_gefs_intel' [, ]( MB)
 PASS -- TEST 'cpld_dcp_gefs_intel' [41:59, 32:50](3418 MB)
 
 PASS -- COMPILE 's2sw_32bit_pdlib_intel' [15:11, 13:43] ( 1 warnings 1073 remarks )
@@ -64,7 +64,7 @@ PASS -- COMPILE 's2s_32bit_sfs_intel' [14:11, 12:22] ( 1 warnings 987 remarks )
 PASS -- TEST 'cpld_control_sfs_intel' [12:27, 08:25](2389 MB)
 PASS -- TEST 'cpld_restart_sfs_intel' [08:36, 04:31](1856 MB)
 
-PASS -- COMPILE 's2s_32bit_sfs_debug_intel' [04:11, 03:07] ( 359 warnings 987 remarks )
+PASS -- COMPILE 's2s_32bit_sfs_debug_intel' [04:11, 03:07] ( 362 warnings 987 remarks )
 PASS -- TEST 'cpld_debug_sfs_intel' [12:27, 08:18](2435 MB)
 
 PASS -- COMPILE 's2sw_32bit_pdlib_debug_intel' [05:11, 03:16] ( 359 warnings 1385 remarks )
@@ -102,7 +102,7 @@ PASS -- TEST 'cpld_control_c12_9deg_intel' [02:29, 00:34](2136 MB)
 PASS -- TEST 'cpld_warmstart_c12_9deg_intel' [02:29, 00:27](2136 MB)
 PASS -- TEST 'cpld_restart_c12_9deg_intel' [02:27, 00:23](1489 MB)
 
-PASS -- COMPILE 'atm_dyn32_intel' [08:12, 07:06] ( 1 warnings 539 remarks )
+PASS -- COMPILE 'atm_dyn32_intel' [08:12, 07:06] ( 0 warnings 539 remarks )
 PASS -- TEST 'control_CubedSphereGrid_intel' [03:23, 01:46](2210 MB)
 PASS -- TEST 'control_CubedSphereGrid_parallel_intel' [11:25, 09:52](2226 MB)
 PASS -- TEST 'control_latlon_intel' [03:22, 01:39](2214 MB)
@@ -198,7 +198,7 @@ PASS -- TEST 'gnv1_c96_no_nest_debug_intel' [07:28, 06:02](1870 MB)
 PASS -- COMPILE 'wam_debug_intel' [04:11, 02:20] ( 457 warnings 442 remarks )
 PASS -- TEST 'control_wam_debug_intel' [11:35, 10:01](2307 MB)
 
-PASS -- COMPILE 'rrfs_dyn32_phy32_intel' [07:11, 05:55] ( 4 warnings 457 remarks )
+PASS -- COMPILE 'rrfs_dyn32_phy32_intel' [07:11, 05:55] ( 4 warnings 458 remarks )
 PASS -- TEST 'regional_spp_sppt_shum_skeb_dyn32_phy32_intel' [04:47, 02:43](1493 MB)
 PASS -- TEST 'rap_control_dyn32_phy32_intel' [04:22, 02:08](1702 MB)
 PASS -- TEST 'hrrr_control_dyn32_phy32_intel' [12:25, 10:47](1795 MB)
@@ -256,9 +256,8 @@ PASS -- TEST 'datm_cdeps_control_cfsr_intel' [12:16, 10:29](1931 MB)
 PASS -- TEST 'datm_cdeps_restart_cfsr_intel' [09:19, 07:52](1878 MB)
 PASS -- TEST 'datm_cdeps_control_gefs_intel' [03:16, 01:47](1170 MB)
 PASS -- TEST 'datm_cdeps_iau_gefs_intel' [03:17, 02:03](1158 MB)
-PASS -- TEST 'datm_cdeps_stochy_gefs_intel' [03:16, 02:02](1153 MB)
-PASS -- TEST 'datm_cdeps_ciceC_cfsr_intel' [03:16, 01:54](1920 MB)
-PASS -- TEST 'datm_cdeps_bulk_cfsr_intel' [17:17, 16:05](1910 MB)
+FAILED: UNABLE TO COMPLETE COMPARISON -- TEST 'datm_cdeps_stochy_gefs_intel' [, ]( MB)
+FAILED: TEST TIMED OUT -- TEST 'datm_cdeps_ciceC_cfsr_intel' [, ]( MB)PASS -- TEST 'datm_cdeps_bulk_cfsr_intel' [17:17, 16:05](1910 MB)
 PASS -- TEST 'datm_cdeps_bulk_gefs_intel' [08:16, 06:42](1161 MB)
 PASS -- TEST 'datm_cdeps_mx025_cfsr_intel' [08:00, 05:47](1823 MB)
 PASS -- TEST 'datm_cdeps_mx025_gefs_intel' [07:57, 05:17](1328 MB)
@@ -306,7 +305,7 @@ PASS -- COMPILE 's2sw_32bit_pdlib_intelllvm' [15:11, 13:16]
 PASS -- TEST 'cpld_control_gfsv17_intelllvm' [11:47, 09:49](2051 MB)
 
 PASS -- COMPILE 's2sw_32bit_pdlib_debug_intelllvm' [04:11, 03:04]
-PASS -- TEST 'cpld_debug_gfsv17_intelllvm' [15:44, 13:29](2082 MB)
+FAILED: RUN DID NOT COMPLETE -- TEST 'cpld_debug_gfsv17_intelllvm' [, ]( MB)
 
 PASS -- COMPILE 's2s_32bit_sfs_intelllvm' [13:12, 11:50]
 PASS -- TEST 'cpld_control_sfs_intelllvm' [12:35, 08:31](2387 MB)
@@ -314,7 +313,7 @@ PASS -- TEST 'cpld_control_sfs_intelllvm' [12:35, 08:31](2387 MB)
 PASS -- COMPILE 's2s_32bit_sfs_debug_intelllvm' [04:10, 02:57]
 PASS -- TEST 'cpld_debug_sfs_intelllvm' [12:24, 08:29](2434 MB)
 
-PASS -- COMPILE 'rrfs_dyn32_phy32_intelllvm' [07:10, 05:35]
+PASS -- COMPILE 'rrfs_dyn32_phy32_intelllvm' [07:10, 05:35] ( 39 warnings )
 PASS -- TEST 'rap_control_dyn32_phy32_intelllvm' [04:27, 02:16](1726 MB)
 
 PASS -- COMPILE 'rrfs_dyn64_phy32_intelllvm' [07:10, 05:39]
@@ -333,7 +332,7 @@ PASS -- TEST 'control_ras_gnu' [15:18, 14:02](512 MB)
 PASS -- TEST 'control_p8_gnu' [04:41, 03:07](1450 MB)
 PASS -- TEST 'control_p8_ugwpv1_gnu' [04:39, 03:05](1470 MB)
 
-PASS -- COMPILE 'rrfs_gnu' [04:10, 02:41] ( 39 warnings )
+PASS -- COMPILE 'rrfs_gnu' [04:10, 02:41] ( 40 warnings )
 PASS -- TEST 'rap_control_gnu' [05:25, 03:30](847 MB)
 PASS -- TEST 'rap_decomp_gnu' [05:26, 03:41](849 MB)
 PASS -- TEST 'rap_2threads_gnu' [04:29, 02:52](899 MB)
@@ -411,7 +410,7 @@ PASS -- TEST 'cpld_debug_gfsv17_gnu' [07:43, 05:21](1543 MB)
 PASS -- COMPILE 's2s_32bit_sfs_gnu' [12:11, 10:19] ( 39 warnings )
 PASS -- TEST 'cpld_control_sfs_gnu' [16:30, 12:43](1765 MB)
 
-PASS -- COMPILE 's2s_32bit_sfs_debug_gnu' [03:11, 01:39] ( 1172 warnings )
+PASS -- COMPILE 's2s_32bit_sfs_debug_gnu' [03:11, 01:39] ( 1173 warnings )
 PASS -- TEST 'cpld_debug_sfs_gnu' [09:15, 05:36](1785 MB)
 
 PASS -- COMPILE 'datm_cdeps_gnu' [11:11, 10:02]
