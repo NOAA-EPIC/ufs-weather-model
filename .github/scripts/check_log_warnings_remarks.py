@@ -97,7 +97,8 @@ class Log():
       failures = {}
 
       # Use non-capturing groups in pattern to indicate warnings/remarks may or may not be present.
-      failure_pattern = r"^(?:FAILED|SKIPPED): (?!UNABLE TO (?:COMPLETE COMPARISON|START TEST))(.+?) -- (?:TEST|COMPILE) '([^']+)"
+      # failure_pattern = r"^(?:FAILED|SKIPPED): (?!UNABLE TO (?:COMPLETE COMPARISON|START TEST))(.+?) -- (?:TEST|COMPILE) '([^']+)"
+      failure_pattern = r"^(?:FAILED|SKIPPED): (.+?) -- (?:TEST|COMPILE) '([^']+)"
       
       log_text = log_text.splitlines()
 
@@ -105,14 +106,12 @@ class Log():
          failure_match = re.search(failure_pattern, line)
          if failure_match:
             reason, test = failure_match.groups()
-            #print(test, reason)
             try:
                failures[reason].append(test)
             except KeyError:
                failures[reason] = [test]
          
       return failures
-
 
    def _clean_data(self, test_data):
       """Convert None values to zeros in the test_data dictionary"""
@@ -140,35 +139,50 @@ class Log():
       
       return increases
 
-def print_warn_rmk_results(dict):
-   """Print the results from the warnings/remarks comparison in HTML."""
+def print_html_results(data_dict, title, file_name):
+   """Print results in HTML format.
+
+   Args:
+      data_dict: Dictionary with structure {machine: {category: tests, ...}, ...}
+                 where values can be either:
+                 - A dict with {test: count, ...} (for warnings/remarks)
+                 - A list of tests (for failures)
+      title: Title for the markdown file
+      file_name: Name for the markdown file
    
-   pr_num = os.environ.get('PR_NUM')
-   mdFile = MdUtils(file_name='warn_rmk.md', title=f'Increased Warnings/Remarks for PR #{pr_num}')
+   Returns:
+      Formatted markdown string
+   """
+   mdFile = MdUtils(file_name=file_name, title=title)
 
-   for machine, results in dict.items():
-      for category in results.keys():
-         if results[category]:
-            mdFile.write(f"\n<h3>{machine.upper()}</h3>\n")
-            unordered_list = [f"**{category.title()}:**", []]
-            for test, value in dict[machine][category].items():
-               unordered_list[1].append(f"{test}: {value}")
-            mdFile.new_list(unordered_list, marked_with='*')
-   return mdFile.get_md_text()
-
-def print_failure_results(dict):
-   """Print the results from the warnings/remarks comparison in HTML."""
-   
-   pr_num = os.environ.get('PR_NUM')
-   mdFile = MdUtils(file_name='failures.md', title=f'Compile and Test Failures for PR #{pr_num}')
-
-   for machine, failures in dict.items():
-      for reason, tests in failures.items():
-         mdFile.write(f"\n<h3>{machine.upper()}</h3>\n")
-         unordered_list = [f"**{reason.upper()}:**", []]
-         for test in tests:
-            unordered_list[1].append(f"{test}")
+   for machine, machine_data in data_dict.items():
+      # Skip if there is no data for the machine (cases: (1) where all RTs pass on the machine or (2) there is no increase in warnings & remarks)
+      if not machine_data:
+         continue
+      
+      # Skip if all categories (warnings/remarks/failure reasons) are empty
+      if all(not category for category in machine_data.values()):
+         continue
+      
+      mdFile.write(f"\n<h3>{machine.upper()}</h3>\n")
+      
+      for category, tests in machine_data.items():
+         # Skip printing info if there are no tests listed for a given category
+         if not tests:
+            continue
+         
+         unordered_list = [f"**{category.title()}:**", []]
+         
+         # Handle both dict (warnings/remarks) and list (failures)
+         if isinstance(tests, dict):
+            for test, count in tests.items():
+               unordered_list[1].append(f"{test}: {count}")
+         else:  # list
+            for test in tests:
+               unordered_list[1].append(test)
+         
          mdFile.new_list(unordered_list, marked_with='*')
+   
    return mdFile.get_md_text()
 
 def main():
@@ -194,8 +208,13 @@ def main():
       increased_warnings_remarks[machine] = log.compare_results(log.pr_warn_rmk, log.base_warn_rmk)
       failures[machine] = log.pr_failures
 
-   warn_rmk_results = print_warn_rmk_results(increased_warnings_remarks)
-   failure_results = print_failure_results(failures)
+   pr_num = os.environ.get('PR_NUM')
+   warn_rmk_results = print_html_results(increased_warnings_remarks, 
+                                     f"Increased Warnings/Remarks for PR #{pr_num}",
+                                     "warn_rmk.md")
+   failure_results = print_html_results(failures, 
+                                    f"Compile and Test Failures for PR #{pr_num}", 
+                                    "failures.md")
 
    if len(warn_rmk_results) > 81: # Length of HTML header
       print(warn_rmk_results)
