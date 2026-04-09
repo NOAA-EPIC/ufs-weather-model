@@ -29,8 +29,12 @@ EOF_ENV
 ufs_binary_wrapper() {
   local bind_dir="$(echo "${PATHTR}" | cut -d'/' -f1-2)"  # local directory to bind for the container
   local wrapper="$1"
+  local bind_add=""
   if [[ -n "${BIND_ADD:-}" ]]; then
-     local bind_add="-B ${BIND_ADD}"
+    IFS=' ' read -r -a add_dirs <<< "${BIND_ADD}"
+    for add_dir in "${add_dirs[@]}"; do
+      local bind_add="${bind_add} -B ${add_dir}"
+    done
   fi
   local ufs_env=${UFS_ENV:-}
   local container=${CONTAINER^^}
@@ -52,7 +56,7 @@ EOF_WRAP
 # Add compiler specific variables to EOF_WRAP
 if [[ ${RT_COMPILER} == intel ]]; then
     cat >>"${wrapper}" <<EOF_WRAP
-export ${container}FI_PROVIDER_PATH=${FI_PROVIDER_PATH}    
+export ${container}ENV_FI_PROVIDER_PATH=${FI_PROVIDER_PATH}    
 EOF_WRAP
 elif [[ ${RT_COMPILER} == gnu ]]; then
     cat >>"${wrapper}" <<EOF_WRAP
