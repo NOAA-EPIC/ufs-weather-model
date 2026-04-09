@@ -63,55 +63,28 @@ class Log():
          logging.error(f"No commit found for the ref {commit}")
          sys.exit(1)
 
-   def _get_pr_warn_rmk(self, log_text):
-      """Extract warnings/remarks data for a particular commit.
-      Returns:
-         log_warn_rmk: A dictionary of tests as the key with a tuple of (warnings, remarks) as the value
-      """
-      
-      log_warn_rmk = {}
-      
-      # Use non-capturing groups in pattern to indicate warnings/remarks may or may not be present.
-      compile_pattern = r"COMPILE \'(.*)\' \[\d+:\d+, \d+:\d+\](?: \( (?:(\d+) warnings)?\s*(?:(\d+) remarks)? \))?"
-
-      log_text = log_text.splitlines()
-
-      for line in log_text:
-         test_match_compile = re.search(compile_pattern, line)
-         if test_match_compile:
-            test_name, warnings, remarks = test_match_compile.groups()
-            log_warn_rmk[test_name] = (warnings, remarks)
-         
-      log_warn_rmk = self._clean_data(log_warn_rmk)
-      
-      return log_warn_rmk
-
-   def _get_failures(self, log_text):
-      """For each instance of a log at a given commit, list of failed or skipped tests and compiles
-         Args:
-            log_text: Log text for a given commit
-         Returns: 
-            failures: A dictionary of tests (keys) with a tuple of warnings and remarks as the value for each test
+   def _get_data(self, log_text, pattern, handler, to_clean=True):
+      """Extract data on warnings, remarks, and failed compiles/tests
+      Args:
+         log_text: Text from a log file at a given commit
+         pattern: regex pattern to match
+         handler: function indicating how to handle the incoming data
+         to_clean: Flag indicating whether the data needs to be cleaned (True) or not (False)
       """
 
-      failures = {}
-
-      # Use non-capturing groups in pattern to indicate warnings/remarks may or may not be present.
-      # failure_pattern = r"^(?:FAILED|SKIPPED): (?!UNABLE TO (?:COMPLETE COMPARISON|START TEST))(.+?) -- (?:TEST|COMPILE) '([^']+)"
-      failure_pattern = r"^(?:FAILED|SKIPPED): (.+?) -- (?:TEST|COMPILE) '([^']+)"
+      data = {}
       
       log_text = log_text.splitlines()
 
       for line in log_text:
-         failure_match = re.search(failure_pattern, line)
-         if failure_match:
-            reason, test = failure_match.groups()
-            try:
-               failures[reason].append(test)
-            except KeyError:
-               failures[reason] = [test]
+         test_match = re.search(pattern, line)
+         if test_match:
+            handler(data, *test_match.groups())
          
-      return failures
+      if to_clean:
+         data = self._clean_data(data)
+      
+      return data
 
    def _clean_data(self, test_data):
       """Convert None values to zeros in the test_data dictionary"""
@@ -190,6 +163,11 @@ def main():
    which tests increase warnings and/or remarks on each machine.""" 
 
    machines = os.environ.get('MACHINES').split()
+   # Use non-capturing groups in pattern to indicate warnings/remarks may or may not be present.
+   compile_pattern = r"COMPILE \'(.*)\' \[\d+:\d+, \d+:\d+\](?: \( (?:(\d+) warnings)?\s*(?:(\d+) remarks)? \))?"
+   # failure_pattern = r"^(?:FAILED|SKIPPED): (?!UNABLE TO (?:COMPLETE COMPARISON|START TEST))(.+?) -- (?:TEST|COMPILE) '([^']+)"
+   failure_pattern = r"^(?:FAILED|SKIPPED): (.+?) -- (?:TEST|COMPILE) '([^']+)"
+      
 
    # For each machine, tests where warnings and/or remarks increase
    increased_warnings_remarks = {}
@@ -199,11 +177,11 @@ def main():
       log = Log(machine)
       log._get_commits()
       log.pr_log_text = log._fetch_log_text(log.pr_head_commit)
-      log.pr_warn_rmk = log._get_pr_warn_rmk(log.pr_log_text)
-      log.pr_failures = log._get_failures(log.pr_log_text)
+      log.pr_warn_rmk = log._get_data(log.pr_log_text, compile_pattern, handler=lambda data, test, w, r: data.update({test: (w, r)}))
+      log.pr_failures = log._get_data(log.pr_log_text, failure_pattern, handler=lambda data, reason, test: data.setdefault(reason, []).append(test), to_clean=False)
 
       log.base_log_text = log._fetch_log_text(log.pr_base_commit)
-      log.base_warn_rmk = log._get_pr_warn_rmk(log.base_log_text)
+      log.base_warn_rmk = log._get_data(log.base_log_text, compile_pattern, handler=lambda data, test, w, r: data.update({test: (w, r)}))
       
       increased_warnings_remarks[machine] = log.compare_results(log.pr_warn_rmk, log.base_warn_rmk)
       failures[machine] = log.pr_failures
