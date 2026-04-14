@@ -86,6 +86,12 @@ class Log():
       
       return data
 
+   def handle_warn_rmk(self, data_dict, test_name, warnings, remarks):
+      data_dict.update({test_name: (warnings, remarks)})
+
+   def handle_failures(self, data_dict, reason, test):
+      data_dict.setdefault(reason, []).append(test)
+
    def _clean_data(self, test_data):
       """Convert None values to zeros in the test_data dictionary"""
       clean_data = {
@@ -177,11 +183,11 @@ def main():
       log = Log(machine)
       log._get_commits()
       log.pr_log_text = log._fetch_log_text(log.pr_head_commit)
-      log.pr_warn_rmk = log._get_data(log.pr_log_text, compile_pattern, handler=lambda data, test, w, r: data.update({test: (w, r)}))
-      log.pr_failures = log._get_data(log.pr_log_text, failure_pattern, handler=lambda data, reason, test: data.setdefault(reason, []).append(test), to_clean=False)
+      log.pr_warn_rmk = log._get_data(log.pr_log_text, compile_pattern, log.handle_warn_rmk)
+      log.pr_failures = log._get_data(log.pr_log_text, failure_pattern, log.handle_failures, to_clean=False)
 
       log.base_log_text = log._fetch_log_text(log.pr_base_commit)
-      log.base_warn_rmk = log._get_data(log.base_log_text, compile_pattern, handler=lambda data, test, w, r: data.update({test: (w, r)}))
+      log.base_warn_rmk = log._get_data(log.base_log_text, compile_pattern, log.handle_warn_rmk)
       
       increased_warnings_remarks[machine] = log.compare_results(log.pr_warn_rmk, log.base_warn_rmk)
       failures[machine] = log.pr_failures
