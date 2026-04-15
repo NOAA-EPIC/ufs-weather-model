@@ -306,4 +306,9 @@ If you are using this log as a pull request verification, please commit 'test_ch
 
 Result: SUCCESS
 
+FAILED: UNABLE TO COMPLETE COMPARISON -- TEST 'cpld_control_gefs_intel' [, ]( MB)
+FAILED: UNABLE TO START TEST -- TEST 'cpld_restart_gefs_intel' [, ]( MB)
+FAILED: RUN DID NOT COMPLETE -- TEST 'cpld_debug_sfs_intel' [, ]( MB)
+SKIPPED: ASSOCIATED COMPILE FAILED -- TEST 'cpld_control_noaero_p8_agrid_intel' [, ]( MB)
+
 ====END OF GAEAC6 REGRESSION TESTING LOG====
