@@ -175,8 +175,9 @@ def main():
    failure_pattern = r"^(?:FAILED|SKIPPED): (.+?) -- (?:TEST|COMPILE) '([^']+)"
       
 
-   # For each machine, tests where warnings and/or remarks increase
+   # For each machine, increased_warnings_remarks records where warnings and/or remarks increase
    increased_warnings_remarks = {}
+   # For each machine, failures records which tests fail by reason
    failures = {}
 
    for machine in machines:
