@@ -70,6 +70,15 @@ PASS -- COMPILE 's2sw_32bit_pdlib_debug_intel' [07:11, 05:57] ( 354 warnings 138
 PASS -- TEST 'cpld_debug_gfsv17_intel' [27:11, 23:31](1942 MB)
 
 PASS -- COMPILE 's2sw_intel' [25:12, 23:55] ( 1 warnings 1069 remarks )
+FAILED: UNABLE TO COMPLETE COMPARISON -- TEST 'cpld_control_p8_intel' [, ]( MB)
+FAILED: UNABLE TO COMPLETE COMPARISON -- TEST 'cpld_control_p8.v2.sfc_intel' [, ]( MB)
+FAILED: UNABLE TO START TEST -- TEST 'cpld_restart_p8_intel' [, ]( MB)
+FAILED: UNABLE TO COMPLETE COMPARISON -- TEST 'cpld_2threads_p8_intel' [, ]( MB)
+FAILED: UNABLE TO COMPLETE COMPARISON -- TEST 'cpld_decomp_p8_intel' [, ]( MB)
+FAILED: UNABLE TO COMPLETE COMPARISON -- TEST 'cpld_mpi_p8_intel' [, ]( MB)
+FAILED: UNABLE TO COMPLETE COMPARISON -- TEST 'cpld_control_ciceC_p8_intel' [, ]( MB)
+FAILED: UNABLE TO COMPLETE COMPARISON -- TEST 'cpld_control_c192_p8_intel' [, ]( MB)
+FAILED: UNABLE TO START TEST -- TEST 'cpld_restart_c192_p8_intel' [, ]( MB)
 
 PASS -- COMPILE 's2swl_intel' [26:12, 24:47] ( 1 warnings 1090 remarks )
 PASS -- TEST 'cpld_control_p8_lnd_intel' [20:00, 16:45](2082 MB)
@@ -243,6 +252,7 @@ PASS -- TEST 'datm_cdeps_control_cfsr_intel' [05:21, 03:30](1850 MB)
 PASS -- TEST 'datm_cdeps_restart_cfsr_intel' [04:22, 02:27](1797 MB)
 PASS -- TEST 'datm_cdeps_control_gefs_intel' [04:18, 03:09](1079 MB)
 PASS -- TEST 'datm_cdeps_iau_gefs_intel' [05:20, 03:11](1092 MB)
+FAILED: UNABLE TO COMPLETE COMPARISON -- TEST 'datm_cdeps_stochy_gefs_intel' [, ]( MB)
 PASS -- TEST 'datm_cdeps_ciceC_cfsr_intel' [05:19, 03:28](1846 MB)
 PASS -- TEST 'datm_cdeps_mx025_cfsr_intel' [10:22, 07:45](1663 MB)
 PASS -- TEST 'datm_cdeps_mx025_gefs_intel' [10:09, 07:18](1025 MB)
@@ -296,6 +306,27 @@ Ending Date/Time: 20260408 17:26:19
 Total Time: 02h:01m:06s
 Compiles Completed: 36/36
 Tests Completed: 171/181
+Failed Tests:
+* TEST cpld_control_p8_intel: FAILED: UNABLE TO COMPLETE COMPARISON
+-- LOG: /work2/noaa/epic/gpetro/orion/RTs/ufs-wm/3163/tests/logs/log_orion/run_cpld_control_p8_intel.log
+* TEST cpld_control_p8.v2.sfc_intel: FAILED: UNABLE TO COMPLETE COMPARISON
+-- LOG: /work2/noaa/epic/gpetro/orion/RTs/ufs-wm/3163/tests/logs/log_orion/run_cpld_control_p8.v2.sfc_intel.log
+* TEST cpld_restart_p8_intel: FAILED: UNABLE TO START TEST
+-- LOG: N/A
+* TEST cpld_2threads_p8_intel: FAILED: UNABLE TO COMPLETE COMPARISON
+-- LOG: /work2/noaa/epic/gpetro/orion/RTs/ufs-wm/3163/tests/logs/log_orion/run_cpld_2threads_p8_intel.log
+* TEST cpld_decomp_p8_intel: FAILED: UNABLE TO COMPLETE COMPARISON
+-- LOG: /work2/noaa/epic/gpetro/orion/RTs/ufs-wm/3163/tests/logs/log_orion/run_cpld_decomp_p8_intel.log
+* TEST cpld_mpi_p8_intel: FAILED: UNABLE TO COMPLETE COMPARISON
+-- LOG: /work2/noaa/epic/gpetro/orion/RTs/ufs-wm/3163/tests/logs/log_orion/run_cpld_mpi_p8_intel.log
+* TEST cpld_control_ciceC_p8_intel: FAILED: UNABLE TO COMPLETE COMPARISON
+-- LOG: /work2/noaa/epic/gpetro/orion/RTs/ufs-wm/3163/tests/logs/log_orion/run_cpld_control_ciceC_p8_intel.log
+* TEST cpld_control_c192_p8_intel: FAILED: UNABLE TO COMPLETE COMPARISON
+-- LOG: /work2/noaa/epic/gpetro/orion/RTs/ufs-wm/3163/tests/logs/log_orion/run_cpld_control_c192_p8_intel.log
+* TEST cpld_restart_c192_p8_intel: FAILED: UNABLE TO START TEST
+-- LOG: N/A
+* TEST datm_cdeps_stochy_gefs_intel: FAILED: UNABLE TO COMPLETE COMPARISON
+-- LOG: /work2/noaa/epic/gpetro/orion/RTs/ufs-wm/3163/tests/logs/log_orion/run_datm_cdeps_stochy_gefs_intel.log
 
 NOTES:
 A file 'test_changes.list' was generated with list of all failed tests.
