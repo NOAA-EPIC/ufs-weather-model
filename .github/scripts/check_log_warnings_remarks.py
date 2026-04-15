@@ -200,12 +200,16 @@ def main():
                                     f"Compile and Test Failures for PR #{pr_num}", 
                                     "failures.md")
 
-   if len(warn_rmk_results) > 81: # Length of HTML header
+   if len(warn_rmk_results.splitlines()) > 3: # HTML header is 3 lines long
       print(warn_rmk_results)
-      print(failure_results)
+      if len(failure_results.splitlines()) > 3:
+         print(failure_results)
       sys.exit(1)
-   else:
+   elif len(failure_results.splitlines()) > 3:
       print(failure_results)
+      sys.exit(0)
+   else:
+      print(f"No increase in warnings or remarks. All RTs passed.")
       sys.exit(0)
 
 if __name__ == "__main__": # pragma: no coverage
