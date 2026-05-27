@@ -135,6 +135,7 @@ BUILD_JOBS=${BUILD_JOBS:-8}
 set +x
 case ${MACHINE_ID} in
   macosx|linux)
+    # shellcheck source=/github/workspace/modulefiles/ufs_ursa.intelllvm.lua
     source "${PATHTR}/modulefiles/ufs_${MACHINE_ID}.${RT_COMPILER}"
     ;;
   *)
@@ -159,9 +160,6 @@ if [[ ${MAKE_OPT} == *-DDEBUG=ON* ]]; then
   CMAKE_FLAGS+=" -DCMAKE_BUILD_TYPE=Debug"
 else
   CMAKE_FLAGS+=" -DCMAKE_BUILD_TYPE=Release"
-  if [[ ${MACHINE_ID} == jet ]] && [[ ${RT_COMPILER} == intel ]]; then
-    CMAKE_FLAGS+=" -DSIMDMULTIARCH=ON"
-  fi
 fi
 
 if [[ ${MACHINE_ID} == wcoss2 ]] || [[ ${MACHINE_ID} == acorn ]]; then
