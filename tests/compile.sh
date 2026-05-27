@@ -13,7 +13,7 @@ function trim {
 # When using a container, save build environment for the runtime in ufswm.env
 env_vars () {
 
-  local vars_file="$1"
+  local vars_file=${UFS_ENV}  # Container runtime environment file
 cat >"${vars_file}" <<EOF_ENV
 PATH=${UFS_BIN}:${PATH}  # Add a directory with ufs_model binary to the search path
 LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
@@ -25,22 +25,38 @@ CRTM_FIX=${CRTM_FIX}
 EOF_ENV
 }
 
-# Singularity/apptainer containers: make a wrapper script of the UFS WM binary
+# Singularity/apptainer containers: prepare a wrapper script for the UFS WM binary
 ufs_binary_wrapper() {
-  local bind_dir="$(echo "${PATHTR}" | cut -d'/' -f1-2)"  # local directory to bind for the container
-  local wrapper="$1"
+  local wrapper=${UFS_WRAP}
+  local ufs_env=${UFS_ENV}
+  local img=""
   local bind_add=""
-  if [[ -n "${BIND_ADD:-}" ]]; then
-    IFS=' ' read -r -a add_dirs <<< "${BIND_ADD}"
-    for add_dir in "${add_dirs[@]}"; do
-      local bind_add="${bind_add} -B ${add_dir}"
-    done
+  local container=""
+  if [[ -n "${APPTAINER_CONTAINER:-}" ]]; then
+     container=APPTAINER
+     img="${APPTAINER_CONTAINER}"
+     bind_dirs=${APPTAINER_BIND:-}
+  elif [[ -n "${SINGULARITY_CONTAINER:-}" ]]; then
+     container=SINGULARITY
+     img="${SINGULARITY_CONTAINER}"
+     bind_dirs=${SINGULARITY_BIND:-}
+  else
+     printf "ERROR: PLATFORM = container is defined\n" >&2
+     printf "  but no expected container environment variables found \n" >&2
+     exit 65
   fi
-  local ufs_env=${UFS_ENV:-}
-  local container=${CONTAINER^^}
-  local containerbin=${CONTAINER,,}
+  printf "container = $container \n" >&2
+  local containerbin=${container,,}
+  if [[ -n "${bind_dirs:-}" ]]; then
+    IFS=',' read -r -a add_dirs <<< "${bind_dirs}"
+    for add_dir in "${add_dirs[@]}"; do
+      bind_add="${bind_add} -B $add_dir"
+    done
+  else
+    bind_add="-B $(echo "${SRW_DIR}" | cut -d'/' -f1-2)"  # local filesystem to bind-mount into the container
+  fi
 
-# Start EOF_WRAP
+# write a wrapper file 
 cat >"${wrapper}" <<EOF_WRAP
 #!/bin/bash
 set -x
@@ -48,12 +64,12 @@ set -x
 export ${container}ENV_FI_PROVIDER=tcp
 export ${container}_SHELL=/bin/bash
 
-img=${SINGULARITY_CONTAINER:-/path/to/container/image.sif}
+img=${img}
 cmd=\$(basename "\$0")
 
 EOF_WRAP
 
-# Add compiler specific variables to EOF_WRAP
+# Add compiler specific variables 
 if [[ ${RT_COMPILER} == intel ]]; then
     cat >>"${wrapper}" <<EOF_WRAP
 export ${container}ENV_FI_PROVIDER_PATH=${FI_PROVIDER_PATH}    
@@ -75,13 +91,13 @@ export ${container}ENV_OMPI_MCA_mca_base_component_show_load_errors=0
 EOF_WRAP
 fi
 
-# Complete EOF_WRAP
+# Complete writing to a wrapper file
 cat >>"${wrapper}" <<EOF_WRAP
 
 CONTAINERBIN=\$(which ${containerbin})
 
 "\${CONTAINERBIN}" exec --env-file ${ufs_env} \
--B ${bind_dir} ${bind_add:-} \${img} \$cmd 
+${bind_add:-} \${img} \$cmd 
 
 EOF_WRAP
 
@@ -198,8 +214,8 @@ if [[ ${MACHINE_ID} == container ]]; then
   export UFS_BIN="${PATHTR}/tests" # location of actual ufs_model binary
   # Address setup diffs. for SINGULARITY vs APPTAINER, depending on a ${CONTAINER} env. variable set explicitly (SINGULARITY is the default)
   export CONTAINER="${CONTAINER:-SINGULARITY}"
-  env_vars ${UFS_ENV}              # create an env. file
-  ufs_binary_wrapper ${UFS_WRAP}   # create a binary wrapper
+  env_vars              # create an env. file
+  ufs_binary_wrapper    # create a binary wrapper
   cp "${PATHTR}/modulefiles/ufs_container.runtime.lua" "${PATHTR}/tests/modules.runtime.lua"
 fi
 

@@ -1,20 +1,18 @@
 #!/usr/bin/env bash
 
 export MACHINE_ID="${MACHINE_ID:-container}"
-echo "MACHINE_ID=$MACHINE_ID"
-read -p "  ...press Enter to keep, or type new value: " INPUT
-if [[ -n "$INPUT" ]]; then
-    export MACHINE_ID="$INPUT"
-    echo "Using MACHINE_ID=$MACHINE_ID"
-fi
+echo "Define env. variables to build the UFS WM for MACHINE_ID=$MACHINE_ID"
 
-export CONTAINER="${CONTAINER:-apptainer}"
-echo "CONTAINER=$CONTAINER" 
-read -p "  ...press Enter to keep, or type new value (singularity OR apptainer): " INPUT
-if [[ -n "$INPUT" ]]; then
-    export CONTAINER="$INPUT"
-    echo "Using CONTAINER=$CONTAINER"
-fi
+  if [[ -n "${APPTAINER_CONTAINER:-}" ]]; then
+     export CONTAINER=APPTAINER
+
+  elif [[ -n "${SINGULARITY_CONTAINER:-}" ]]; then
+     export CONTAINER=SINGULARITY
+  else
+     printf "ERROR: MACHINE=container is defined\n" >&2
+     printf "  but no expected container environment variables found \n" >&2
+     exit 65
+  fi
 
 export RT_COMPILER="${RT_COMPILER:-gnu}"
 echo "RT_COMPILER=$RT_COMPILER " 
@@ -38,13 +36,5 @@ read -p "  ...press Enter to keep, or type new value (no quotes): " INPUT
 if [[ -n "$INPUT" ]]; then
     export MAKE_OPT="$INPUT"
     echo "Using MAKE_OPT=$MAKE_OPT"
-fi
-
-export BIND_ADD="${BIND_ADD:-}"
-echo "BIND_ADD=$BIND_ADD"
-read -p "  ...press Enter to keep, or type new value: " INPUT
-if [[ -n "$INPUT" ]]; then
-    export BIND_ADD="$INPUT"
-    echo "Using BIND_ADD=$BIND_ADD"
 fi
 

@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
 
+
 export MACHINE_ID="${MACHINE_ID:-container}"
-echo "MACHINE_ID=$MACHINE_ID"
-read -p "  ...press Enter to keep, or type new value: " INPUT
-if [[ -n "$INPUT" ]]; then
-    export MACHINE_ID="$INPUT"
-    echo "Using MACHINE_ID=$MACHINE_ID"
-fi
+echo "Define env. variables to run UFS WM for MACHINE_ID=$MACHINE_ID"
 
 export RT_COMPILER="${RT_COMPILER:-gnu}"
 echo "RT_COMPILER=$RT_COMPILER " 
