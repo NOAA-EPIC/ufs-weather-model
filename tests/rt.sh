@@ -829,6 +829,26 @@ case ${MACHINE_ID} in
     SCHEDULER=slurm
 
     ;;
+  awspc)
+    echo "rt.sh: Setting up AWSPC..."
+    if [[ "${ROCOTO:-false}" == true ]] ; then
+      module use /opt/modulefiles
+      module load rocoto
+      ROCOTO_SCHEDULER=slurm
+    fi
+
+    QUEUE="batch"
+    COMPILE_QUEUE="batch"
+
+    PARTITION="compute"
+    dprefix="/scratch/${USER}"
+    DISKNM="/home/ubuntu/UFS-WM_RT"
+    STMP="${STMP:-${dprefix}/RT_BASELINE}"
+    PTMP="${PTMP:-${dprefix}/RT_RUNDIRS}"
+
+    SCHEDULER=slurm
+
+    ;;
   orion)
     echo "rt.sh: Setting up orion..."
 

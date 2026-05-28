@@ -62,6 +62,7 @@ def rocoto_create_compile_task(MACHINE_ID,COMPILE_ID,ROCOTO_COMPILE_MAXTRIES,MAK
     BUILD_WALLTIME="00:30:00"
     if ( MACHINE_ID == 'hera'):  BUILD_WALLTIME="01:00:00"
     if ( MACHINE_ID == 'ursa'):  BUILD_WALLTIME="01:00:00"
+    if ( MACHINE_ID == 'awspc'):  BUILD_WALLTIME="01:00:00"
     if ( MACHINE_ID == 'orion'): BUILD_WALLTIME="01:00:00"
     if ( MACHINE_ID == 'hercules'): BUILD_WALLTIME="01:00:00"
     if ( MACHINE_ID == 'gaeac6' ): BUILD_WALLTIME="01:00:00"
@@ -186,6 +187,10 @@ def write_runtest_env():
     delete_rundir = str(os.getenv('delete_rundir'))
     WLCLK         = str(os.getenv('WLCLK'))
     MACHINE_ID    = str(os.getenv('MACHINE_ID'))
+    THRD    = str(os.getenv('THRD'))
+    TASKS   = str(os.getenv('TASKS'))
+    NODES   = str(os.getenv('NODES'))
+    TPN     = str(os.getenv('TPN'))
     runtest_envs = f"""
 export JOB_NR={JOB_NR}
 export TEST_ID={TEST_ID}
@@ -215,6 +220,10 @@ export skip_check_results={skip_check_results}
 export delete_rundir={delete_rundir}
 export WLCLK={WLCLK}
 export RTVERBOSE=false
+export THRD={THRD}
+export TASKS={TASKS}
+export NODES={NODES}
+export TPN={TPN}
 """
      
     with open(filename,"w+") as f:

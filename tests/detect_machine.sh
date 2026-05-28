@@ -36,6 +36,8 @@ case $(hostname -f) in
   hfe1[0-2]) MACHINE_ID=hera ;; ### hera10-12
   hecflow01) MACHINE_ID=hera ;; ### heraecflow01
   
+  ip*ec2.internal)       MACHINE_ID=awspc ;; ### HSD AWSPC
+
   ufe01) MACHINE_ID=ursa ;; ### ursa
   ufe02) MACHINE_ID=ursa ;; ### ursa
   ufe03) MACHINE_ID=ursa ;; ### ursa
@@ -97,9 +99,12 @@ elif [[ -d /scratch3 ]]; then
   if [[ ${mount} =~ "ursa" ]]; then
     # We are on ursa
     MACHINE_ID=ursa
-  elif [[ ${mount} =~ "hera" ]]; then
+elif [[ ${mount} =~ "hera" ]]; then
     MACHINE_ID=hera
   fi
+elif [[ -d /home/ubuntu ]]; then
+  # We are on AWSPC
+  MACHINE_ID=awspc
 elif [[ -d /work ]]; then
   # We are on MSU Orion or Hercules
   mount=$(findmnt -n -o SOURCE /home)   
@@ -124,3 +129,5 @@ elif [[ -d /opt/spack-stack && -d /lustre ]]; then
 else
   echo WARNING: UNKNOWN PLATFORM 1>&2
 fi
+
+echo $MACHINE_ID

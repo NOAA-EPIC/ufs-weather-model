@@ -52,11 +52,15 @@ export PATH=.:${PATH}
 chmod 755 g2ctl
 
 # if color bar script is not present, get it from web:
-[[ -f cbar.gs ]] || wget -q https://raw.githubusercontent.com/NOAA-EPIC/Aquaplanet/refs/heads/main/utils/cbar.gs
+[[ -f cbar.gs ]] || curl -O https://raw.githubusercontent.com/NOAA-EPIC/ufs-weather-model/refs/heads/feature/HSD_training/tests-dev/test_cases/utils/cbar.gs
 
 # load modules grads and wgrib2
 HOSTNAME=$(hostname)
 if [[ ${HOSTNAME} == gaea6[1-9] ]]; then module load Core/24.11 ; fi
+module use /opt/modulefiles
+module use /opt/spack-stack/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
+module load stack-oneapi
+module load stack-intel-oneapi-mpi
 module load grads wgrib2
 
 # check if model output file exxists:
@@ -72,6 +76,7 @@ case $(hostname -f) in
   [Oo]rion*)    HSD_path=/work/noaa/epic/role-epic/contrib/HSD_INPUT_DATA ;; ## orion
   [Hh]ercules*) HSD_path=/work/noaa/epic/role-epic/contrib/HSD_INPUT_DATA ;; ## hercules
   derecho*)     HSD_path=/glade/work/epicufsrt/contrib/HSD_INPUT_DATA     ;; ## derecho
+  ip*)          HSD_path=/home/ubuntu/UFS-WM_RT/NEMSfv3gfs/input-data-20251015/HSD_input_data ;; ## awspc
   *)            echo "Unknown or unsupported machine " ; exit             ;; ## Unknown platform
 esac
 

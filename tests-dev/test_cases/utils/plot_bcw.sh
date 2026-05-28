@@ -28,6 +28,10 @@ chmod 755 g2ctl
 # load modules grads and wgrib2
 HOSTNAME=$(hostname)
 if [[ ${HOSTNAME} == gaea6[1-9] ]]; then module load Core/24.11 ; fi
+module use /opt/modulefiles
+module use /opt/spack-stack/envs/ue-oneapi-2024.2.1/install/modulefiles/Core
+module load stack-oneapi
+module load stack-intel-oneapi-mpi
 module load grads wgrib2
 
 # check if model output file exists:

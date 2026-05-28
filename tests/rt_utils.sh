@@ -427,6 +427,9 @@ rocoto_create_compile_task() {
   if [[ ${MACHINE_ID} == ursa ]]; then
     BUILD_WALLTIME="01:00:00"
   fi
+  if [[ ${MACHINE_ID} == awspc ]]; then
+    BUILD_WALLTIME="01:00:00"
+  fi
   if [[ ${MACHINE_ID} == orion ]]; then
     BUILD_WALLTIME="01:00:00"
   fi
@@ -463,6 +466,10 @@ EOF
     <partition>eslogin_c6</partition>
 EOF
   elif [[ "${MACHINE_ID}" == ursa ]] ; then
+    cat << EOF >> "${ROCOTO_XML}"
+    <partition>${PARTITION}</partition>
+EOF
+  elif [[ "${MACHINE_ID}" == awspc ]] ; then
     cat << EOF >> "${ROCOTO_XML}"
     <partition>${PARTITION}</partition>
 EOF
@@ -512,6 +519,12 @@ EOF
 EOF
 
   elif [[ "${MACHINE_ID}" == ursa ]] ; then
+    cat << EOF >> "${ROCOTO_XML}"
+    <partition>${PARTITION}</partition>
+
+EOF
+
+  elif [[ "${MACHINE_ID}" == awspc ]] ; then
     cat << EOF >> "${ROCOTO_XML}"
     <partition>${PARTITION}</partition>
 

@@ -178,7 +178,7 @@ source rt_utils.sh
 source module-setup.sh
 
 check_machine=false
-platforms=( hera ursa orion hercules gaeac6 derecho noaacloud )
+platforms=( hera ursa awspc orion hercules gaeac6 derecho noaacloud )
 for name in "${platforms[@]}"
 do
   if [[ ${MACHINE_ID} == "${name}" ]]; then
@@ -197,6 +197,9 @@ fi
 
 if [[ ${MACHINE_ID} == "ursa" ]]; then
     PYTHON_VER="python3"
+elif [[ ${MACHINE_ID} == "awspc" ]]; then
+    PYTHON_VER="python3"
+    export PATH="/usr/bin:$PATH"
 else 
     PYTHON_VER="python"
 fi
