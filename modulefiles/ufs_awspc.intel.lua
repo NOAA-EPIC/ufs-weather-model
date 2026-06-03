@@ -8,6 +8,8 @@ prepend_path("MODULEPATH", "/opt/spack-stack/envs/ue-oneapi-2024.2.1/install/mod
 stack_oneapi_ver=os.getenv("stack_oneapi_ver") or "2024.2.1"
 load(pathJoin("stack-oneapi", stack_oneapi_ver))
 
+load("intel-oneapi/2024.2.1")
+
 stack_impi_ver=os.getenv("stack_impi_ver") or "2021.13"
 load(pathJoin("stack-intel-oneapi-mpi", stack_impi_ver))
 
