@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 export MACHINE_ID="${MACHINE_ID:-container}"
 echo "Define env. variables to run UFS WM for MACHINE_ID=$MACHINE_ID"
 
@@ -97,7 +96,7 @@ if [[ -n "$INPUT" ]]; then
     echo "Using INPUTDATA_GFSv17opn=$INPUTDATA_GFSv17opn"
 fi
 
-export RTVERBOSE="${RTVERBOSE:-true}"
+export RTVERBOSE="${RTVERBOSE:-false}"
 echo "RTVERBOSE=$RTVERBOSE"
 read -p "  ...press Enter to keep, or type new value: " INPUT
 if [[ -n "$INPUT" ]]; then

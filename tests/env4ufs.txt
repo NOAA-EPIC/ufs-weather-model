@@ -1,0 +1,101 @@
+gnu|  44   | /contrib/ufs-weather-model/RT  |   /contrib/EPIC/containers
+ATM|-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v16,FV3_GFS_v16_flake,FV3_GFS_v16_ras,FV3_GFS_v17_p8,FV3_GFS_v17_p8_ugwpv1
+control_c48
+control_p8
+control_c192
+control_p8.v2.sfc
+
+ATMAERO|-DAPP=ATMAERO -DCCPP_SUITES=FV3_GFS_v17_p8 -D32BIT=ON
+atmaero_control_p8
+
+DATM_CDEPS|-DAPP=NG-GODAS -DWARN_AS_ERROR=OFF
+datm_cdeps_control_cfsr
+datm_cdeps_control_gefs
+datm_cdeps_ciceC_cfsr
+datm_cdeps_gfs
+
+DATM_CDEPS_LAND|-DAPP=LND -DWARN_AS_ERROR=ON
+datm_cdeps_lnd_gswp3
+datm_cdeps_lnd_era5
+
+ATM_DS2S_DOCN_PCICE|-DAPP=ATM_DS2S-PCICE -DCCPP_SUITES=FV3_GFS_v17_coupled_p8
+atm_ds2s_docn_pcice
+
+RRFS|-DAPP=ATM -DCCPP_SUITES=FV3_RAP,FV3_RAP_sfcdiff,FV3_HRRR,FV3_RRFS_v1beta -D32BIT=ON
+hrrr_control
+rap_control
+rrfs_v1beta
+
+RRFS_DYN32_PHY32|-DAPP=ATM -DCCPP_SUITES=FV3_RAP,FV3_HRRR -D32BIT=ON -DCCPP_32BIT=ON
+rap_control_dyn32_phy32
+hrrr_control_dyn32_phy32
+hrrr_control_2threads_dyn32_phy32
+conus13km_control
+
+RRFS_DYN64_PHY32|-DAPP=ATM -DCCPP_SUITES=FV3_RAP,FV3_HRRR -DCCPP_32BIT=ON
+rap_control_dyn64_phy32
+
+ATM_DYN32|-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v16,FV3_GFS_v17_p8,FV3_GFS_v17_p8_rrtmgp,FV3_GFS_v15_thompson_mynn_lam3km,FV3_WoFS_v0,FV3_GFS_v17_p8_mynn,FV3_GFS_v17_p8_ugwpv1,FV3_GFS_v16_gfdlmpv3,FV3_GFS_v17_p8_ugwpv1_tempo -D32BIT=ON
+control_c48
+control_p8
+control_c192
+control_p8.v2.sfc
+control_CubedSphereGrid
+
+ATM_DYN32_RAD32|-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v16,FV3_GFS_v17_p8,FV3_GFS_v17_p8_rrtmgp,FV3_GFS_v15_thompson_mynn_lam3km,FV3_WoFS_v0,FV3_GFS_v17_p8_mynn,FV3_GFS_v17_p8_ugwpv1 -D32BIT=ON -DRRTMGP_32BIT=ON
+control_p8_rrtmgp_rad32
+
+HAFSW|-DAPP=HAFSW -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_thompson_tedmf_gfdlsf,FV3_global_nest_v1,FV3_HAFS_v1_gfdlmpv3_tedmf -D32BIT=ON
+hafs_regional_atm
+hafs_regional_atm_wav
+hafs_global_1nest_atm
+hafs_global_multiple_4nests_atm
+
+HAFS_MOM6W|-DAPP=HAFS-MOM6W -DREGIONAL_MOM6=ON -DCDEPS_INLINE=ON -DMOVING_NEST=ON -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst,FV3_HAFS_v1_thompson,FV3_HAFS_v1_thompson_nonsst -D32BIT=ON
+hafs_regional_storm_following_1nest_atm_ocn_wav_mom6
+
+HAFS_ALL|-DAPP=HAFS-ALL -DCCPP_SUITES=FV3_HAFS_v1_gfdlmp_tedmf,FV3_HAFS_v1_gfdlmp_tedmf_nonsst -D32BIT=ON
+hafs_regional_docn
+hafs_regional_docn_oisst
+
+S2S_32BIT_SFS|-DAPP=S2S -D32BIT=ON -DHYDRO=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1
+cpld_control_sfs
+
+S2S_32BIT_SFS_DEBUG|-DAPP=S2S -D32BIT=ON -DHYDRO=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DDEBUG=ON
+cpld_debug_sfs
+
+S2S_AOFLUX|-DAPP=S2S -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_sfcocn -DCMEPS_AOFLUX=ON
+cpld_control_noaero_p8_agrid
+
+S2SWL|-DAPP=S2SWL -DCCPP_SUITES=FV3_GFS_v17_coupled_p8,FV3_GFS_v17_coupled_p8_ugwpv1
+cpld_control_p8_lnd
+
+S2SW|-DAPP=S2SW -DCCPP_SUITES=FV3_GFS_v17_coupled_p8,FV3_GFS_v17_coupled_p8_ugwpv1
+cpld_control_c192_p8
+
+S2SW_PDLIB|-DAPP=S2SW -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1,FV3_coupled_lowres -DPDLIB=ON
+cpld_control_c48_5deg
+cpld_warmstart_c48_5deg
+cpld_control_c24_5deg
+cpld_warmstart_c24_5deg
+cpld_control_c24_9deg
+cpld_control_c12_9deg
+
+S2SW_32BIT_PDLIB|-DAPP=S2SW -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1 -DPDLIB=ON -DUFS_TRACING=ON
+cpld_control_gfsv17
+
+S2SWA|-DAPP=S2SWA  -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1
+cpld_control_p8
+
+S2SWA_32BIT|-DAPP=S2SWA -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8,FV3_GFS_v17_coupled_p8_ugwpv1
+cpld_control_gefs_gnu
+cpld_dcp_gefs
+
+S2SWA_32BIT_DEBUG|-DAPP=S2SWA -DDEBUG=ON -D32BIT=ON -DCCPP_SUITES=FV3_GFS_v17_coupled_p8_ugwpv1
+cpld_debug_gefs
+
+WAM|-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v17_p8 -D32BIT=ON -DMULTI_GASES=ON
+control_wam
+
+WAM_DEBUG|-DAPP=ATM -DCCPP_SUITES=FV3_GFS_v17_p8 -D32BIT=ON -DMULTI_GASES=ON -DDEBUG=ON
+control_wam_debug
