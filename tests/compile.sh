@@ -15,8 +15,8 @@ env_vars () {
 
   local vars_file=${UFS_ENV}  # Container runtime environment file
 cat >"${vars_file}" <<EOF_ENV
-PATH=${UFS_BIN}:${PATH}  # Add a directory with ufs_model binary to the search path
-LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
+PATH=${UFS_BIN}:${PATH}:\${PATH}  # Add a directory with ufs_model binary to the search path
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:\${LD_LIBRARY_PATH}
 HDF5_PLUGIN_PATH=${HDF5_PLUGIN_PATH:-}
 HDF5_USE_FILE_LOCKING=FALSE
 ESMFMKFILE=${ESMFMKFILE:-}
