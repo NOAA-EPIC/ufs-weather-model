@@ -19,19 +19,27 @@ if [[ ! -f ./env4ufs_run.sh ]]; then
 fi
 
 export MACHINE_ID="${MACHINE_ID:-container}"
+echo "MACHINE_ID=$MACHINE_ID"
+read -p "  ...press Enter to keep, or type new value: " INPUT
+if [[ -n "$INPUT" ]]; then
+    export MACHINE_ID="$INPUT"
+    echo "Using MACHINE_ID=$MACHINE_ID "
+fi
 
 printf "Preparing automated UFS WM test sequence for MACHINE_ID=%s\n" "${MACHINE_ID}"
 
-# Optional: keep the same container-environment check used in related scripts.
-if [[ -n "${APPTAINER_CONTAINER:-}" ]]; then
-    export CONTAINER=APPTAINER
-elif [[ -n "${SINGULARITY_CONTAINER:-}" ]]; then
-    export CONTAINER=SINGULARITY
-else
-    printf "WARNING: no APPTAINER_CONTAINER or SINGULARITY_CONTAINER detected.\n" >&2
-    printf "   You may need to launch Singularity/Apptainer if you expect to be in a running container environment!\n" >&2
-    read -r -n 1 -s -p "Press any key to continue, or Ctrl+C to quit... "
-    printf "\n"
+if [[ "${MACHINE_ID}" == "container" ]]; then
+  # Optional: keep the same container-environment check used in related scripts.
+  if [[ -n "${APPTAINER_CONTAINER:-}" ]]; then
+      export CONTAINER=APPTAINER
+  elif [[ -n "${SINGULARITY_CONTAINER:-}" ]]; then
+      export CONTAINER=SINGULARITY
+  else
+      printf "WARNING: no APPTAINER_CONTAINER or SINGULARITY_CONTAINER detected.\n" >&2
+      printf "   You may need to launch Singularity/Apptainer if you expect to be in a running container environment!\n" >&2
+      read -r -n 1 -s -p "Press any key to continue, or Ctrl+C to quit... "
+      printf "\n"
+  fi
 fi
 
 trim() {

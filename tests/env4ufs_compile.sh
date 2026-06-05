@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 
 export MACHINE_ID="${MACHINE_ID:-container}"
+echo "MACHINE_ID=$MACHINE_ID"
+read -p "  ...press Enter to keep, or type new value: " INPUT
+if [[ -n "$INPUT" ]]; then
+    export MACHINE_ID="$INPUT"
+    echo "Using MACHINE_ID=$MACHINE_ID "
+fi
 echo "Define env. variables to build the UFS WM for MACHINE_ID=$MACHINE_ID"
+
+if [[ "${MACHINE_ID}" == "container" ]]; then
 
   if [[ -n "${APPTAINER_CONTAINER:-}" ]]; then
      export CONTAINER=APPTAINER
@@ -13,6 +21,7 @@ echo "Define env. variables to build the UFS WM for MACHINE_ID=$MACHINE_ID"
      printf "  but no expected container environment variables found \n" >&2
      exit 65
   fi
+fi
 
 export RT_COMPILER="${RT_COMPILER:-gnu}"
 echo "RT_COMPILER=$RT_COMPILER " 
