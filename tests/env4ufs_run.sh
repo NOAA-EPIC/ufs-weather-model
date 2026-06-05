@@ -7,21 +7,7 @@ if [[ -n "$INPUT" ]]; then
     export MACHINE_ID="$INPUT"
     echo "Using MACHINE_ID=$MACHINE_ID "
 fi
-echo "Define env. variables to build the UFS WM for MACHINE_ID=$MACHINE_ID"
-
-if [[ "${MACHINE_ID}" == "container" ]]; then
-
-  if [[ -n "${APPTAINER_CONTAINER:-}" ]]; then
-     export CONTAINER=APPTAINER
-
-  elif [[ -n "${SINGULARITY_CONTAINER:-}" ]]; then
-     export CONTAINER=SINGULARITY
-  else
-     printf "ERROR: MACHINE=container is defined\n" >&2
-     printf "  but no expected container environment variables found \n" >&2
-     exit 65
-  fi
-fi
+echo "Define env. variables to run the UFS WM for MACHINE_ID=$MACHINE_ID"
 
 export RT_COMPILER="${RT_COMPILER:-gnu}"
 echo "RT_COMPILER=$RT_COMPILER " 
