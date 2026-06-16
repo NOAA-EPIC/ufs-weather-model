@@ -1,5 +1,4 @@
 #!/bin/bash
-#!/bin/sh
 #SBATCH -e err
 #SBATCH -o out
 #SBATCH --account=<ACCOUNT>
@@ -26,28 +25,16 @@ echo "Model started: ${date_start}"
 
 export MPI_TYPE_DEPTH=20
 export OMP_STACKSIZE=512M
-# shellcheck disable=SC2125
-export OMP_NUM_THREADS=1
+export OMP_NUM_THREADS=@[THRD]
 export ESMF_RUNTIME_COMPLIANCECHECK=OFF:depth=4
 export ESMF_RUNTIME_PROFILE=ON
 export ESMF_RUNTIME_PROFILE_OUTPUT="SUMMARY"
 export PSM_RANKS_PER_CONTEXT=4
 export PSM_SHAREDCONTEXTS=1
 
-# Avoid job errors because of filesystem synchronization delays
-sync && sleep 1
-
-# This "if" block is part of the rt.sh self-tests in error-test.conf. It emulates the model failing to run.
-if [ "${JOB_SHOULD_FAIL:-NO}" = WHEN_RUNNING ] ; then
-    echo "The job should abort now, with exit status 1." 1>&2
-    echo "If error checking is working, the metascheduler should mark the job as failed." 1>&2
-    false
-fi
-
 if [[ @[RT_COMPILER] == intel ]]; then
   export I_MPI_EXTRA_FILESYSTEM=ON
 elif [[ @[RT_COMPILER] == gnu ]]; then
-  # For mvapich2
   export MV2_SHMEM_COLL_NUM_COMM=128
   export MV2_HOMOGENEOUS_CLUSTER=1
   export MV2_USE_ALIGNED_ALLOC=1
@@ -63,10 +50,29 @@ if [ "${JOB_SHOULD_FAIL:-NO}" = WHEN_RUNNING ] ; then
     echo "If error checking is working, the metascheduler should mark the job as failed." 1>&2
     false
 fi
-# Specify a plugin to use with Slurm: 
+
+# Specify a plugin to use with Slurm:
 export PMI="--mpi=pmi2"
 
-srun ${PMI:-} --label --distribution=block:block -n @[TASKS] ./fv3.exe
+# Locate the container runtime on the host and build bind-mount flags.
+if command -v apptainer &>/dev/null; then
+  CONTAINERBIN=apptainer
+elif command -v singularity &>/dev/null; then
+  CONTAINERBIN=singularity
+else
+  echo "ERROR: neither apptainer nor singularity found on this host" >&2; exit 1
+fi
+BIND_FLAGS=""
+if [[ -n "@[CONTAINER_BIND]" ]]; then
+  IFS=',' read -r -a _bind_dirs <<< "@[CONTAINER_BIND]"
+  for _dir in "${_bind_dirs[@]}"; do
+    BIND_FLAGS="${BIND_FLAGS} -B ${_dir}"
+  done
+fi
+
+# shellcheck disable=SC2086
+srun ${PMI:-} --label --distribution=block:block -n @[TASKS] \
+  ${CONTAINERBIN} exec ${BIND_FLAGS} "@[CONTAINER_IMG]" ./fv3.exe
 
 date_end=$(date)
 echo "Model ended: ${date_end}"

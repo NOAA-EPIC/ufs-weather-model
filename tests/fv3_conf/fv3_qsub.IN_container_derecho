@@ -43,7 +43,25 @@ if [ "${JOB_SHOULD_FAIL:-NO}" = WHEN_RUNNING ] ; then
     false
 fi
 
-mpirun -n @[UFS_TASKS]  --hostfile $PBS_NODEFILE ./fv3.exe
+# Locate the container runtime on the host and build bind-mount flags.
+if command -v apptainer &>/dev/null; then
+  CONTAINERBIN=apptainer
+elif command -v singularity &>/dev/null; then
+  CONTAINERBIN=singularity
+else
+  echo "ERROR: neither apptainer nor singularity found on this host" >&2; exit 1
+fi
+BIND_FLAGS=""
+if [[ -n "@[CONTAINER_BIND]" ]]; then
+  IFS=',' read -r -a _bind_dirs <<< "@[CONTAINER_BIND]"
+  for _dir in "${_bind_dirs[@]}"; do
+    BIND_FLAGS="${BIND_FLAGS} -B ${_dir}"
+  done
+fi
+
+# shellcheck disable=SC2086
+mpirun -n @[UFS_TASKS] --hostfile $PBS_NODEFILE \
+  ${CONTAINERBIN} exec ${BIND_FLAGS} "@[CONTAINER_IMG]" ./fv3.exe
 
 echo "Model ended:    " `date`
 echo -n " $( date +%s )," >> job_timestamp.txt

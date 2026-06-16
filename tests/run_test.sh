@@ -97,18 +97,10 @@ cd "${RUNDIR}"
 # Make configure and run files
 ###############################################################################
 
-# FV3 executable:
-# In container mode the real binary (fv3_${COMPILE_ID}.exe) cannot run directly
-# on the compute node because its libraries live inside the container.  Instead,
-# compile.sh generated a thin wrapper script (ufs_model.sh) that calls
-# "apptainer exec" to launch the binary inside the container for each MPI rank.
-if [[ ${MACHINE_ID} == container || ${USE_CONTAINER:-false} == true ]]; then
-  cp "${PATHRT}/ufs_model.sh" "fv3.exe"                       # container wrapper script
-  [[ -L "${PATHRT}/fv3.exe" ]] && rm "${PATHRT}/fv3.exe"
-  ln -s "${PATHRT}/fv3_${COMPILE_ID}.exe" "${PATHRT}/fv3.exe" # link to the real binary
-else
-  cp "${PATHRT}/fv3_${COMPILE_ID}.exe" "fv3.exe"
-fi
+# FV3 executable: copy the compiled binary into the run directory.
+# In container mode the apptainer exec invocation is handled by the job card
+# (fv3_slurm.IN_container_* or fv3_qsub.IN_container_*), not by a wrapper.
+cp "${PATHRT}/fv3_${COMPILE_ID}.exe" "fv3.exe"
 
 # modulefile for FV3 prerequisites:
 # In container mode compile.sh copied ufs_container.runtime.lua as modules.runtime.lua.
