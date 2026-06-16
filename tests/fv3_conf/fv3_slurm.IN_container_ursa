@@ -2,7 +2,7 @@
 #!/bin/sh
 #SBATCH -e err
 #SBATCH -o out
-#SBATCH --account=<ACCOUNT>
+#SBATCH --account=epic
 #SBATCH --qos=batch
 #SBATCH --partition="u1-compute"
 #SBATCH --nodes=@[NODES]

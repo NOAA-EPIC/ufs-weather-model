@@ -98,19 +98,26 @@ cd "${RUNDIR}"
 ###############################################################################
 
 # FV3 executable:
-if [[  ${MACHINE_ID} == container ]]; then
-  cp "${PATHRT}/ufs_model.sh" "fv3.exe"                       # binary wrap script
+# In container mode the real binary (fv3_${COMPILE_ID}.exe) cannot run directly
+# on the compute node because its libraries live inside the container.  Instead,
+# compile.sh generated a thin wrapper script (ufs_model.sh) that calls
+# "apptainer exec" to launch the binary inside the container for each MPI rank.
+if [[ ${MACHINE_ID} == container || ${USE_CONTAINER:-false} == true ]]; then
+  cp "${PATHRT}/ufs_model.sh" "fv3.exe"                       # container wrapper script
   [[ -L "${PATHRT}/fv3.exe" ]] && rm "${PATHRT}/fv3.exe"
-  ln -s "${PATHRT}/fv3_${COMPILE_ID}.exe" "${PATHRT}/fv3.exe" # link actual binary
+  ln -s "${PATHRT}/fv3_${COMPILE_ID}.exe" "${PATHRT}/fv3.exe" # link to the real binary
 else
   cp "${PATHRT}/fv3_${COMPILE_ID}.exe" "fv3.exe"
 fi
 
 # modulefile for FV3 prerequisites:
+# In container mode compile.sh copied ufs_container.runtime.lua as modules.runtime.lua.
+# That modulefile loads only the host-side modules needed to reach the container
+# (e.g. apptainer/singularity) rather than the full spack-stack build environment.
 mkdir -p modulefiles
 if [[ ${MACHINE_ID} == linux ]]; then
   cp "${PATHRT}/modules.fv3_${COMPILE_ID}" "./modulefiles/modules.fv3"
-elif [[  ${MACHINE_ID} == container ]]; then
+elif [[ ${MACHINE_ID} == container || ${USE_CONTAINER:-false} == true ]]; then
   cp "${PATHRT}/modules.runtime.lua" "./modulefiles/modules.fv3.lua"
 else
   cp "${PATHRT}/modules.fv3_${COMPILE_ID}.lua" "./modulefiles/modules.fv3.lua"
@@ -437,19 +444,40 @@ if [[ ${SCHEDULER} = 'pbs' ]]; then
   if [[ ${EXCLUSIVE_NODES} == .true. ]]; then
     export EXCLUSIVE_NODES_OPT="#PBS -l place=excl"
   fi
-    	  
-  if [[ -e ${PATHRT}/fv3_conf/fv3_qsub.IN_${MACHINE_ID} ]]; then
+
+  if [[ ${USE_CONTAINER:-false} == true ]]; then
+    # Container mode: prefer a machine-specific container PBS job card; fall back
+    # to the generic fv3_qsub.IN_container when no machine-specific card exists.
+    if [[ -e ${PATHRT}/fv3_conf/fv3_qsub.IN_container_${MACHINE_ID} ]]; then
+      atparse < "${PATHRT}/fv3_conf/fv3_qsub.IN_container_${MACHINE_ID}" > job_card
+    else
+      atparse < "${PATHRT}/fv3_conf/fv3_qsub.IN_container" > job_card
+    fi
+  elif [[ -e ${PATHRT}/fv3_conf/fv3_qsub.IN_${MACHINE_ID} ]]; then
     atparse < "${PATHRT}/fv3_conf/fv3_qsub.IN_${MACHINE_ID}" > job_card
   else
     echo "Looking for fv3_conf/fv3_qsub.IN_${MACHINE_ID} but it is not found. Exiting"
     exit 1
   fi
 elif [[ ${SCHEDULER} = 'slurm' ]]; then
-  if [[ ${EXCLUSIVE_NODES} == .true. ]]; then 
+  if [[ ${EXCLUSIVE_NODES} == .true. ]]; then
     export EXCLUSIVE_NODES_OPT="#SBATCH --exclusive"
   fi
 
-  if [[ -e ${PATHRT}/fv3_conf/fv3_slurm.IN_${MACHINE_ID} ]]; then
+  if [[ ${USE_CONTAINER:-false} == true ]]; then
+    # Container mode: prefer a machine-specific container job card
+    # (fv3_slurm.IN_container_${MACHINE_ID}) so that machine-specific SBATCH
+    # directives, MPI options, and module-setup steps are applied correctly.
+    # Fall back to the generic fv3_slurm.IN_container when no machine-specific
+    # card exists.  In either case ACCNR, QUEUE, and PARTITION (set by the
+    # machine block in rt.sh) are substituted by atparse so the SBATCH
+    # directives remain correct for the target system.
+    if [[ -e ${PATHRT}/fv3_conf/fv3_slurm.IN_container_${MACHINE_ID} ]]; then
+      atparse < "${PATHRT}/fv3_conf/fv3_slurm.IN_container_${MACHINE_ID}" > job_card
+    else
+      atparse < "${PATHRT}/fv3_conf/fv3_slurm.IN_container" > job_card
+    fi
+  elif [[ -e ${PATHRT}/fv3_conf/fv3_slurm.IN_${MACHINE_ID} ]]; then
     atparse < "${PATHRT}/fv3_conf/fv3_slurm.IN_${MACHINE_ID}" > job_card
   else
     echo "Looking for fv3_conf/fv3_slurm.IN_${MACHINE_ID} but it is not found. Exiting"

@@ -1,0 +1,59 @@
+#!/bin/bash -l
+#PBS -o out
+#PBS -e err
+#PBS -N @[JBNME]
+#PBS -A @[ACCNR]
+#PBS -q @[QUEUE]
+#PBS -l select=1:ncpus=8:mpiprocs=1
+#PBS -l walltime=01:30:00
+
+set -eux
+
+echo -n " $( date +%s )," > job_timestamp.txt
+echo "Compile started:  " $(date)
+
+# Locate the container runtime on the host.  Prefer apptainer; fall back to singularity.
+if command -v apptainer &>/dev/null; then
+  CONTAINERBIN=apptainer
+elif command -v singularity &>/dev/null; then
+  CONTAINERBIN=singularity
+else
+  echo "ERROR: neither apptainer nor singularity found on this host" >&2
+  exit 1
+fi
+
+# Build -B bind-mount flags from the comma-separated CONTAINER_BIND list.
+BIND_FLAGS=""
+if [[ -n "@[CONTAINER_BIND]" ]]; then
+  IFS=',' read -r -a _bind_dirs <<< "@[CONTAINER_BIND]"
+  for _dir in "${_bind_dirs[@]}"; do
+    BIND_FLAGS="${BIND_FLAGS} -B ${_dir}"
+  done
+fi
+
+CONTAINER_IMG_PATH="@[CONTAINER_IMG]"
+CONTAINER_BIND_LIST="@[CONTAINER_BIND]"
+
+# Write a small shell script that will be executed inside the container.
+# atparse has already substituted all @[...] placeholders above, so the
+# compile command below contains the real argument values.
+# Passing APPTAINER_BIND / SINGULARITY_BIND into the container environment
+# ensures that compile.sh's ufs_binary_wrapper() captures the bind paths
+# in the generated ufs_model.sh wrapper script used at test runtime.
+cat > container_compile.sh << COMPILE_SCRIPT
+#!/bin/bash
+set -eux
+source /usr/share/lmod/lmod/init/bash
+"@[PATHRT]/compile.sh" container "@[MAKE_OPT]" "@[COMPILE_ID]" "@[RT_COMPILER]"
+COMPILE_SCRIPT
+chmod +x container_compile.sh
+
+${CONTAINERBIN} exec \
+  --env APPTAINER_BIND="${CONTAINER_BIND_LIST}" \
+  --env SINGULARITY_BIND="${CONTAINER_BIND_LIST}" \
+  ${BIND_FLAGS} \
+  "${CONTAINER_IMG_PATH}" \
+  "${PWD}/container_compile.sh"
+
+echo "Compile ended:    " $(date)
+echo -n " $( date +%s )," >> job_timestamp.txt

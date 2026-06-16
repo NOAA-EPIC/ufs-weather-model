@@ -11,7 +11,8 @@ die() { echo "$@" >&2; exit 1; }
 usage() {
   set +x #No reason to print out a bunch of echo statements here
   echo
-  echo "Usage: $0 -a <account> | -b <file> | -c | -d | -e | -h | -k | -l <file> | -m | -n <name> | -o | -r | -v | -w"
+  echo "Usage: $0 -a <account> | -b <file> | -c | -d | -e | -h | -i <image> | -k | -l <file> | -m | -n <name> | -o | -r | -v | -w | -B <dirs>"
+  echo "       [--image <container.sif>] [--bind <dir1,dir2,...>]"
   echo
   echo "  -a  <account> to use on for HPC queue"
   echo "  -b  create new baselines only for tests listed in <file>"
@@ -27,6 +28,13 @@ usage() {
   echo "  -r  use Rocoto workflow manager"
   echo "  -v  verbose output"
   echo "  -w  for weekly_test, skip comparing baseline results"
+  echo
+  echo "Container options (short or long flags; may be placed before or after other flags):"
+  echo "  -i / --image <path>  full path to the Apptainer/Singularity .sif image;"
+  echo "                       enables container mode (compiles and runs inside the container)"
+  echo "  -B / --bind  <dirs>  comma-separated list of host directories to bind-mount,"
+  echo "                       e.g. -B /scratch4,/scratch3  (default: none extra)"
+  echo "                       Note: -b is already used for baseline-file selection."
   echo
 }
 
@@ -87,9 +95,9 @@ update_rtconf() {
         compile_line=${line}
         COMPILE_LINE_USED=false
       elif [[ ${MACHINES} == -* ]]; then
-        [[ ${MACHINES} =~ ${MACHINE_ID} ]] || compile_line=${line}; COMPILE_LINE_USED=false
+        [[ ${MACHINES} =~ ${RT_CONF_MACHINE_ID} ]] || compile_line=${line}; COMPILE_LINE_USED=false
       elif [[ ${MACHINES} == +* ]]; then
-        [[ ${MACHINES} =~ ${MACHINE_ID} ]] && compile_line=${line}; COMPILE_LINE_USED=false
+        [[ ${MACHINES} =~ ${RT_CONF_MACHINE_ID} ]] && compile_line=${line}; COMPILE_LINE_USED=false
       fi
 
     fi
@@ -103,9 +111,9 @@ update_rtconf() {
       if [[ ${MACHINES} == '' ]]; then
         to_run_test=true
       elif [[ ${MACHINES} == -* ]]; then
-        [[ ${MACHINES} =~ ${MACHINE_ID} ]] || to_run_test=true
+        [[ ${MACHINES} =~ ${RT_CONF_MACHINE_ID} ]] || to_run_test=true
       elif [[ ${MACHINES} == +* ]]; then
-        [[ ${MACHINES} =~ ${MACHINE_ID} ]] && to_run_test=true
+        [[ ${MACHINES} =~ ${RT_CONF_MACHINE_ID} ]] && to_run_test=true
       fi
       if [[ ${to_run_test} == true ]]; then
         TEST_IDX=$(set -e; find_match "${tmp_test} ${RT_COMPILER_IN}" "${TEST_WITH_COMPILE[@]}")
@@ -209,6 +217,8 @@ EOF
   [[ ${ROCOTO} == true ]] && echo "* (-r) - USE ROCOTO" >> "${REGRESSIONTEST_LOG}"
   [[ ${ECFLOW} == true ]] && echo "* (-e) - USE ECFLOW" >> "${REGRESSIONTEST_LOG}"
   [[ ${RTVERBOSE} == true ]] && echo "* (-v) - VERBOSE OUTPUT" >> "${REGRESSIONTEST_LOG}"
+  [[ ${USE_CONTAINER} == true ]] && echo "* (-i/--image) - CONTAINER IMAGE: ${CONTAINER_IMG}" >> "${REGRESSIONTEST_LOG}"
+  [[ ${USE_CONTAINER} == true && -n ${CONTAINER_BIND} ]] && echo "* (-B/--bind)  - CONTAINER BIND:  ${CONTAINER_BIND}" >> "${REGRESSIONTEST_LOG}"
 
 
   [[ -f "${TEST_CHANGES_LOG}" ]] && rm "${TEST_CHANGES_LOG}"
@@ -237,9 +247,9 @@ EOF
       if [[ ${CMACHINES} == '' ]]; then
         valid_compile=true
       elif [[ ${CMACHINES} == -* ]]; then
-        [[ ${CMACHINES} =~ ${MACHINE_ID} ]] || valid_compile=true
+        [[ ${CMACHINES} =~ ${RT_CONF_MACHINE_ID} ]] || valid_compile=true
       elif [[ ${CMACHINES} == +* ]]; then
-        [[ ${CMACHINES} =~ ${MACHINE_ID} ]] && valid_compile=true
+        [[ ${CMACHINES} =~ ${RT_CONF_MACHINE_ID} ]] && valid_compile=true
       fi
 
       if [[ ${valid_compile} == true ]]; then
@@ -321,9 +331,9 @@ EOF
       if [[ ${RMACHINES} == '' ]]; then
         valid_test=true
       elif [[ ${RMACHINES} == -* ]]; then
-        [[ ${RMACHINES} =~ ${MACHINE_ID} ]] || valid_test=true
+        [[ ${RMACHINES} =~ ${RT_CONF_MACHINE_ID} ]] || valid_test=true
       elif [[ ${RMACHINES} == +* ]]; then
-        [[ ${RMACHINES} =~ ${MACHINE_ID} ]] && valid_test=true
+        [[ ${RMACHINES} =~ ${RT_CONF_MACHINE_ID} ]] && valid_test=true
       fi
 
       if [[ ${valid_test} == true ]]; then
@@ -488,6 +498,9 @@ export ECFLOW=${ECFLOW}
 export REGRESSIONTEST_LOG=${REGRESSIONTEST_LOG}
 export LOG_DIR=${LOG_DIR}
 export RTVERBOSE=${RTVERBOSE}
+export USE_CONTAINER=${USE_CONTAINER}
+export CONTAINER_IMG=${CONTAINER_IMG}
+export CONTAINER_BIND=${CONTAINER_BIND}
 EOF
 
   if [[ ${ROCOTO} == true ]]; then
@@ -598,13 +611,55 @@ export RTVERBOSE
 export STOP_ECFLOW_AT_END=false
 ACCNR=${ACCNR:-""}
 
-while getopts ":a:b:cl:mn:dwkreovh" opt; do
+# ---------------------------------------------------------------------------
+# Pre-parse container long options (--image, --bind) before getopts so they
+# can appear anywhere in "$@".  Equivalent short options (-i, -B) are handled
+# inside the getopts loop below; they do not need pre-parsing.
+# ---------------------------------------------------------------------------
+USE_CONTAINER=false
+export USE_CONTAINER
+CONTAINER_IMG=""
+export CONTAINER_IMG
+CONTAINER_BIND=""
+export CONTAINER_BIND
+
+_rt_remaining_args=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --image)
+      [[ $# -gt 1 ]] || die "--image requires a path argument"
+      CONTAINER_IMG="$2"
+      USE_CONTAINER=true
+      shift 2
+      ;;
+    --bind)
+      [[ $# -gt 1 ]] || die "--bind requires a comma-separated directory list"
+      CONTAINER_BIND="$2"
+      shift 2
+      ;;
+    *)
+      _rt_remaining_args+=("$1")
+      shift
+      ;;
+  esac
+done
+set -- "${_rt_remaining_args[@]+"${_rt_remaining_args[@]}"}"
+unset _rt_remaining_args
+
+while getopts ":a:b:B:ci:l:mn:dwkreovh" opt; do
   case ${opt} in
     a)
       ACCNR=${OPTARG}
       ;;
     b)
       NEW_BASELINES_FILE=${OPTARG}
+      ;;
+    i)
+      CONTAINER_IMG=${OPTARG}
+      USE_CONTAINER=true
+      ;;
+    B)
+      CONTAINER_BIND=${OPTARG}
       ;;
     c)
       CREATE_BASELINE=true
@@ -693,9 +748,28 @@ if [[ -z "${ACCNR}" ]]; then
   exit 1
 fi
 
+# Validate container options when --image was supplied.
+if [[ ${USE_CONTAINER} == true ]]; then
+  [[ -f "${CONTAINER_IMG}" ]] || die "Container image not found: ${CONTAINER_IMG}"
+fi
+
+# RT_CONF_MACHINE_ID is used exclusively for the MACHINES field in rt.conf so
+# that tests tagged "+ container" are selected when container mode is active,
+# while MACHINE_ID keeps its real host value for all other purposes (data
+# paths, module loading, scheduler settings, etc.).
+if [[ ${USE_CONTAINER} == true ]]; then
+  RT_CONF_MACHINE_ID=container
+else
+  RT_CONF_MACHINE_ID=${MACHINE_ID}
+fi
+
 # Display the machine and account using the format detect_machine.sh used:
 echo "Machine: ${MACHINE_ID}"
 echo "Account: ${ACCNR}"
+if [[ ${USE_CONTAINER} == true ]]; then
+  echo "Container image: ${CONTAINER_IMG}"
+  [[ -n ${CONTAINER_BIND} ]] && echo "Container bind:  ${CONTAINER_BIND}"
+fi
 
 case ${MACHINE_ID} in
   wcoss2|acorn)
@@ -1157,9 +1231,9 @@ while read -r line || [[ -n "${line}" ]]; do
 
     if [[ ${MACHINES} != '' ]]; then
       if [[ ${MACHINES} == -* ]]; then
-        [[ ${MACHINES} =~ ${MACHINE_ID} ]] && continue
+        [[ ${MACHINES} =~ ${RT_CONF_MACHINE_ID} ]] && continue
       elif [[ ${MACHINES} == +* ]]; then
-        [[ ${MACHINES} =~ ${MACHINE_ID} ]] || continue
+        [[ ${MACHINES} =~ ${RT_CONF_MACHINE_ID} ]] || continue
       else
         echo "MACHINES=|${MACHINES}|"
         die "MACHINES spec must be either an empty string or start with either '+' or '-'"
@@ -1198,9 +1272,9 @@ while read -r line || [[ -n "${line}" ]]; do
 
     if [[ ${MACHINES} != '' ]]; then
       if [[ ${MACHINES} == -* ]]; then
-        [[ ${MACHINES} =~ ${MACHINE_ID} ]] && continue
+        [[ ${MACHINES} =~ ${RT_CONF_MACHINE_ID} ]] && continue
       elif [[ ${MACHINES} == +* ]]; then
-        [[ ${MACHINES} =~ ${MACHINE_ID} ]] || continue
+        [[ ${MACHINES} =~ ${RT_CONF_MACHINE_ID} ]] || continue
       else
         echo "MACHINES=|${MACHINES}|"
         die "MACHINES spec must be either an empty string or start with either '+' or '-'"
@@ -1273,6 +1347,9 @@ export skip_check_results=${skip_check_results}
 export RTVERBOSE=${RTVERBOSE}
 export delete_rundir=${delete_rundir}
 export WLCLK=${WLCLK}
+export USE_CONTAINER=${USE_CONTAINER}
+export CONTAINER_IMG=${CONTAINER_IMG}
+export CONTAINER_BIND=${CONTAINER_BIND}
 EOF
 
       if [[ ${ROCOTO} == true ]]; then

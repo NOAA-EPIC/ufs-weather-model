@@ -69,14 +69,24 @@ mkdir -p "${RUNDIR}"
 cd "${RUNDIR}"
 
 if [[ ${SCHEDULER} = 'pbs' ]]; then
-  if [[ -e ${PATHRT}/fv3_conf/compile_qsub.IN_${MACHINE_ID} ]]; then 
+  if [[ ${USE_CONTAINER:-false} == true ]]; then
+    # Container mode: compile runs inside the container via apptainer/singularity exec.
+    # compile_qsub.IN_container is a generic PBS template that wraps compile.sh with
+    # the container runtime; it works on any PBS machine (e.g. derecho).
+    atparse < "${PATHRT}/fv3_conf/compile_qsub.IN_container" > job_card
+  elif [[ -e ${PATHRT}/fv3_conf/compile_qsub.IN_${MACHINE_ID} ]]; then
     atparse < "${PATHRT}/fv3_conf/compile_qsub.IN_${MACHINE_ID}" > job_card
   else
     echo "Looking for fv3_conf/compile_qsub.IN_${MACHINE_ID} but it is not found. Exiting"
     exit 1
   fi
 elif [[ ${SCHEDULER} = 'slurm' ]]; then
-  if [[ -e ${PATHRT}/fv3_conf/compile_slurm.IN_${MACHINE_ID} ]]; then
+  if [[ ${USE_CONTAINER:-false} == true ]]; then
+    # Container mode: compile runs inside the container via apptainer/singularity exec.
+    # compile_slurm.IN_container is a generic Slurm template that works on any
+    # Slurm machine (ursa, hera, hercules, orion, noaacloud, etc.).
+    atparse < "${PATHRT}/fv3_conf/compile_slurm.IN_container" > job_card
+  elif [[ -e ${PATHRT}/fv3_conf/compile_slurm.IN_${MACHINE_ID} ]]; then
     atparse < "${PATHRT}/fv3_conf/compile_slurm.IN_${MACHINE_ID}" > job_card
   else
     echo "Looking for fv3_conf/compile_slurm.IN_${MACHINE_ID} but it is not found. Exiting"
