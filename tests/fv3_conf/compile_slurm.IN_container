@@ -38,16 +38,16 @@ CONTAINER_IMG_PATH="@[CONTAINER_IMG]"
 CONTAINER_BIND_LIST="@[CONTAINER_BIND]"
 
 # Write a small shell script that will be executed inside the container.
-# atparse has already substituted all @[...] placeholders above, so the
-# compile command below contains the real argument values.
-# Passing APPTAINER_BIND / SINGULARITY_BIND into the container environment
-# ensures that compile.sh's ufs_binary_wrapper() captures the bind paths
-# in the generated ufs_model.sh wrapper script used at test runtime.
+# atparse has already substituted all @[...] placeholders, so the compile
+# command below contains the real argument values.
+# USE_CONTAINER=true is set explicitly so that compile.sh loads
+# ufs_container.${RT_COMPILER}.lua instead of ufs_@[MACHINE_ID].${RT_COMPILER}.lua.
 cat > container_compile.sh << COMPILE_SCRIPT
 #!/bin/bash
 set -eux
 source /usr/share/lmod/lmod/init/bash
-"@[PATHRT]/compile.sh" container "@[MAKE_OPT]" "@[COMPILE_ID]" "@[RT_COMPILER]"
+export USE_CONTAINER=true
+"@[PATHRT]/compile.sh" "@[MACHINE_ID]" "@[MAKE_OPT]" "@[COMPILE_ID]" "@[RT_COMPILER]"
 COMPILE_SCRIPT
 chmod +x container_compile.sh
 

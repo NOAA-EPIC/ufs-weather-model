@@ -56,20 +56,25 @@ BUILD_JOBS=${BUILD_JOBS:-8}
 #hostname
 
 set +x
-case ${MACHINE_ID} in
-  macosx|linux)
-    # shellcheck source=/github/workspace/modulefiles/ufs_ursa.intelllvm.lua
-    source "${PATHTR}/modulefiles/ufs_${MACHINE_ID}.${RT_COMPILER}"
-    ;;
-  *)
-    source "${PATHTR}/tests/module-setup.sh"
-    # Load fv3 module
-    module use "${PATHTR}/modulefiles"
-    modulefile="ufs_${MACHINE_ID}.${RT_COMPILER}"
-    module load "${modulefile}"
-    module list
-    ;;
-esac
+if [[ ${USE_CONTAINER:-false} == true ]]; then
+  source "${PATHTR}/tests/module-setup.sh"
+  module use "${PATHTR}/modulefiles"
+  module load "ufs_container.${RT_COMPILER}"
+  module list
+else
+  case ${MACHINE_ID} in
+    macosx|linux)
+      # shellcheck source=/github/workspace/modulefiles/ufs_ursa.intelllvm.lua
+      source "${PATHTR}/modulefiles/ufs_${MACHINE_ID}.${RT_COMPILER}"
+      ;;
+    *)
+      source "${PATHTR}/tests/module-setup.sh"
+      module use "${PATHTR}/modulefiles"
+      module load "ufs_${MACHINE_ID}.${RT_COMPILER}"
+      module list
+      ;;
+  esac
+fi
 set -x
 
 echo "Compiling ${MAKE_OPT} into ${BUILD_NAME}.exe on ${MACHINE_ID}"
@@ -115,7 +120,7 @@ else
   cp "${PATHTR}/modulefiles/ufs_${MACHINE_ID}.${RT_COMPILER}.lua" "${PATHTR}/tests/modules.${BUILD_NAME}.lua"
 fi
 
-if [[ ${MACHINE_ID} == container ]]; then
+if [[ ${USE_CONTAINER:-false} == true ]]; then
   cp "${PATHTR}/modulefiles/ufs_container.runtime.lua" "${PATHTR}/tests/modules.runtime.lua"
 fi
 
